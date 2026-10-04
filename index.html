@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حاسبة الشيفت المبسطة</title>
+<style>
+body {
+font-family: Tahoma, Arial, sans-serif;
+text-align: center;
+padding: 20px;
+background: #f0f2f5;
+color: #333;
+}
+.card {
+background: white;
+padding: 20px;
+border-radius: 10px;
+max-width: 400px;
+margin: auto;
+box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+button {
+padding: 12px 20px;
+margin: 10px 5px;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+color: white;
+font-size: 16px;
+font-weight: bold;
+}
+.start-btn { background: #18b663; }
+.stop-btn { background: #dc2626; }
+.time-display {
+font-size: 26px;
+font-weight: bold;
+margin: 15px 0;
+direction: ltr;
+color: #1677ff;
+}
+input {
+padding: 8px;
+font-size: 16px;
+width: 60px;
+text-align: center;
+border: 1px solid #ccc;
+border-radius: 5px;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h2>حاسبة الشيفت المبسطة ⏱️</h2>
+
+<div>
+<label for="shiftHours">مدة الشيفت (بالساعات): </label>
+<input type="number" id="shiftHours" value="8" min="1" max="24">
+</div>
+
+<div id="status" style="margin-top: 15px; font-weight: bold; color: #18b663;">جاهز للبدء</div>
+
+<div class="time-display" id="remainingTime">00:00:00</div>
+<div style="font-size: 14px; color: #666;">الوقت المتبقي</div>
+
+<div class="time-display" id="elapsedTime" style="font-size: 18px; margin-top: 10px; color: #555;">00:00:00</div>
+<div style="font-size: 14px; color: #666;">الوقت المنقضي</div>
+
+<br>
+<button class="start-btn" id="startBtn" onclick="startShift()">بدء الشيفت</button>
+<button class="stop-btn" id="stopBtn" onclick="stopShift()" disabled>إنهاء الشيفت</button>
+</div>
+
+<script>
+let timerInterval = null;
+let startTime = null;
+let totalShiftMs = 0;
+
+function startShift() {
+const hours = parseFloat(document.getElementById('shiftHours').value) || 8;
+totalShiftMs = hours * 60 * 60 * 1000;
+startTime = Date.now();
+
+document.getElementById('startBtn').disabled = true;
+document.getElementById('stopBtn').disabled = false;
+document.getElementById('status').innerText = 'جاري العمل... ⚡';
+document.getElementById('status').style.color = '#1677ff';
+
+if (timerInterval) clearInterval(timerInterval);
+timerInterval = setInterval(updateTimer, 1000);
+updateTimer();
+}
+
+function stopShift() {
+if (timerInterval) clearInterval(timerInterval);
+document.getElementById('startBtn').disabled = false;
+document.getElementById('stopBtn').disabled = true;
+document.getElementById('status').innerText = 'تم إنهاء الشيفت ✅';
+document.getElementById('status').style.color = '#dc2626';
+document.getElementById('remainingTime').innerText = '00:00:00';
+document.getElementById('elapsedTime').innerText = '00:00:00';
+}
+
+function updateTimer() {
+const now = Date.now();
+const elapsedMs = now - startTime;
+const remainingMs = totalShiftMs - elapsedMs;
+
+document.getElementById('elapsedTime').innerText = formatTime(elapsedMs);
+
+if (remainingMs <= 0) {
+document.getElementById('remainingTime').innerText = 'أوفرتايم: ' + formatTime(-remainingMs);
+document.getElementById('status').innerText = 'انتهى الشيفت! 🎉 مبروك الانصراف';
+} else {
+document.getElementById('remainingTime').innerText = formatTime(remainingMs);
+}
+}
+
+function formatTime(ms) {
+const totalSeconds = Math.floor(ms / 1000);
+const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+const s = String(totalSeconds % 60).padStart(2, '0');
+return h + ':' + m + ':' + s;
+}
+</script>
+
+</body>
+</html>
