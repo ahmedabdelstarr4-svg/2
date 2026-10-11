@@ -62,7 +62,62 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .analysis-transactions > .row-between > .small{flex:1;min-width:0;overflow-wrap:anywhere}
 #toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);z-index:20;background:#0f172a;color:white;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 8px 25px #0002;max-width:90vw;text-align:center;display:none}
 @media(max-height:650px){.app{min-height:0;height:calc(100dvh - 16px)}.header{padding:10px 14px}.content{padding:10px}.btn{padding:10px}}
-@media print{body{background:white;padding:0}.app{height:auto;min-height:0;max-width:none;border:0;box-shadow:none}.header,.nav,#filter-section,#report-actions,#analysis-filter-section,#analysis-actions,.no-print{display:none!important}.content{overflow:visible;padding:0}.view{display:none!important}#view-reports{display:block!important}#report-section{display:block!important}#view-analysis{display:block!important}#analysis-result-section{display:block!important}.report{border:0;padding:0} }
+
+/* ===== تنسيق طباعة A4 محسّن (يطبع الشاشة النشطة فقط) ===== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+    @bottom-right {
+      content: "صفحة " counter(page) " من " counter(pages);
+      font-size: 9pt;
+      font-family: system-ui, sans-serif;
+      color: #64748b;
+    }
+    @bottom-left {
+      content: "النظام المالي الشخصي";
+      font-size: 9pt;
+      font-family: system-ui, sans-serif;
+      color: #64748b;
+    }
+  }
+  body {
+    background: white;
+    padding: 0;
+  }
+  .app {
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    border: 0;
+    box-shadow: none;
+    width: 100%;
+  }
+  .header, .nav, #filter-section, #report-actions, #analysis-filter-section, #analysis-actions, .no-print {
+    display: none !important;
+  }
+  .content {
+    overflow: visible;
+    padding: 0;
+  }
+  /* إخفاء أي قسم يحمل كلاس hidden أو غير نشط في الطباعة */
+  .view.hidden, .stack.hidden {
+    display: none !important;
+  }
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  thead {
+    display: table-header-group;
+  }
+  tfoot {
+    display: table-footer-group;
+  }
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
