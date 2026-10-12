@@ -452,7 +452,6 @@ const SUBTYPE_OPTIONS={
 function isCreditorEntry(r){return r.type==="debt"&&r.debtType==="creditor";}
 function isDebtorEntry(r){return r.type==="debt"&&r.debtType==="debtor";}
 function isOpeningBalanceEntry(r){return r.type==="debt"&&r.debtType==="opening_balance";}
-/* ✅ القاعدة المحاسبية الصحيحة: creditor = دخل، debtor = مصروف */
 function isExpenseReal(r){return r.type==="expense"||r.type==="transfer"||isDebtorEntry(r);}
 function isIncomeReal(r){return r.type==="income"||isCreditorEntry(r);}
 function isRegularExpense(r){return r.type==="expense";}
@@ -939,13 +938,125 @@ function exportReportExcel(){
   XLSX.writeFile(wb,"Report_"+todayISO()+".xlsx");
   showToast("تم التصدير إلى Excel 📗");
 }
+/* ✅ بناء جدول نصي monospace ينفع للواتساب */
+function buildTextTable(headers, rows){
+  const clean = v => String(v ?? "").replace(/\s+/g, " ").trim();
+  const widths = headers.map((h, i) => {
+    let w = clean(h).length;
+    rows.forEach(r => { w = Math.max(w, clean(r[i]).length); });
+    return w;
+  });
+  const buildRow = arr =>
+    arr.map((c, i) => " " + clean(c).padEnd(widths[i]) + " ").join("│");
+  const sep = widths.map(w => "─".repeat(w + 2)).join("┼");
+  let out = "";
+  out += buildRow(headers) + "\n";
+  out += sep + "\n";
+  rows.forEach(r => { out += buildRow(r) + "\n"; });
+  return out.trimEnd();
+}
+/* ✅ مشاركة التقرير كنص منسق (جدول) */
 function shareReport(){
-  if(!currentReportData){showToast("لا توجد بيانات.");return;}
-  const wordsEl=$("report-final-words");
-  const words=wordsEl&&!wordsEl.classList.contains("hidden")?`\n\n${wordsEl.innerText}`:"";
-  const text=`📊 *${$("report-title").textContent}*\n\nالفترة: ${$("display-date-range").textContent}\nعدد الحركات: ${$("display-count").textContent}\n\n${$("report-summary").innerText}${words}\n\nمصدّر من النظام المالي الشخصي.`;
-  if(navigator.share){navigator.share({title:"التقرير المالي",text}).catch(()=>{});}
-  else{navigator.clipboard.writeText(text).then(()=>showToast("تم نسخ التقرير 📋")).catch(()=>showToast("تعذرت المشاركة"));}
+  if(!currentReportData){ showToast("لا توجد بيانات."); return; }
+  const { records, type, subtype, target, from, to } = currentReportData;
+
+  const title    = $("report-title").textContent;
+  const period   = `من ${fmtDate(from)} إلى ${fmtDate(to)}`;
+  const targetL  = target === "all" ? "كل الأطراف" : target;
+  const reportNo = $("report-number").textContent || "";
+
+  let headers, rows;
+
+  if(type === "debt"){
+    headers = ["التاريخ", "البيان", "مدين (أخدنا)", "دائن (سددنا)", "الرصيد"];
+    let balance = 0;
+    rows = records.map(r => {
+      if(isOpeningBalanceEntry(r)){
+        balance += Number(r.amount || 0);
+        return [fmtDate(r.date), "رصيد أول المدة", "—", "—", fmt(balance) + " د.ك"];
+      }
+      let add = 0, pay = 0;
+      if(isCreditorEntry(r)){ add = Number(r.amount || 0); balance += add; }
+      else if(isDebtorEntry(r)){ pay = Number(r.amount || 0); balance -= pay; }
+      return [
+        fmtDate(r.date),
+        detailLabel(r),
+        add ? fmt(add) : "—",
+        pay ? fmt(pay) : "—",
+        fmt(balance) + " د.ك"
+      ];
+    });
+  }
+  else if(type === "transfer" || subtype === "transfer"){
+    headers = ["التاريخ", "المستفيد", "المبلغ (ج.م)", "التكلفة (د.ك)", "الإجمالي"];
+    rows = [];
+    for(const r of records){
+      const ben = (r.beneficiaries || []).filter(b => target === "all" || b.name === target);
+      const egpSum = (r.beneficiaries || []).reduce((s, b) => s + b.egp, 0);
+      for(const b of ben){
+        const share = egpSum ? Number(r.totalCostKwd || 0) * b.egp / egpSum : 0;
+        rows.push([
+          fmtDate(r.date),
+          b.name,
+          Number(b.egp).toLocaleString("en-US", { maximumFractionDigits: 2 }),
+          fmt(share),
+          fmt(r.totalCostKwd)
+        ]);
+      }
+    }
+  }
+  else if(type === "expense" || type === "income"){
+    headers = ["التاريخ", "النوع", "البيان", "المبلغ"];
+    rows = records.map(r => [
+      fmtDate(r.date),
+      operationKind(r),
+      detailLabel(r),
+      fmt(realAmount(r)) + " د.ك"
+    ]);
+  }
+  else {
+    headers = ["التاريخ", "النوع", "البيان", "المبلغ"];
+    rows = records.map(r => {
+      const amt = r.type === "transfer" ? Number(r.totalCostKwd || 0) : Number(r.amount || 0);
+      return [
+        fmtDate(r.date),
+        operationKind(r),
+        detailLabel(r),
+        fmt(amt) + " د.ك"
+      ];
+    });
+  }
+
+  const table = buildTextTable(headers, rows);
+
+  const summaryLines = $("report-summary").innerText
+    .split("\n").map(l => l.trim()).filter(Boolean);
+  const summary = summaryLines.length
+    ? "\n\n📌 *الملخص:*\n" + summaryLines.map(l => "• " + l).join("\n")
+    : "";
+
+  const wordsEl = $("report-final-words");
+  const words = (wordsEl && !wordsEl.classList.contains("hidden"))
+    ? `\n\n${wordsEl.innerText}` : "";
+
+  const text =
+    `📊 *${title}*\n` +
+    (reportNo ? `🔖 ${reportNo}\n` : "") +
+    `📅 ${period}\n` +
+    `👤 ${targetL}\n` +
+    `📋 عدد الحركات: ${records.length}\n\n` +
+    "```\n" + table + "\n```" +
+    summary +
+    words +
+    `\n\n_مصدّر من النظام المالي الشخصي_`;
+
+  if(navigator.share){
+    navigator.share({ title: "التقرير المالي", text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast("تم نسخ التقرير 📋"))
+      .catch(() => showToast("تعذرت المشاركة"));
+  }
 }
 function initAnalysisView(){
   onAnalysisTypeChange();
@@ -1015,7 +1126,6 @@ async function refreshCurrentBalance(){
       else if(r.type==="expense")balance-=Number(r.amount||0);
       else if(r.type==="transfer")balance-=Number(r.totalCostKwd||0);
       else if(r.type==="debt"){
-        // ✅ أخدنا دين = كاش زاد، سددنا دين = كاش نقص
         if(isCreditorEntry(r))balance+=Number(r.amount||0);
         else if(isDebtorEntry(r))balance-=Number(r.amount||0);
       }
@@ -1166,14 +1276,69 @@ function exportAnalysisExcel(){
   XLSX.writeFile(wb,"Analysis_"+todayISO()+".xlsx");
   showToast("تم التصدير 📗");
 }
+/* ✅ مشاركة التحليل كنص منسق (جدول) */
 function shareAnalysis(){
-  const meta=$("analysis-meta").innerText;
-  const balance=$("current-balance-value").textContent;
-  const wordsEl=$("analysis-final-words");
-  const words=wordsEl&&!wordsEl.classList.contains("hidden")?`\n\n${wordsEl.innerText}`:"";
-  const text=`📊 *التقرير المالي*\n\nرصيدي الحالي: ${balance}\n${meta}${words}\n\nمصدّر من النظام المالي الشخصي.`;
-  if(navigator.share){navigator.share({title:"التقرير المالي",text}).catch(()=>{});}
-  else{navigator.clipboard.writeText(text).then(()=>showToast("تم النسخ 📋")).catch(()=>showToast("تعذرت المشاركة"));}
+  const balance = $("current-balance-value").textContent;
+  const metaTxt = $("analysis-meta").innerText
+    .split("\n").map(l => l.trim()).filter(Boolean)
+    .map(l => "• " + l).join("\n");
+
+  const kpiRows = [];
+  document.querySelectorAll("#analysis-kpi-box .kpi-card").forEach(card => {
+    const label = card.querySelector("span")?.innerText || "";
+    const value = card.querySelector("strong")?.innerText || "";
+    kpiRows.push([label, value]);
+  });
+  const kpiTable = kpiRows.length
+    ? "```\n" + buildTextTable(["المؤشر", "القيمة"], kpiRows) + "\n```"
+    : "";
+
+  let bodyText = "";
+  document.querySelectorAll("#analysis-body .analysis-group").forEach(group => {
+    const gh = group.querySelector(".analysis-group-header")?.innerText || "";
+    bodyText += `\n*${gh}*\n`;
+
+    group.querySelectorAll(".analysis-category").forEach(cat => {
+      const head = cat.querySelector(".row-between strong")?.innerText || "";
+      const total = cat.querySelector(".row-between span")?.innerText || "";
+      bodyText += `\n▪️ ${head} — ${total}\n`;
+
+      const headers = ["التاريخ / الوقت", "ملاحظات", "المبلغ"];
+      const rows = [];
+      cat.querySelectorAll(".analysis-transactions > .row-between").forEach(item => {
+        const spans = item.querySelectorAll("span");
+        rows.push([
+          spans[0]?.innerText || "",
+          spans[1]?.innerText || "",
+          item.querySelector(".amount")?.innerText || ""
+        ]);
+      });
+      if(rows.length){
+        bodyText += "```\n" + buildTextTable(headers, rows) + "\n```\n";
+      }
+    });
+  });
+
+  const wordsEl = $("analysis-final-words");
+  const words = (wordsEl && !wordsEl.classList.contains("hidden"))
+    ? `\n\n${wordsEl.innerText}` : "";
+
+  const text =
+    `📊 *التقرير المالي والأرشيف الدوري*\n\n` +
+    `💰 *رصيدي الحالي:* ${balance}\n\n` +
+    `📌 *المعلومات:*\n${metaTxt}\n\n` +
+    `📈 *المؤشرات:*\n${kpiTable}\n` +
+    bodyText +
+    words +
+    `\n\n_مصدّر من النظام المالي الشخصي_`;
+
+  if(navigator.share){
+    navigator.share({ title: "التقرير المالي", text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast("تم نسخ التقرير 📋"))
+      .catch(() => showToast("تعذرت المشاركة"));
+  }
 }
 function saveOpeningBalance(){
   const v=getNum("opening-balance");
@@ -1267,74 +1432,86 @@ async function clearAllTransactions(){
     switchMainView("input");
   }catch(e){console.error(e);showToast("تعذر الحذف.");}
 }
-async function shareAsImage(id,name){
-  const el=$(id);
-  if(!el||typeof html2canvas==="undefined"){showToast("تعذر تحميل مكتبة الصورة، تأكد من الإنترنت.");return;}
-  showToast("جاري تجهيز الصور...");
+/* ✅ مشاركة كصورة: صورة واحدة كاملة + تحذير للمحتوى الطويل */
+async function shareAsImage(id, name){
+  const el = $(id);
+  if(!el || typeof html2canvas === "undefined"){
+    showToast("تعذر تحميل مكتبة الصورة، تأكد من الإنترنت.");
+    return;
+  }
+
+  if(el.scrollHeight > 15000){
+    if(!confirm("التقرير طويل جدًا، جودة الصورة هتقل وقد يتأخر التصدير.\nتكمل؟")) return;
+  }
+
+  showToast("جاري تجهيز الصورة...");
   try{
-    const clone=el.cloneNode(true);
-    clone.querySelectorAll(".no-print").forEach(n=>n.remove());
-    clone.querySelectorAll(".table-wrap").forEach(n=>{n.style.overflow="visible";n.style.maxHeight="none";});
-    clone.style.width="100%";clone.style.margin="0";
-    const wrap=document.createElement("div");
-    wrap.setAttribute("dir","rtl");
-    wrap.style.cssText="position:fixed;left:-10000px;top:0;background:#fff;padding:0;z-index:-1;width:"+el.offsetWidth+"px";
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll(".no-print").forEach(n => n.remove());
+
+    clone.querySelectorAll(".table-wrap").forEach(n => {
+      n.style.overflow = "visible";
+      n.style.maxHeight = "none";
+      n.style.width = "100%";
+    });
+
+    let needed = el.offsetWidth;
+    clone.querySelectorAll("table").forEach(t => {
+      needed = Math.max(needed, Math.ceil(t.scrollWidth) + 30);
+    });
+
+    const wrap = document.createElement("div");
+    wrap.setAttribute("dir", "rtl");
+    wrap.style.cssText = `position:fixed;left:-10000px;top:0;background:#fff;padding:0;z-index:-1;width:${needed}px;`;
     wrap.appendChild(clone);
     document.body.appendChild(wrap);
-    const pageCanvases=[];
+
+    let canvas;
     try{
-      let needed=el.offsetWidth;
-      clone.querySelectorAll("table").forEach(t=>{needed=Math.max(needed,Math.ceil(t.getBoundingClientRect().width)+30);});
-      wrap.style.width=needed+"px";
-      await new Promise(r=>setTimeout(r,50));
-      const canvas=await html2canvas(clone,{scale:2,backgroundColor:"#ffffff",useCORS:true,scrollX:0,scrollY:0,windowWidth:needed,windowHeight:Math.max(clone.scrollHeight,window.innerHeight)});
-      const rect=clone.getBoundingClientRect();
-      const cTop=rect.top,cW=rect.width,cH=rect.height;
-      const ratio=canvas.width/cW;
-      const pageH=Math.round(cW*1.5);
-      const breaks=[];
-      clone.querySelectorAll("tbody tr,.analysis-transactions > .row-between,.analysis-category,.kpi-grid,.report-meta,.report-summary,.final-words,.balance-card,.report-head").forEach(n=>{breaks.push(n.getBoundingClientRect().bottom-cTop);});
-      breaks.sort((a,b)=>a-b);
-      const cuts=[0];let start=0;
-      while(cH-start>pageH*1.15){const limit=start+pageH;let cut=null;for(const b of breaks){if(b<=limit&&b>start+pageH*0.4)cut=b;}if(cut===null)cut=limit;cuts.push(cut);start=cut;}
-      cuts.push(cH);
-      const total=cuts.length-1;
-      const footerH=total>1?Math.round(28*ratio):0;
-      for(let i=0;i<total;i++){
-        const y0=Math.round(cuts[i]*ratio);
-        const y1=Math.min(canvas.height,Math.round(cuts[i+1]*ratio));
-        const sliceH=Math.max(1,y1-y0);
-        const pc=document.createElement("canvas");
-        pc.width=canvas.width;pc.height=sliceH+footerH;
-        const ctx=pc.getContext("2d");
-        ctx.fillStyle="#ffffff";ctx.fillRect(0,0,pc.width,pc.height);
-        ctx.drawImage(canvas,0,y0,canvas.width,sliceH,0,0,canvas.width,sliceH);
-        if(total>1){
-          ctx.fillStyle="#94a3b8";
-          ctx.font=Math.round(11*ratio)+"px system-ui,-apple-system,sans-serif";
-          ctx.textAlign="center";ctx.direction="rtl";
-          ctx.fillText("صفحة "+(i+1)+" من "+total,pc.width/2,sliceH+Math.round(19*ratio));
-        }
-        pageCanvases.push(pc);
+      await new Promise(r => setTimeout(r, 80));
+
+      const maxCanvasSize = 32000;
+      let scale = 2;
+      const estimatedH = clone.scrollHeight * scale;
+      if(estimatedH > maxCanvasSize){
+        scale = Math.max(1, Math.min(2, maxCanvasSize / clone.scrollHeight));
       }
-    }finally{wrap.remove();}
-    const blobs=[];
-    for(const pc of pageCanvases){const b=await new Promise(res=>pc.toBlob(res,"image/png"));if(!b){showToast("تعذر إنشاء الصورة");return;}blobs.push(b);}
-    const multi=blobs.length>1;
-    const files=blobs.map((b,i)=>new File([b],name+"_"+todayISO()+(multi?"_"+(i+1):"")+".png",{type:"image/png"}));
-    if(navigator.canShare&&navigator.canShare({files})){await navigator.share({files,title:"التقرير المالي"});}
-    else{
-      for(const f of files){
-        const url=URL.createObjectURL(f);
-        const a=document.createElement("a");a.href=url;a.download=f.name;a.click();
-        URL.revokeObjectURL(url);
-        await new Promise(r=>setTimeout(r,400));
-      }
-      showToast(multi?"تم حفظ "+files.length+" صور 🖼️":"تم حفظ الصورة 🖼️");
+
+      canvas = await html2canvas(clone, {
+        scale: scale,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: needed,
+        windowHeight: Math.max(clone.scrollHeight, window.innerHeight),
+        height: clone.scrollHeight,
+        width: needed
+      });
+    } finally {
+      wrap.remove();
+    }
+
+    const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
+    if(!blob){ showToast("تعذر إنشاء الصورة"); return; }
+
+    const file = new File([blob], `${name}_${todayISO()}.png`, { type: "image/png" });
+
+    if(navigator.canShare && navigator.canShare({ files: [file] })){
+      await navigator.share({ files: [file], title: "التقرير المالي" });
+    }else{
+      const url = URL.createObjectURL(file);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("تم حفظ الصورة 🖼️");
     }
   }catch(e){
-    if(e&&e.name==="AbortError")return;
-    console.error(e);showToast("تعذرت مشاركة الصورة");
+    if(e && e.name === "AbortError") return;
+    console.error(e);
+    showToast("تعذرت مشاركة الصورة");
   }
 }
 async function exportPDF(captureId,filename){
