@@ -84,7 +84,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .modal-box h3{margin:0;font-size:15px;text-align:center;color:#0f172a}
 .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 @media(max-height:650px){.app{min-height:0;height:calc(100dvh - 16px)}.header{padding:10px 14px}.content{padding:10px}.btn{padding:10px}}
-
 @media print {
   @page { size: A4 portrait; margin: 12mm; }
   body { background: white; padding: 0; }
@@ -105,8 +104,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div class="app">
   <header class="header"><span>النظام المالي الشخصي 💼</span><span class="pill">الكويت · د.ك / مصر · ج.م</span></header>
   <main class="content">
-
-    <!-- ============ تسجيل معاملة ============ -->
     <section id="view-input" class="view stack">
       <div>
         <label>نوع المعاملة الجديدة</label>
@@ -165,8 +162,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
         <button type="button" class="btn btn-muted" onclick="switchMainView('reports')">عرض كل المعاملات في التقارير 📊</button>
       </div>
     </section>
-
-    <!-- ============ التقارير ============ -->
     <section id="view-reports" class="view stack hidden">
       <div id="filter-section" class="stack">
         <div class="panel" style="background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700">حدد معايير التقرير</div>
@@ -208,8 +203,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
         </div>
       </div>
     </section>
-
-    <!-- ============ التحليل ============ -->
     <section id="view-analysis" class="view stack hidden">
       <div id="analysis-filter-section" class="stack">
         <div class="panel" style="background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700">حدد معايير التحليل</div>
@@ -283,11 +276,8 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
         </div>
       </div>
     </section>
-
-    <!-- ============ الإعدادات والنسخ الاحتياطي ============ -->
     <section id="view-backup" class="view stack hidden">
       <strong>الإعدادات والنسخ الاحتياطي ⚙️</strong>
-
       <div class="panel stack">
         <strong style="font-size:13px">💰 الرصيد الافتتاحي للسيولة</strong>
         <p class="small">المبلغ اللي بتبدأ بيه في كاش/سيولة الحساب المالي العام.</p>
@@ -295,7 +285,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
         <button class="btn btn-primary" type="button" onclick="saveOpeningBalance()">حفظ الرصيد الافتتاحي</button>
         <div id="opening-balance-status" class="small"></div>
       </div>
-
       <div class="panel stack">
         <strong style="font-size:13px">👥 قائمة الأسماء والجهات</strong>
         <div class="person-picker">
@@ -304,22 +293,18 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
         </div>
         <div id="persons-manage-list" class="persons-manage-list"><span class="small">لا توجد أسماء محفوظة بعد.</span></div>
       </div>
-
       <div class="hint">البيانات محفوظة محليًا في IndexedDB داخل المتصفح. نزّل نسخة احتياطية بشكل دوري.</div>
-
       <div class="panel stack">
         <strong style="font-size:13px">نسخة احتياطية</strong>
         <button class="btn btn-primary" type="button" onclick="downloadBackup()">تنزيل نسخة احتياطية JSON</button>
         <button class="btn btn-green" type="button" onclick="shareBackup()">مشاركة النسخة 📤</button>
         <div id="backup-status" class="small">سيظهر هنا تاريخ آخر نسخة تم تنزيلها.</div>
       </div>
-
       <div class="panel stack">
         <strong style="font-size:13px">استعادة نسخة سابقة</strong>
         <input type="file" id="restore-file" accept=".json,application/json">
         <button class="btn btn-muted" type="button" onclick="restoreBackup()">استعادة من الملف</button>
       </div>
-
       <div class="panel stack">
         <strong style="font-size:13px">حالة قاعدة البيانات</strong>
         <div class="row-between"><span class="small">عدد المعاملات</span><strong id="backup-count">0</strong></div>
@@ -327,7 +312,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
         <button class="btn btn-danger" type="button" onclick="clearAllTransactions()">حذف كل البيانات نهائيًا</button>
       </div>
     </section>
-
   </main>
   <nav class="nav">
     <button type="button" id="nav-input" class="btn btn-primary" onclick="switchMainView('input')">➕ تسجيل معاملة</button>
@@ -337,8 +321,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
   </nav>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
-
-<!-- Modal إضافة اسم جديد -->
 <div id="person-modal" class="modal-overlay hidden">
   <div class="modal-box">
     <h3 id="person-modal-title">إضافة اسم جديد</h3>
@@ -349,7 +331,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
     </div>
   </div>
 </div>
-
 <script>
 "use strict";
 const DB_NAME="PersonalFinanceDB", DB_VERSION=1, STORE_NAME="transactions";
@@ -360,11 +341,9 @@ let editingTransactionId=null, editingCreatedAt=null;
 let returnToReportsAfterSave=false, savedReportFilters=null;
 let currentReportData=null;
 let pendingPersonTargetSelect=null;
-
 const CUSTOM_CATS_KEY="PersonalFinanceCustomCategories";
 const SETTINGS_KEY="PersonalFinanceSettings";
 const PEOPLE_KEY="PersonalFinancePeople";
-
 const $=id=>document.getElementById(id);
 const fmt=(n, digits=3)=>Number(n||0).toLocaleString("en-US",{minimumFractionDigits:digits,maximumFractionDigits:digits});
 const money=n=>fmt(n)+" د.ك";
@@ -379,60 +358,25 @@ function getCustomCategories(){const d=getJSON(CUSTOM_CATS_KEY,null);if(!d||type
 function saveCustomCategories(v){localStorage.setItem(CUSTOM_CATS_KEY,JSON.stringify(v))}
 function getExpenseCategories(){return [...EXPENSE_CATEGORIES_FIXED,...getCustomCategories().expense]}
 function getIncomeCategories(){return [...INCOME_CATEGORIES_FIXED,...getCustomCategories().income]}
-
-/* ==================== التواريخ بالعربية ==================== */
 const AR_MONTHS=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 const AR_DAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-function fmtDate(d){
-  if(!d)return "—";
-  const [y,m,day]=d.split("-");
-  const mi=Number(m)-1;
-  if(mi<0||mi>11)return d;
-  return `${Number(day)} ${AR_MONTHS[mi]} ${y}`;
-}
-function todayLong(){
-  const d=new Date();
-  return `${AR_DAYS[d.getDay()]} ${d.getDate()} ${AR_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-}
-
-/* ==================== تفقيط الأرقام بالعربية ==================== */
+function fmtDate(d){if(!d)return "—";const [y,m,day]=d.split("-");const mi=Number(m)-1;if(mi<0||mi>11)return d;return `${Number(day)} ${AR_MONTHS[mi]} ${y}`;}
+function todayLong(){const d=new Date();return `${AR_DAYS[d.getDay()]} ${d.getDate()} ${AR_MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
 function arabicNumberToWords(num){
-  num = Math.floor(Math.abs(Number(num)||0));
-  if(num === 0) return "صفر";
-  const ones = ["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة"];
-  const teens = ["عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];
-  const tens = ["","","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"];
-  const hundreds = ["","مئة","مئتان","ثلاثمئة","أربعمئة","خمسمئة","ستمئة","سبعمئة","ثمانمئة","تسعمئة"];
-  function group3(n){
-    const parts=[];
-    const h=Math.floor(n/100), rest=n%100, t=Math.floor(rest/10), o=rest%10;
-    if(h>0) parts.push(hundreds[h]);
-    if(rest>0){
-      if(rest<10) parts.push(ones[rest]);
-      else if(rest<20) parts.push(teens[rest-10]);
-      else{
-        if(o>0) parts.push(ones[o]);
-        parts.push(tens[t]);
-      }
-    }
-    return parts.join(" و");
-  }
-  function scale(n, singular, dual, plural, pluralGen){
-    if(n===0) return "";
-    if(n===1) return singular;
-    if(n===2) return dual;
-    if(n>=3 && n<=10) return group3(n)+" "+plural;
-    return group3(n)+" "+pluralGen;
-  }
-  const bn=Math.floor(num/1000000000);
-  const mn=Math.floor((num%1000000000)/1000000);
-  const th=Math.floor((num%1000000)/1000);
-  const rest=num%1000;
+  num=Math.floor(Math.abs(Number(num)||0));
+  if(num===0)return "صفر";
+  const ones=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة"];
+  const teens=["عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];
+  const tens=["","","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"];
+  const hundreds=["","مئة","مئتان","ثلاثمئة","أربعمئة","خمسمئة","ستمئة","سبعمئة","ثمانمئة","تسعمئة"];
+  function group3(n){const parts=[];const h=Math.floor(n/100),rest=n%100,t=Math.floor(rest/10),o=rest%10;if(h>0)parts.push(hundreds[h]);if(rest>0){if(rest<10)parts.push(ones[rest]);else if(rest<20)parts.push(teens[rest-10]);else{if(o>0)parts.push(ones[o]);parts.push(tens[t]);}}return parts.join(" و");}
+  function scale(n,s,dual,pl,plGen){if(n===0)return "";if(n===1)return s;if(n===2)return dual;if(n>=3&&n<=10)return group3(n)+" "+pl;return group3(n)+" "+plGen;}
+  const bn=Math.floor(num/1000000000),mn=Math.floor((num%1000000000)/1000000),th=Math.floor((num%1000000)/1000),rest=num%1000;
   const parts=[];
-  if(bn>0) parts.push(scale(bn,"مليار","ملياران","مليارات","مليار"));
-  if(mn>0) parts.push(scale(mn,"مليون","مليونان","ملايين","مليون"));
-  if(th>0) parts.push(scale(th,"ألف","ألفان","آلاف","ألف"));
-  if(rest>0) parts.push(group3(rest));
+  if(bn>0)parts.push(scale(bn,"مليار","ملياران","مليارات","مليار"));
+  if(mn>0)parts.push(scale(mn,"مليون","مليونان","ملايين","مليون"));
+  if(th>0)parts.push(scale(th,"ألف","ألفان","آلاف","ألف"));
+  if(rest>0)parts.push(group3(rest));
   return parts.join(" و");
 }
 function tafqeetKWD(amount){
@@ -440,157 +384,89 @@ function tafqeetKWD(amount){
   const dinars=Math.floor(n);
   const fils=Math.round((n-dinars)*1000);
   let text="";
-  if(dinars===0 && fils===0){
-    text="صفر دينار كويتي";
-  }else if(dinars===0){
-    text=`فقط ${arabicNumberToWords(fils)} فلس لا غير`;
-  }else if(fils===0){
-    text=`فقط ${arabicNumberToWords(dinars)} دينار كويتي لا غير`;
-  }else{
-    text=`فقط ${arabicNumberToWords(dinars)} دينار كويتي و${arabicNumberToWords(fils)} فلس لا غير`;
-  }
-  if(Number(amount)<0) text="سالب "+text;
+  if(dinars===0&&fils===0){text="صفر دينار كويتي";}
+  else if(dinars===0){text=`فقط ${arabicNumberToWords(fils)} فلس لا غير`;}
+  else if(fils===0){text=`فقط ${arabicNumberToWords(dinars)} دينار كويتي لا غير`;}
+  else{text=`فقط ${arabicNumberToWords(dinars)} دينار كويتي و${arabicNumberToWords(fils)} فلس لا غير`;}
+  if(Number(amount)<0)text="سالب "+text;
   return text;
 }
-function renderFinalWords(elementId, label, amount){
+function renderFinalWords(elementId,label,amount){
   const el=$(elementId);
-  if(!el) return;
-  if(!Number.isFinite(Number(amount))){ el.classList.add("hidden"); el.innerHTML=""; return; }
+  if(!el)return;
+  if(!Number.isFinite(Number(amount))){el.classList.add("hidden");el.innerHTML="";return;}
   el.classList.remove("hidden");
   el.innerHTML=`<span class="lbl">${escapeHTML(label)}</span>${escapeHTML(tafqeetKWD(amount))}`;
 }
-
-/* ====== قائمة الأشخاص ====== */
-function getPeople(){
-  const list=getJSON(PEOPLE_KEY,[]);
-  return Array.isArray(list)?list.filter(p=>typeof p==="string"&&p.trim()):[];
-}
-function savePeople(list){
-  const cleaned=[...new Set(list.map(p=>String(p).trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));
-  localStorage.setItem(PEOPLE_KEY,JSON.stringify(cleaned));
-  return cleaned;
-}
-function addPerson(name){
-  const clean=String(name||"").trim().slice(0,80);
-  if(!clean)return false;
-  const list=getPeople();
-  if(list.includes(clean))return false;
-  list.push(clean);
-  savePeople(list);
-  populatePeopleSelects();
-  renderPersonsManageList();
-  return true;
-}
-function deletePerson(name){
-  const list=getPeople().filter(p=>p!==name);
-  savePeople(list);
-  populatePeopleSelects();
-  renderPersonsManageList();
-}
+function getPeople(){const list=getJSON(PEOPLE_KEY,[]);return Array.isArray(list)?list.filter(p=>typeof p==="string"&&p.trim()):[];}
+function savePeople(list){const cleaned=[...new Set(list.map(p=>String(p).trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));localStorage.setItem(PEOPLE_KEY,JSON.stringify(cleaned));return cleaned;}
+function addPerson(name){const clean=String(name||"").trim().slice(0,80);if(!clean)return false;const list=getPeople();if(list.includes(clean))return false;list.push(clean);savePeople(list);populatePeopleSelects();renderPersonsManageList();return true;}
+function deletePerson(name){const list=getPeople().filter(p=>p!==name);savePeople(list);populatePeopleSelects();renderPersonsManageList();}
 function populatePeopleSelects(){
   const people=getPeople();
   const opts='<option value="">— اختر —</option>'+people.map(p=>`<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`).join("");
-  document.querySelectorAll(".beneficiary-name-select").forEach(sel=>{
-    const old=sel.value;
-    sel.innerHTML=opts;
-    if(old&&people.includes(old))sel.value=old;
-  });
+  document.querySelectorAll(".beneficiary-name-select").forEach(sel=>{const old=sel.value;sel.innerHTML=opts;if(old&&people.includes(old))sel.value=old;});
   const dp=$("debt-person-select");
-  if(dp){
-    const old=dp.value;
-    dp.innerHTML=opts;
-    if(old&&people.includes(old))dp.value=old;
-  }
+  if(dp){const old=dp.value;dp.innerHTML=opts;if(old&&people.includes(old))dp.value=old;}
 }
 function renderPersonsManageList(){
   const list=$("persons-manage-list");
   if(!list)return;
   const people=getPeople();
-  if(!people.length){list.innerHTML='<span class="small">لا توجد أسماء محفوظة بعد.</span>';return}
-  list.innerHTML=people.map(p=>`
-    <div class="person-item">
-      <span class="name">${escapeHTML(p)}</span>
-      <button type="button" class="btn btn-danger" style="padding:5px 10px;font-size:11px" data-action="del-person" data-person="${escapeHTML(p)}">🗑️ حذف</button>
-    </div>
-  `).join("");
+  if(!people.length){list.innerHTML='<span class="small">لا توجد أسماء محفوظة بعد.</span>';return;}
+  list.innerHTML=people.map(p=>`<div class="person-item"><span class="name">${escapeHTML(p)}</span><button type="button" class="btn btn-danger" style="padding:5px 10px;font-size:11px" data-action="del-person" data-person="${escapeHTML(p)}">🗑️ حذف</button></div>`).join("");
 }
-function addPersonFromSettings(){
-  const input=$("new-person-name");
-  const name=input.value.trim();
-  if(!name){showToast("أدخل اسمًا");return}
-  if(addPerson(name)){
-    input.value="";
-    showToast("تم إضافة الاسم ✅");
-  }else showToast("الاسم موجود بالفعل");
-}
-
-/* Modal */
-function openPersonModal(btn){
-  pendingPersonTargetSelect=btn?btn.closest(".person-picker")?.querySelector("select"):null;
-  $("person-modal").classList.remove("hidden");
-  $("person-modal-title").textContent="إضافة اسم جديد";
-  $("person-modal-input").value="";
-  setTimeout(()=>$("person-modal-input").focus(),100);
-}
-function closePersonModal(){
-  $("person-modal").classList.add("hidden");
-  $("person-modal-input").value="";
-  pendingPersonTargetSelect=null;
-}
+function addPersonFromSettings(){const input=$("new-person-name");const name=input.value.trim();if(!name){showToast("أدخل اسمًا");return;}if(addPerson(name)){input.value="";showToast("تم إضافة الاسم ✅");}else showToast("الاسم موجود بالفعل");}
+function openPersonModal(btn){pendingPersonTargetSelect=btn?btn.closest(".person-picker")?.querySelector("select"):null;$("person-modal").classList.remove("hidden");$("person-modal-title").textContent="إضافة اسم جديد";$("person-modal-input").value="";setTimeout(()=>$("person-modal-input").focus(),100);}
+function closePersonModal(){$("person-modal").classList.add("hidden");$("person-modal-input").value="";pendingPersonTargetSelect=null;}
 function confirmAddPerson(){
   const name=$("person-modal-input").value.trim();
-  if(!name){showToast("أدخل اسمًا");return}
+  if(!name){showToast("أدخل اسمًا");return;}
   const existed=getPeople().includes(name);
   if(!existed)addPerson(name);
   if(pendingPersonTargetSelect){
-    if(![...pendingPersonTargetSelect.options].some(o=>o.value===name)){
-      const opt=document.createElement("option");opt.value=name;opt.textContent=name;
-      pendingPersonTargetSelect.appendChild(opt);
-    }
+    if(![...pendingPersonTargetSelect.options].some(o=>o.value===name)){const opt=document.createElement("option");opt.value=name;opt.textContent=name;pendingPersonTargetSelect.appendChild(opt);}
     pendingPersonTargetSelect.value=name;
   }
   closePersonModal();
   showToast(existed?"الاسم موجود — تم اختياره":"تم إضافة الاسم ✅");
 }
-
-function validISODate(y,m,d){const dt=new Date(Number(y),Number(m)-1,Number(d));return dt.getFullYear()===Number(y)&&dt.getMonth()===Number(m)-1&&dt.getDate()===Number(d)}
-function getEntryDate(){const d=Number($("tx-day").value),m=Number($("tx-month").value),y=Number($("tx-year").value);if(!d||!m||!y||!validISODate(y,m,d))return "";return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`}
-function setEntryDate(iso){const [y,m,d]=(iso||todayISO()).split("-");$("tx-day").value=Number(d);$("tx-month").value=Number(m);$("tx-year").value=y}
-function readDateParts(prefix){const d=Number($(prefix+"-day").value),m=Number($(prefix+"-month").value),y=Number($(prefix+"-year").value);if(!d||!m||!y||!validISODate(y,m,d))return "";return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`}
-function writeDateParts(prefix,iso){const dayEl=$(prefix+"-day"),monthEl=$(prefix+"-month"),yearEl=$(prefix+"-year");if(!dayEl||!monthEl||!yearEl)return;if(!iso){dayEl.value="";monthEl.value="";yearEl.value="";return}const [y,m,d]=iso.split("-");dayEl.value=Number(d);monthEl.value=Number(m);yearEl.value=y}
-
+function validISODate(y,m,d){const dt=new Date(Number(y),Number(m)-1,Number(d));return dt.getFullYear()===Number(y)&&dt.getMonth()===Number(m)-1&&dt.getDate()===Number(d);}
+function getEntryDate(){const d=Number($("tx-day").value),m=Number($("tx-month").value),y=Number($("tx-year").value);if(!d||!m||!y||!validISODate(y,m,d))return "";return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;}
+function setEntryDate(iso){const [y,m,d]=(iso||todayISO()).split("-");$("tx-day").value=Number(d);$("tx-month").value=Number(m);$("tx-year").value=y;}
+function readDateParts(prefix){const d=Number($(prefix+"-day").value),m=Number($(prefix+"-month").value),y=Number($(prefix+"-year").value);if(!d||!m||!y||!validISODate(y,m,d))return "";return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;}
+function writeDateParts(prefix,iso){const dayEl=$(prefix+"-day"),monthEl=$(prefix+"-month"),yearEl=$(prefix+"-year");if(!dayEl||!monthEl||!yearEl)return;if(!iso){dayEl.value="";monthEl.value="";yearEl.value="";return;}const [y,m,d]=iso.split("-");dayEl.value=Number(d);monthEl.value=Number(m);yearEl.value=y;}
 const SUBTYPE_OPTIONS={
   expense:[
     {value:"all",label:"الكل — كل المصروفات"},
     {value:"regular",label:"مصروفات عادية فقط"},
     {value:"transfer",label:"حوالات خارجية"},
-    {value:"debt_out",label:"ديون دائنة (خرجت مني)"}
+    {value:"debt_out",label:"سداد ديون (خرجت مني)"}
   ],
   income:[
     {value:"all",label:"الكل — كل الدخل"},
     {value:"regular",label:"دخل عادي فقط"},
-    {value:"debt_in",label:"ديون مدينة (دخلت لي)"}
+    {value:"debt_in",label:"ديون أخدتها (جت لي)"}
   ]
 };
-
-function isCreditorEntry(r){return r.type==="debt"&&r.debtType==="creditor"}
-function isDebtorEntry(r){return r.type==="debt"&&r.debtType==="debtor"}
-function isOpeningBalanceEntry(r){return r.type==="debt"&&r.debtType==="opening_balance"}
-
-function isExpenseReal(r){return r.type==="expense"||r.type==="transfer"||isCreditorEntry(r)}
-function isIncomeReal(r){return r.type==="income"||isDebtorEntry(r)}
-function isRegularExpense(r){return r.type==="expense"}
-function isRegularIncome(r){return r.type==="income"}
+function isCreditorEntry(r){return r.type==="debt"&&r.debtType==="creditor";}
+function isDebtorEntry(r){return r.type==="debt"&&r.debtType==="debtor";}
+function isOpeningBalanceEntry(r){return r.type==="debt"&&r.debtType==="opening_balance";}
+/* ✅ القاعدة المحاسبية الصحيحة: creditor = دخل، debtor = مصروف */
+function isExpenseReal(r){return r.type==="expense"||r.type==="transfer"||isDebtorEntry(r);}
+function isIncomeReal(r){return r.type==="income"||isCreditorEntry(r);}
+function isRegularExpense(r){return r.type==="expense";}
+function isRegularIncome(r){return r.type==="income";}
 function filterBySubtype(records,type,subtype){
   if(type==="expense"){
     if(subtype==="regular")return records.filter(isRegularExpense);
     if(subtype==="transfer")return records.filter(r=>r.type==="transfer");
-    if(subtype==="debt_out")return records.filter(isCreditorEntry);
+    if(subtype==="debt_out")return records.filter(isDebtorEntry);
     return records.filter(isExpenseReal);
   }
   if(type==="income"){
     if(subtype==="regular")return records.filter(isRegularIncome);
-    if(subtype==="debt_in")return records.filter(isDebtorEntry);
+    if(subtype==="debt_in")return records.filter(isCreditorEntry);
     return records.filter(isIncomeReal);
   }
   return records.filter(r=>r.type===type);
@@ -605,8 +481,8 @@ function operationKind(r){
   if(r.type==="transfer")return "حوالة خارجية";
   if(r.type==="income")return r.isSalaryBase?"راتب أساسي":"دخل عادي";
   if(r.type==="debt"){
-    if(r.debtType==="creditor")return "مدين (إضافة للدين)";
-    if(r.debtType==="debtor")return "دائن (سداد من الدين)";
+    if(r.debtType==="creditor")return "دخل — أخدنا دين";
+    if(r.debtType==="debtor")return "سداد دين (مصروف)";
     if(r.debtType==="opening_balance")return "رصيد أول المدة";
   }
   return r.type;
@@ -614,38 +490,35 @@ function operationKind(r){
 function badgeClass(r){
   if(r.type==="expense")return "expense";
   if(r.type==="transfer")return "transfer";
-  if(r.type==="debt")return isDebtorEntry(r)?"income":"debt";
+  if(r.type==="debt")return isCreditorEntry(r)?"income":"debt";
   if(r.type==="income")return "income";
   return "";
 }
-function getSubtypeSelectOptions(type){return SUBTYPE_OPTIONS[type]||null}
-function fillSubtypeSelect(sel,type){const opts=getSubtypeSelectOptions(type);if(!opts){sel.innerHTML="";return}const old=sel.value;sel.innerHTML=opts.map(o=>`<option value="${o.value}">${escapeHTML(o.label)}</option>`).join("");if(opts.some(o=>o.value===old))sel.value=old}
-function onReportTypeChange(){const type=$("report-type").value;const wrap=$("report-subtype-wrap");if(getSubtypeSelectOptions(type)){wrap.classList.remove("hidden");fillSubtypeSelect($("report-subtype"),type)}else{wrap.classList.add("hidden");$("report-subtype").innerHTML=""}updateReportTargetOptions()}
-
+function getSubtypeSelectOptions(type){return SUBTYPE_OPTIONS[type]||null;}
+function fillSubtypeSelect(sel,type){const opts=getSubtypeSelectOptions(type);if(!opts){sel.innerHTML="";return;}const old=sel.value;sel.innerHTML=opts.map(o=>`<option value="${o.value}">${escapeHTML(o.label)}</option>`).join("");if(opts.some(o=>o.value===old))sel.value=old;}
+function onReportTypeChange(){const type=$("report-type").value;const wrap=$("report-subtype-wrap");if(getSubtypeSelectOptions(type)){wrap.classList.remove("hidden");fillSubtypeSelect($("report-subtype"),type);}else{wrap.classList.add("hidden");$("report-subtype").innerHTML="";}updateReportTargetOptions();}
 function populateCategorySelects(){
   const expSel=$("expense-category");
-  if(expSel){const old=expSel.value;expSel.innerHTML=getExpenseCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");if([...expSel.options].some(o=>o.value===old))expSel.value=old}
+  if(expSel){const old=expSel.value;expSel.innerHTML=getExpenseCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");if([...expSel.options].some(o=>o.value===old))expSel.value=old;}
   const incSel=$("income-category");
-  if(incSel){const old=incSel.value;incSel.innerHTML=getIncomeCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");if([...incSel.options].some(o=>o.value===old))incSel.value=old}
+  if(incSel){const old=incSel.value;incSel.innerHTML=getIncomeCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");if([...incSel.options].some(o=>o.value===old))incSel.value=old;}
 }
 function initDates(){
   setEntryDate(todayISO());
   const n=new Date();
   $("tx-time").value=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
-  writeDateParts("date-from", firstOfMonthISO());
-  writeDateParts("date-to", todayISO());
-  writeDateParts("analysis-from", firstOfMonthISO());
-  writeDateParts("analysis-to", todayISO());
+  writeDateParts("date-from",firstOfMonthISO());
+  writeDateParts("date-to",todayISO());
+  writeDateParts("analysis-from",firstOfMonthISO());
+  writeDateParts("analysis-to",todayISO());
   const s=getSettings();
   if($("opening-balance"))$("opening-balance").value=s.openingBalance||0;
 }
-
-function openDB(){return new Promise((resolve,reject)=>{if(!("indexedDB" in window)){reject(new Error("المتصفح لا يدعم IndexedDB"));return}const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains(STORE_NAME)){const s=d.createObjectStore(STORE_NAME,{keyPath:"id"});s.createIndex("date","date");s.createIndex("type","type")}};req.onsuccess=()=>{db=req.result;db.onversionchange=()=>db.close();resolve(db)};req.onerror=()=>reject(req.error)})}
-function allTransactions(){return new Promise((resolve,reject)=>{if(!db){reject(new Error("قاعدة البيانات غير مفتوحة"));return}const req=db.transaction(STORE_NAME,"readonly").objectStore(STORE_NAME).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error)})}
-function putTransaction(record){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readwrite");tx.objectStore(STORE_NAME).put(record);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error("فشل الحفظ"))})}
-function deleteTransaction(id){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readwrite");tx.objectStore(STORE_NAME).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
-async function syncLocalMirror(){if(!db)return;try{const all=await allTransactions();lastSavedAt=new Date().toISOString();localStorage.setItem("PersonalFinanceLastSaved",lastSavedAt);localStorage.setItem("PersonalFinanceLocalBackup",JSON.stringify({version:3,updatedAt:lastSavedAt,transactions:all,settings:getSettings(),customCategories:getCustomCategories(),people:getPeople()}))}catch(e){console.warn("Mirror sync failed",e)}}
-
+function openDB(){return new Promise((resolve,reject)=>{if(!("indexedDB" in window)){reject(new Error("المتصفح لا يدعم IndexedDB"));return;}const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains(STORE_NAME)){const s=d.createObjectStore(STORE_NAME,{keyPath:"id"});s.createIndex("date","date");s.createIndex("type","type");}};req.onsuccess=()=>{db=req.result;db.onversionchange=()=>db.close();resolve(db);};req.onerror=()=>reject(req.error);});}
+function allTransactions(){return new Promise((resolve,reject)=>{if(!db){reject(new Error("قاعدة البيانات غير مفتوحة"));return;}const req=db.transaction(STORE_NAME,"readonly").objectStore(STORE_NAME).getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);});}
+function putTransaction(record){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readwrite");tx.objectStore(STORE_NAME).put(record);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error("فشل الحفظ"));});}
+function deleteTransaction(id){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readwrite");tx.objectStore(STORE_NAME).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
+async function syncLocalMirror(){if(!db)return;try{const all=await allTransactions();lastSavedAt=new Date().toISOString();localStorage.setItem("PersonalFinanceLastSaved",lastSavedAt);localStorage.setItem("PersonalFinanceLocalBackup",JSON.stringify({version:3,updatedAt:lastSavedAt,transactions:all,settings:getSettings(),customCategories:getCustomCategories(),people:getPeople()}));}catch(e){console.warn("Mirror sync failed",e);}}
 function switchMainView(view){
   ["input","reports","analysis","backup"].forEach(v=>{
     $("view-"+v).classList.toggle("hidden",v!==view);
@@ -656,7 +529,7 @@ function switchMainView(view){
   if(view==="backup"){refreshBackupStatus();renderPersonsManageList();populatePeopleSelects();}
 }
 function switchInputTab(type){
-  if(editingTransactionId && type !== activeInputType){showToast("أنهِ التعديل أو ألغِه أولًا.");return}
+  if(editingTransactionId&&type!==activeInputType){showToast("أنهِ التعديل أو ألغِه أولًا.");return;}
   activeInputType=type;
   ["expense","income","transfer","debt"].forEach(t=>{
     $("section-"+t).classList.toggle("hidden",t!==type);
@@ -679,10 +552,7 @@ function addBeneficiary(name="",egp=""){
   populatePeopleSelects();
   if(name){
     const sel=row.querySelector(".beneficiary-name-select");
-    if(![...sel.options].some(o=>o.value===name)){
-      const opt=document.createElement("option");opt.value=name;opt.textContent=name;
-      sel.appendChild(opt);
-    }
+    if(![...sel.options].some(o=>o.value===name)){const opt=document.createElement("option");opt.value=name;opt.textContent=name;sel.appendChild(opt);}
     sel.value=name;
   }
 }
@@ -693,17 +563,16 @@ function calculateExchange(){
   const total=kwd+fees;
   $("exchange-rate-display").textContent=egp>0&&total>0?money(total/egp*1000):"0.000 د.ك";
 }
-function getNum(id){const v=$(id).value;return v===""?NaN:Number(v)}
-
+function getNum(id){const v=$(id).value;return v===""?NaN:Number(v);}
 async function saveTransaction(){
   const button=$("save-transaction");
   if(button.disabled)return;
   const date=getEntryDate(),time=$("tx-time").value;
-  if(!date||!time){showToast("راجع التاريخ والوقت.");return}
+  if(!date||!time){showToast("راجع التاريخ والوقت.");return;}
   const r={id:editingTransactionId||((crypto.randomUUID&&crypto.randomUUID())||("tx-"+Date.now()+"-"+Math.random().toString(16).slice(2))),type:activeInputType,date,time,notes:$("tx-notes").value.trim(),createdAt:editingCreatedAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
   if(activeInputType==="expense"||activeInputType==="income"){
     const id=activeInputType+"-amount",amount=getNum(id);
-    if(!Number.isFinite(amount)||amount<=0){showToast("أدخل مبلغًا أكبر من صفر.");return}
+    if(!Number.isFinite(amount)||amount<=0){showToast("أدخل مبلغًا أكبر من صفر.");return;}
     r.amount=Math.round(amount*1000)/1000;
     r.category=$(activeInputType+"-category").value;
     if(activeInputType==="income")r.isSalaryBase=$("is-salary-base").checked;
@@ -711,19 +580,16 @@ async function saveTransaction(){
   if(activeInputType==="debt"){
     const person=$("debt-person-select").value.trim();
     const amount=getNum("debt-amount");
-    if(!person){showToast("اختر اسم الشخص أو الجهة (أو أضِفه بزر +).");return}
-    if(!Number.isFinite(amount)||amount<=0){showToast("أدخل مبلغًا صحيحًا.");return}
+    if(!person){showToast("اختر اسم الشخص أو الجهة (أو أضِفه بزر +).");return;}
+    if(!Number.isFinite(amount)||amount<=0){showToast("أدخل مبلغًا صحيحًا.");return;}
     r.person=person;r.amount=Math.round(amount*1000)/1000;r.debtType=$("debt-type").value;
   }
   if(activeInputType==="transfer"){
     const amount=getNum("total-kwd"),feeMode=$("transfer-fee-mode").value,fee=feeMode==="separate"?(getNum("transfer-fee")||0):0;
-    const beneficiaries=[...document.querySelectorAll("#beneficiaries-list .beneficiary")].map(row=>({
-      name:row.querySelector(".beneficiary-name-select").value.trim(),
-      egp:Number(row.querySelector('input[type=number]').value)
-    }));
-    if(!Number.isFinite(amount)||amount<=0){showToast("أدخل إجمالي الدينار.");return}
-    if(beneficiaries.length===0||beneficiaries.some(b=>!b.name||!Number.isFinite(b.egp)||b.egp<=0)){showToast("اختر اسمًا وأدخل مبلغًا صحيحًا لكل مستفيد.");return}
-    if(fee<0){showToast("الرسوم لا يمكن أن تكون سالبة.");return}
+    const beneficiaries=[...document.querySelectorAll("#beneficiaries-list .beneficiary")].map(row=>({name:row.querySelector(".beneficiary-name-select").value.trim(),egp:Number(row.querySelector('input[type=number]').value)}));
+    if(!Number.isFinite(amount)||amount<=0){showToast("أدخل إجمالي الدينار.");return;}
+    if(beneficiaries.length===0||beneficiaries.some(b=>!b.name||!Number.isFinite(b.egp)||b.egp<=0)){showToast("اختر اسمًا وأدخل مبلغًا صحيحًا لكل مستفيد.");return;}
+    if(fee<0){showToast("الرسوم لا يمكن أن تكون سالبة.");return;}
     r.totalKwd=Math.round(amount*1000)/1000;r.feeKwd=Math.round(fee*1000)/1000;
     r.totalCostKwd=Math.round((amount+fee)*1000)/1000;
     r.beneficiaries=beneficiaries;r.totalEgp=beneficiaries.reduce((s,b)=>s+b.egp,0);
@@ -747,54 +613,46 @@ async function saveTransaction(){
       if(savedReportFilters){
         $("report-type").value=savedReportFilters.type;
         onReportTypeChange();
-        if(savedReportFilters.subtype){const sub=$("report-subtype");if([...sub.options].some(o=>o.value===savedReportFilters.subtype))sub.value=savedReportFilters.subtype}
+        if(savedReportFilters.subtype){const sub=$("report-subtype");if([...sub.options].some(o=>o.value===savedReportFilters.subtype))sub.value=savedReportFilters.subtype;}
         writeDateParts("date-from",savedReportFilters.from);
         writeDateParts("date-to",savedReportFilters.to);
         savedReportFilters=null;
       }
       await generateReport();
     }
-  }catch(e){console.error(e);showToast("تعذر الحفظ.")}
-  finally{button.disabled=false}
+  }catch(e){console.error(e);showToast("تعذر الحفظ.");}
+  finally{button.disabled=false;}
 }
 function resetFormAfterSave(type){
   $("tx-notes").value="";setEntryDate(todayISO());
   const n=new Date();$("tx-time").value=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
   if(type==="expense")$("expense-amount").value="";
-  if(type==="income"){$("income-amount").value="";$("is-salary-base").checked=false}
-  if(type==="debt"){$("debt-person-select").value="";$("debt-amount").value="";$("debt-type").value="creditor"}
-  if(type==="transfer"){$("total-kwd").value="";$("transfer-fee").value="0.000";$("transfer-fee-mode").value="included";$("fee-wrap").classList.add("hidden");$("beneficiaries-list").innerHTML="";addBeneficiary();$("exchange-rate-display").textContent="0.000 د.ك"}
+  if(type==="income"){$("income-amount").value="";$("is-salary-base").checked=false;}
+  if(type==="debt"){$("debt-person-select").value="";$("debt-amount").value="";$("debt-type").value="creditor";}
+  if(type==="transfer"){$("total-kwd").value="";$("transfer-fee").value="0.000";$("transfer-fee-mode").value="included";$("fee-wrap").classList.add("hidden");$("beneficiaries-list").innerHTML="";addBeneficiary();$("exchange-rate-display").textContent="0.000 د.ك";}
 }
-function typeLabel(r){return {expense:"مصروف",income:"دخل",transfer:"حوالة خارجية",debt:"دين"}[r.type]||r.type}
+function typeLabel(r){return {expense:"مصروف",income:"دخل",transfer:"حوالة خارجية",debt:"دين"}[r.type]||r.type;}
 function detailLabel(r){
   if(r.type==="expense"||r.type==="income")return r.category||"";
   if(r.type==="debt"){
-    let tName="مدين";
-    if(r.debtType==="debtor")tName="دائن";
+    let tName="دخل — أخدنا دين";
+    if(r.debtType==="debtor")tName="سداد دين (مصروف)";
     if(r.debtType==="opening_balance")tName="رصيد أول المدة";
     return `${r.person} — ${tName}`;
   }
   if(r.type==="transfer")return (r.beneficiaries||[]).map(b=>b.name).join("، ");
   return "";
 }
-function transactionDescription(r){return `${typeLabel(r)} · ${detailLabel(r)}`}
+function transactionDescription(r){return `${typeLabel(r)} · ${detailLabel(r)}`;}
 function renderRecent(records){
   const target=$("recent-transactions");
   const latest=[...records].sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||"")).slice(0,4);
   $("transaction-count").textContent=`${records.length} معاملة`;
-  if(!latest.length){target.innerHTML='<span class="small">لا توجد معاملات محفوظة بعد.</span>';return}
+  if(!latest.length){target.innerHTML='<span class="small">لا توجد معاملات محفوظة بعد.</span>';return;}
   target.innerHTML=latest.map(r=>`<div class="row-between panel" style="padding:9px"><div style="min-width:0"><strong style="font-size:12px">${escapeHTML(transactionDescription(r))}</strong><div class="small">${escapeHTML(r.date)} · ${escapeHTML(r.time)}</div></div><strong class="amount" style="font-size:12px">${money(realAmount(r)||r.amount||0)}</strong></div>`).join("");
 }
-async function refreshAllViews(){if(!db)return;const records=await allTransactions();renderRecent(records);await refreshBackupStatus()}
-
-/* ====== جمع كل الأطراف ====== */
-function collectPeopleFromRecord(r){
-  const out=[];
-  if(r.person&&typeof r.person==="string")out.push(r.person);
-  (r.beneficiaries||[]).forEach(b=>{if(b&&b.name)out.push(b.name)});
-  return out;
-}
-
+async function refreshAllViews(){if(!db)return;const records=await allTransactions();renderRecent(records);await refreshBackupStatus();}
+function collectPeopleFromRecord(r){const out=[];if(r.person&&typeof r.person==="string")out.push(r.person);(r.beneficiaries||[]).forEach(b=>{if(b&&b.name)out.push(b.name);});return out;}
 async function updateReportTargetOptions(){
   if(!db)try{await openDB();}catch(e){return;}
   const type=$("report-type").value,select=$("beneficiary-select"),old=select.value;
@@ -803,54 +661,38 @@ async function updateReportTargetOptions(){
     const records=await allTransactions();
     const sub=$("report-subtype")&&!$("report-subtype-wrap").classList.contains("hidden")?($("report-subtype").value||"all"):"all";
     let values=[];
-    if(type==="debt"){
-      values=records.filter(r=>r.type==="debt").flatMap(collectPeopleFromRecord);
-    } else if(type==="transfer"){
-      values=records.filter(r=>r.type==="transfer").flatMap(collectPeopleFromRecord);
-    } else if(type==="expense"){
+    if(type==="debt")values=records.filter(r=>r.type==="debt").flatMap(collectPeopleFromRecord);
+    else if(type==="transfer")values=records.filter(r=>r.type==="transfer").flatMap(collectPeopleFromRecord);
+    else if(type==="expense"){
       if(sub==="transfer")values=records.filter(r=>r.type==="transfer").flatMap(collectPeopleFromRecord);
-      else if(sub==="debt_out")values=records.filter(isCreditorEntry).flatMap(collectPeopleFromRecord);
+      else if(sub==="debt_out")values=records.filter(isDebtorEntry).flatMap(collectPeopleFromRecord);
       else if(sub==="regular")values=[];
       else values=records.filter(isExpenseReal).flatMap(collectPeopleFromRecord);
-    } else if(type==="income"){
-      if(sub==="debt_in")values=records.filter(isDebtorEntry).flatMap(collectPeopleFromRecord);
+    }
+    else if(type==="income"){
+      if(sub==="debt_in")values=records.filter(isCreditorEntry).flatMap(collectPeopleFromRecord);
       else if(sub==="regular")values=[];
       else values=records.filter(isIncomeReal).flatMap(collectPeopleFromRecord);
-    } else if(type==="all"){
-      values=records.flatMap(collectPeopleFromRecord);
     }
+    else if(type==="all")values=records.flatMap(collectPeopleFromRecord);
     values=[...new Set(values)].filter(v=>typeof v==="string"&&v.trim());
     values.sort((a,b)=>a.localeCompare(b,"ar"));
-    if(values.length===0){
-      wrap.style.display="none";
-      select.innerHTML='<option value="all">الكل</option>';
-      select.value="all";
-    } else {
-      wrap.style.display="";
-      select.innerHTML='<option value="all">الكل</option>'+values.map(v=>`<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join("");
-      if(values.includes(old))select.value=old; else select.value="all";
-    }
-  }catch(e){console.error(e)}
+    if(values.length===0){wrap.style.display="none";select.innerHTML='<option value="all">الكل</option>';select.value="all";}
+    else{wrap.style.display="";select.innerHTML='<option value="all">الكل</option>'+values.map(v=>`<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join("");if(values.includes(old))select.value=old;else select.value="all";}
+  }catch(e){console.error(e);}
 }
-
-/* ============ التقارير ============ */
 async function generateReport(){
-  if(!db){try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة.");return}}
+  if(!db){try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة.");return;}}
   const type=$("report-type").value,target=$("beneficiary-select").value;
   let from=readDateParts("date-from"),to=readDateParts("date-to");
   const subtype=($("report-subtype-wrap").classList.contains("hidden"))?"all":($("report-subtype").value||"all");
-  if(!from||!to){showToast("حدد الفترة كاملة (من تاريخ وإلى تاريخ).");return}
-  if(from>to){
-    const tmp=from;from=to;to=tmp;
-    writeDateParts("date-from",from);
-    writeDateParts("date-to",to);
-    showToast("تم ترتيب التواريخ تلقائيًا");
-  }
+  if(!from||!to){showToast("حدد الفترة كاملة (من تاريخ وإلى تاريخ).");return;}
+  if(from>to){const tmp=from;from=to;to=tmp;writeDateParts("date-from",from);writeDateParts("date-to",to);showToast("تم ترتيب التواريخ تلقائيًا");}
   try{
     const records=await allTransactions();
     let filtered=records.filter(r=>(!from||r.date>=from)&&(!to||r.date<=to));
-    if(type==="expense"||type==="income"){filtered=filterBySubtype(filtered,type,subtype)}
-    else if(type!=="all"){filtered=filtered.filter(r=>r.type===type)}
+    if(type==="expense"||type==="income"){filtered=filterBySubtype(filtered,type,subtype);}
+    else if(type!=="all"){filtered=filtered.filter(r=>r.type===type);}
     if(target!=="all"){
       filtered=filtered.filter(r=>{
         if(r.person&&r.person===target)return true;
@@ -864,7 +706,7 @@ async function generateReport(){
     buildReport(filtered,type,subtype,target,from,to);
     $("filter-section").classList.add("hidden");
     $("report-section").classList.remove("hidden");
-  }catch(e){console.error(e);showToast("تعذر إنشاء التقرير.")}
+  }catch(e){console.error(e);showToast("تعذر إنشاء التقرير.");}
 }
 function filterReportTable(){
   if(!currentReportData)return;
@@ -872,21 +714,17 @@ function filterReportTable(){
   let records=currentReportData.records;
   if(q){
     records=records.filter(r=>
-      transactionDescription(r).toLowerCase().includes(q) ||
-      (r.notes||"").toLowerCase().includes(q) ||
-      (r.person||"").toLowerCase().includes(q) ||
+      transactionDescription(r).toLowerCase().includes(q)||
+      (r.notes||"").toLowerCase().includes(q)||
+      (r.person||"").toLowerCase().includes(q)||
       (r.beneficiaries||[]).some(b=>(b.name||"").toLowerCase().includes(q))
     );
   }
   buildReport(records,currentReportData.type,currentReportData.subtype,currentReportData.target,currentReportData.from,currentReportData.to);
 }
-
-function actionButtons(r){
-  return `<td class="no-print" style="white-space:nowrap"><div style="display:flex;gap:3px"><button class="btn btn-soft" style="padding:3px 6px;font-size:10px" data-action="edit-report" data-id="${escapeHTML(r.id)}">✏️</button><button class="btn btn-danger" style="padding:3px 6px;font-size:10px" data-action="delete-report" data-id="${escapeHTML(r.id)}">🗑️</button></div></td>`;
-}
-
+function actionButtons(r){return `<td class="no-print" style="white-space:nowrap"><div style="display:flex;gap:3px"><button class="btn btn-soft" style="padding:3px 6px;font-size:10px" data-action="edit-report" data-id="${escapeHTML(r.id)}">✏️</button><button class="btn btn-danger" style="padding:3px 6px;font-size:10px" data-action="delete-report" data-id="${escapeHTML(r.id)}">🗑️</button></div></td>`;}
 function buildReport(records,type,subtype,target,from,to){
-  const subtypeLabelMap={all:"الكل",regular:"العادية فقط",transfer:"الحوالات الخارجية",debt_out:"الديون الدائنة",debt_in:"الديون المدينة"};
+  const subtypeLabelMap={all:"الكل",regular:"العادية فقط",transfer:"الحوالات الخارجية",debt_out:"سداد الديون",debt_in:"الديون المستلمة"};
   const isHierarchical=(type==="expense"||type==="income");
   let title=isHierarchical?(type==="expense"?"تقرير المصروفات":"تقرير الدخل والمقبوضات"):{debt:"كشف حساب الديون",transfer:"كشف التحويلات المالية",all:"ملخص المعاملات المالية"}[type]||"تقرير مالي";
   if(isHierarchical&&subtype!=="all")title+=" · "+subtypeLabelMap[subtype];
@@ -895,47 +733,34 @@ function buildReport(records,type,subtype,target,from,to){
   $("display-date-range").textContent=`من ${fmtDate(from)} إلى ${fmtDate(to)}`;
   $("display-target").textContent=target==="all"?"كل الأطراف":target;
   $("display-count").textContent=String(records.length);
-  // تاريخ الإصدار (رسمي)
   const metaEl=$("capture-area").querySelector(".report-meta");
   if(metaEl){
     let issueRow=metaEl.querySelector(".issue-date");
-    if(!issueRow){
-      issueRow=document.createElement("div");
-      issueRow.className="row-between issue-date";
-      metaEl.appendChild(issueRow);
-    }
+    if(!issueRow){issueRow=document.createElement("div");issueRow.className="row-between issue-date";metaEl.appendChild(issueRow);}
     issueRow.innerHTML=`<span>تاريخ الإصدار:</span><strong>${escapeHTML(todayLong())}</strong>`;
   }
-
   let head="",rows="",debit=0,credit=0,transferKwd=0,totalEgp=0,runningBalance=0;
   let finalWordsLabel="القيمة النهائية", finalWordsValue=0;
-
   if(type==="debt"){
     head="<tr><th>التاريخ</th><th>البيان</th><th>مدين (أخدنا)</th><th>دائن (سددنا)</th><th>الرصيد المتبقي</th><th class='no-print'>إجراءات</th></tr>";
     let balance=0;
-    let filteredRecords = target!=="all"?records.filter(r=>r.person===target):records;
-
+    let filteredRecords=target!=="all"?records.filter(r=>r.person===target):records;
     for(const r of filteredRecords){
-      let addAmt=0, payAmt=0;
+      let addAmt=0,payAmt=0;
       if(isOpeningBalanceEntry(r)){
-        balance += Number(r.amount||0);
+        balance+=Number(r.amount||0);
         rows+=`<tr style="background:#f8fafc"><td>${fmtDate(r.date)}</td><td><strong>رصيد أول المدة (الدين القديم)</strong>${r.notes?"<br>"+escapeHTML(r.notes):""}</td><td>—</td><td>—</td><td class="amount"><strong>${money(balance)}</strong></td>${actionButtons(r)}</tr>`;
         continue;
       }
-      if(isCreditorEntry(r)){
-        addAmt=Number(r.amount||0);
-        balance+=addAmt;
-      } else if(isDebtorEntry(r)){
-        payAmt=Number(r.amount||0);
-        balance-=payAmt;
-      }
-      debit+=addAmt; credit+=payAmt;
+      if(isCreditorEntry(r)){addAmt=Number(r.amount||0);balance+=addAmt;}
+      else if(isDebtorEntry(r)){payAmt=Number(r.amount||0);balance-=payAmt;}
+      debit+=addAmt;credit+=payAmt;
       rows+=`<tr><td>${fmtDate(r.date)}</td><td>${escapeHTML(detailLabel(r))}${r.notes?"<br>"+escapeHTML(r.notes):""}</td><td class="amount">${addAmt?money(addAmt):"—"}</td><td class="amount">${payAmt?money(payAmt):"—"}</td><td class="amount"><strong>${money(balance)}</strong></td>${actionButtons(r)}</tr>`;
     }
-    const openingSum = filteredRecords.filter(isOpeningBalanceEntry).reduce((s,r)=>s+Number(r.amount||0),0);
-    const totalAdd = openingSum + debit;
-    const netDebt = totalAdd - credit;
-    window.__debtSummary = {openingSum, debit, credit, totalAdd, netDebt};
+    const openingSum=filteredRecords.filter(isOpeningBalanceEntry).reduce((s,r)=>s+Number(r.amount||0),0);
+    const totalAdd=openingSum+debit;
+    const netDebt=totalAdd-credit;
+    window.__debtSummary={openingSum,debit,credit,totalAdd,netDebt};
   }
   else if(isHierarchical&&subtype==="transfer"){
     head="<tr><th>التاريخ</th><th>المستفيد</th><th>المبلغ (ج.م)</th><th>تكلفة تقديرية (د.ك)</th><th>الإجمالي</th><th>الرصيد</th><th class='no-print'>إجراءات</th></tr>";
@@ -961,8 +786,8 @@ function buildReport(records,type,subtype,target,from,to){
       runningBalance+=amt;
       rows+=`<tr><td>${fmtDate(r.date)}</td><td><span class="badge ${badgeClass(r)}">${escapeHTML(operationKind(r))}</span></td><td>${escapeHTML(detailLabel(r))}${r.notes?"<br><span style=\"color:#64748b;font-size:10px\">"+escapeHTML(r.notes)+"</span>":""}</td><td class="amount">${money(amt)}</td><td class="amount"><strong>${money(runningBalance)}</strong></td>${actionButtons(r)}</tr>`;
     }
-    finalWordsLabel = type==="expense"?"إجمالي المصروفات":"إجمالي المقبوضات";
-    finalWordsValue = type==="expense"?debit:credit;
+    finalWordsLabel=type==="expense"?"إجمالي المصروفات":"إجمالي المقبوضات";
+    finalWordsValue=type==="expense"?debit:credit;
   }
   else if(type==="transfer"){
     head="<tr><th>التاريخ</th><th>المستفيد</th><th>المبلغ (ج.م)</th><th>تكلفة تقديرية (د.ك)</th><th>الإجمالي</th><th>الرصيد</th><th class='no-print'>إجراءات</th></tr>";
@@ -984,50 +809,29 @@ function buildReport(records,type,subtype,target,from,to){
     head="<tr><th>التاريخ</th><th>النوع</th><th>البيان</th><th>المبلغ / الإجمالي</th><th>الرصيد</th><th class='no-print'>إجراءات</th></tr>";
     for(const r of records){
       const amount=r.type==="transfer"?Number(r.totalCostKwd||0):(r.amount||0);
-      if(isExpenseReal(r)){debit+=amount;runningBalance-=amount}
-      if(isIncomeReal(r)){credit+=amount;runningBalance+=amount}
+      if(isExpenseReal(r)){debit+=amount;runningBalance-=amount;}
+      if(isIncomeReal(r)){credit+=amount;runningBalance+=amount;}
       rows+=`<tr><td>${fmtDate(r.date)}</td><td><span class="badge ${badgeClass(r)}">${escapeHTML(operationKind(r))}</span></td><td>${escapeHTML(detailLabel(r))}</td><td class="amount">${money(amount)}</td><td class="amount"><strong>${money(runningBalance)}</strong></td>${actionButtons(r)}</tr>`;
     }
     finalWordsLabel="الفرق الصافي";
     finalWordsValue=credit-debit;
   }
-
   $("report-table-head").innerHTML=head;
   const colCount=(head.match(/<th/g)||[]).length||6;
   $("report-table-body").innerHTML=rows||`<tr><td colspan="${colCount}" style="text-align:center;padding:18px;color:#64748b">لا توجد معاملات في الفترة المحددة.</td></tr>`;
-
   let summary="";
   if(type==="debt"){
     const s=window.__debtSummary||{openingSum:0,debit,credit,totalAdd:debit,netDebt:debit-credit};
     const net=s.netDebt;
     let netLabel,netValue,netColor;
-    if(net>0.0005){
-      netLabel="المتبقي علينا لهذا الطرف";
-      netValue=money(net);
-      netColor="var(--red)";
-      finalWordsLabel="المتبقي علينا";
-      finalWordsValue=net;
-    } else if(net<-0.0005){
-      netLabel="المستحق لنا على هذا الطرف";
-      netValue=money(Math.abs(net));
-      netColor="var(--green)";
-      finalWordsLabel="المستحق لنا";
-      finalWordsValue=Math.abs(net);
-    } else {
-      netLabel="حالة الرصيد";
-      netValue="مُسدّد بالكامل — لا يوجد مستحق";
-      netColor="var(--green)";
-      finalWordsLabel="الرصيد";
-      finalWordsValue=0;
-    }
+    if(net>0.0005){netLabel="المتبقي علينا لهذا الطرف";netValue=money(net);netColor="var(--red)";finalWordsLabel="المتبقي علينا";finalWordsValue=net;}
+    else if(net<-0.0005){netLabel="المستحق لنا على هذا الطرف";netValue=money(Math.abs(net));netColor="var(--green)";finalWordsLabel="المستحق لنا";finalWordsValue=Math.abs(net);}
+    else{netLabel="حالة الرصيد";netValue="مُسدّد بالكامل — لا يوجد مستحق";netColor="var(--green)";finalWordsLabel="الرصيد";finalWordsValue=0;}
     summary=`
       <div class="row-between"><span>رصيد أول المدة</span><strong>${money(s.openingSum)}</strong></div>
       <div class="row-between"><span>إجمالي ما أخذناه (رصيد أول المدة + مدين)</span><strong>${money(s.totalAdd)}</strong></div>
       <div class="row-between"><span>إجمالي ما سددناه (دائن)</span><strong>${money(s.credit)}</strong></div>
-      <div class="row-between" style="border-top:2px solid #c7d2fe;padding-top:9px;margin-top:5px">
-        <strong>${netLabel}</strong>
-        <strong style="color:${netColor};font-size:13px">${netValue}</strong>
-      </div>`;
+      <div class="row-between" style="border-top:2px solid #c7d2fe;padding-top:9px;margin-top:5px"><strong>${netLabel}</strong><strong style="color:${netColor};font-size:13px">${netValue}</strong></div>`;
     $("tafqit-box").textContent="معادلة الحساب: (رصيد أول المدة + مدين) − دائن. المستند قابل للاعتماد بين الطرفين.";
     window.__debtSummary=null;
   }
@@ -1038,27 +842,25 @@ function buildReport(records,type,subtype,target,from,to){
   else if(isHierarchical){
     const tot=type==="expense"?debit:credit;
     summary=`<div class="row-between"><strong>${type==="expense"?"إجمالي المصروفات":"إجمالي المقبوضات"}</strong><strong>${money(tot)}</strong></div><div class="row-between"><span>عدد الحركات</span><strong>${records.length}</strong></div>`;
-    $("tafqit-box").textContent=type==="expense"?"يشمل المصروفات والحوالات والديون الدائنة.":"يشمل الدخل والديون المدينة الواردة.";
+    $("tafqit-box").textContent=type==="expense"?"يشمل المصروفات العادية والحوالات وسداد الديون.":"يشمل الدخل العادي والديون التي أخدناها.";
   }
   else if(type==="transfer"){
     summary=`<div class="row-between"><span>إجمالي تكلفة التحويلات</span><strong>${money(transferKwd)}</strong></div><div class="row-between"><span>إجمالي الجنيهات</span><strong>${totalEgp.toLocaleString("en-US",{maximumFractionDigits:2})} ج.م</strong></div>`;
     $("tafqit-box").textContent="تكلفة المستفيد تقديرية موزعة حسب حصته.";
   }
   else{
-    summary=`<div class="row-between"><span>إجمالي المدفوعات</span><strong>${money(debit)}</strong></div><div class="row-between"><span>إجمالي المقبوضات</span><strong>${money(credit)}</strong></div><div class="row-between" style="border-top:1px solid #c7d2fe;padding-top:8px"><strong>الفرق الصافي</strong><strong>${money(credit-debit)}</strong></div>`;
+    summary=`<div class="row-between"><span>إجمالي المدفوعات (مصروفات + سداد ديون + حوالات)</span><strong>${money(debit)}</strong></div><div class="row-between"><span>إجمالي المقبوضات (دخل + ديون مستلمة)</span><strong>${money(credit)}</strong></div><div class="row-between" style="border-top:1px solid #c7d2fe;padding-top:8px"><strong>الفرق الصافي</strong><strong>${money(credit-debit)}</strong></div>`;
     $("tafqit-box").textContent="ملخص تدفقات الحساب للمعاملات المسجلة.";
   }
   $("report-summary").innerHTML=summary;
-  renderFinalWords("report-final-words", finalWordsLabel, finalWordsValue);
+  renderFinalWords("report-final-words",finalWordsLabel,finalWordsValue);
 }
-
-function backToFilters(){$("report-section").classList.add("hidden");$("filter-section").classList.remove("hidden")}
-
+function backToFilters(){$("report-section").classList.add("hidden");$("filter-section").classList.remove("hidden");}
 async function editTransaction(id){
   try{
     const records=await allTransactions();
     const r=records.find(x=>String(x.id)===String(id));
-    if(!r){showToast("لم يتم العثور على المعاملة.");return}
+    if(!r){showToast("لم يتم العثور على المعاملة.");return;}
     editingTransactionId=r.id;editingCreatedAt=r.createdAt||null;
     switchMainView("input");
     activeInputType=r.type||"expense";
@@ -1070,16 +872,12 @@ async function editTransaction(id){
     if(r.type==="expense"||r.type==="income"){
       $(r.type+"-amount").value=r.amount??"";
       const sel=$(r.type+"-category");
-      if(r.category&&![...sel.options].some(o=>o.value===r.category)){
-        const opt=document.createElement("option");opt.value=r.category;opt.textContent=r.category;sel.appendChild(opt);
-      }
+      if(r.category&&![...sel.options].some(o=>o.value===r.category)){const opt=document.createElement("option");opt.value=r.category;opt.textContent=r.category;sel.appendChild(opt);}
       sel.value=r.category||sel.options[0].value;
     }
     if(r.type==="debt"){
       const dp=$("debt-person-select");
-      if(r.person&&![...dp.options].some(o=>o.value===r.person)){
-        const opt=document.createElement("option");opt.value=r.person;opt.textContent=r.person;dp.appendChild(opt);
-      }
+      if(r.person&&![...dp.options].some(o=>o.value===r.person)){const opt=document.createElement("option");opt.value=r.person;opt.textContent=r.person;dp.appendChild(opt);}
       dp.value=r.person||"";
       $("debt-amount").value=r.amount??"";
       $("debt-type").value=r.debtType||"creditor";
@@ -1097,16 +895,10 @@ async function editTransaction(id){
     $("edit-banner").classList.remove("hidden");
     $("save-transaction").textContent="حفظ التعديلات 💾";
     showToast("تم فتح المعاملة للتعديل.");
-  }catch(e){console.error(e);showToast("تعذر فتح المعاملة.")}
+  }catch(e){console.error(e);showToast("تعذر فتح المعاملة.");}
 }
 function editFromReport(id){
-  savedReportFilters={
-    type:$("report-type").value,
-    subtype:$("report-subtype")?$("report-subtype").value:"all",
-    target:$("beneficiary-select").value,
-    from:readDateParts("date-from"),
-    to:readDateParts("date-to")
-  };
+  savedReportFilters={type:$("report-type").value,subtype:$("report-subtype")?$("report-subtype").value:"all",target:$("beneficiary-select").value,from:readDateParts("date-from"),to:readDateParts("date-to")};
   returnToReportsAfterSave=true;
   editTransaction(id);
 }
@@ -1121,12 +913,12 @@ function cancelEdit(){
     switchMainView("reports");
     if(savedReportFilters){
       $("report-type").value=savedReportFilters.type;onReportTypeChange();
-      if(savedReportFilters.subtype){const sub=$("report-subtype");if([...sub.options].some(o=>o.value===savedReportFilters.subtype))sub.value=savedReportFilters.subtype}
+      if(savedReportFilters.subtype){const sub=$("report-subtype");if([...sub.options].some(o=>o.value===savedReportFilters.subtype))sub.value=savedReportFilters.subtype;}
       writeDateParts("date-from",savedReportFilters.from);writeDateParts("date-to",savedReportFilters.to);
       savedReportFilters=null;
     }
     generateReport();
-  }else{showToast("تم إلغاء التعديل.")}
+  }else showToast("تم إلغاء التعديل.");
 }
 async function deleteTransactionFromReport(id){
   if(!confirm("هل تريد حذف هذه المعاملة نهائيًا؟"))return;
@@ -1134,14 +926,12 @@ async function deleteTransactionFromReport(id){
     await deleteTransaction(id);await syncLocalMirror();
     showToast("تم حذف المعاملة.");
     await refreshAllViews();
-    if(currentReportData){await generateReport();}
-  }catch(e){console.error(e);showToast("تعذر حذف المعاملة.")}
+    if(currentReportData)await generateReport();
+  }catch(e){console.error(e);showToast("تعذر حذف المعاملة.");}
 }
-
-/* ============ تصدير التقارير ============ */
 function exportReportExcel(){
   const table=$("capture-area").querySelector("table");
-  if(!table){showToast("لا توجد بيانات.");return}
+  if(!table){showToast("لا توجد بيانات.");return;}
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.table_to_sheet(table,{raw:true});
   ws['!rtl']=true;
@@ -1150,15 +940,13 @@ function exportReportExcel(){
   showToast("تم التصدير إلى Excel 📗");
 }
 function shareReport(){
-  if(!currentReportData){showToast("لا توجد بيانات.");return}
+  if(!currentReportData){showToast("لا توجد بيانات.");return;}
   const wordsEl=$("report-final-words");
   const words=wordsEl&&!wordsEl.classList.contains("hidden")?`\n\n${wordsEl.innerText}`:"";
   const text=`📊 *${$("report-title").textContent}*\n\nالفترة: ${$("display-date-range").textContent}\nعدد الحركات: ${$("display-count").textContent}\n\n${$("report-summary").innerText}${words}\n\nمصدّر من النظام المالي الشخصي.`;
-  if(navigator.share){navigator.share({title:"التقرير المالي",text}).catch(()=>{})}
-  else{navigator.clipboard.writeText(text).then(()=>showToast("تم نسخ التقرير 📋")).catch(()=>showToast("تعذرت المشاركة"))}
+  if(navigator.share){navigator.share({title:"التقرير المالي",text}).catch(()=>{});}
+  else{navigator.clipboard.writeText(text).then(()=>showToast("تم نسخ التقرير 📋")).catch(()=>showToast("تعذرت المشاركة"));}
 }
-
-/* ============ التحليل ============ */
 function initAnalysisView(){
   onAnalysisTypeChange();
   if(!readDateParts("analysis-from"))writeDateParts("analysis-from",firstOfMonthISO());
@@ -1169,14 +957,8 @@ function onAnalysisTypeChange(){
   const type=$("analysis-type").value;
   const wrap=$("analysis-subtype-wrap");
   const catMgr=$("analysis-cat-manager");
-  if(type==="expense"||type==="income"){
-    wrap.classList.remove("hidden");
-    fillAnalysisSubtype(type);
-    catMgr.classList.remove("hidden");
-  }else{
-    wrap.classList.add("hidden");
-    catMgr.classList.add("hidden");
-  }
+  if(type==="expense"||type==="income"){wrap.classList.remove("hidden");fillAnalysisSubtype(type);catMgr.classList.remove("hidden");}
+  else{wrap.classList.add("hidden");catMgr.classList.add("hidden");}
 }
 function fillAnalysisSubtype(type){
   const sel=$("analysis-subtype");
@@ -1188,32 +970,20 @@ function fillAnalysisSubtype(type){
 function toggleAddCategory(){
   const panel=$("add-category-panel");
   panel.classList.toggle("hidden");
-  if(!panel.classList.contains("hidden")){
-    const mt=$("analysis-type").value;
-    if(mt==="expense"||mt==="income")$("new-cat-type").value=mt;
-    renderCustomCatsList();
-  }
+  if(!panel.classList.contains("hidden")){const mt=$("analysis-type").value;if(mt==="expense"||mt==="income")$("new-cat-type").value=mt;renderCustomCatsList();}
 }
 function renderCustomCatsList(){
   const cats=getCustomCategories();
   const list=$("custom-cats-list");
   const all=[...cats.expense.map(c=>({type:"expense",name:c,label:"مصروف"})),...cats.income.map(c=>({type:"income",name:c,label:"دخل"}))];
-  if(!all.length){list.innerHTML='<div class="small">لا توجد تصنيفات مخصصة بعد.</div>';return}
+  if(!all.length){list.innerHTML='<div class="small">لا توجد تصنيفات مخصصة بعد.</div>';return;}
   list.innerHTML='<div class="section-title" style="margin-top:5px">التصنيفات المخصصة:</div>'+all.map(c=>`<div class="row-between small" style="background:white;border:1px solid var(--line);border-radius:9px;padding:7px 9px"><span>${escapeHTML(c.name)} <span class="badge">${escapeHTML(c.label)}</span></span><button class="btn btn-danger" style="padding:4px 8px;font-size:10px" type="button" data-action="del-cat" data-type="${escapeHTML(c.type)}" data-name="${escapeHTML(c.name)}">حذف</button></div>`).join("");
 }
-function addCustomCategory(type,name){
-  const clean=String(name||"").trim().slice(0,60);
-  if(!clean)return false;
-  const all=type==="expense"?getExpenseCategories():getIncomeCategories();
-  if(all.includes(clean))return false;
-  const cats=getCustomCategories();cats[type].push(clean);saveCustomCategories(cats);return true;
-}
-function deleteCustomCategory(type,name){
-  const cats=getCustomCategories();cats[type]=cats[type].filter(c=>c!==name);saveCustomCategories(cats);
-}
+function addCustomCategory(type,name){const clean=String(name||"").trim().slice(0,60);if(!clean)return false;const all=type==="expense"?getExpenseCategories():getIncomeCategories();if(all.includes(clean))return false;const cats=getCustomCategories();cats[type].push(clean);saveCustomCategories(cats);return true;}
+function deleteCustomCategory(type,name){const cats=getCustomCategories();cats[type]=cats[type].filter(c=>c!==name);saveCustomCategories(cats);}
 function saveNewCategory(){
   const type=$("new-cat-type").value,name=$("new-cat-name").value.trim();
-  if(!name){showToast("أدخل اسم التصنيف");return}
+  if(!name){showToast("أدخل اسم التصنيف");return;}
   if(addCustomCategory(type,name)){
     $("new-cat-name").value="";
     populateCategorySelects();
@@ -1224,18 +994,18 @@ function saveNewCategory(){
   }else showToast("التصنيف موجود بالفعل");
 }
 async function setAnalysisToSalaryCycle(){
-  if(!db)try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة");return}
+  if(!db)try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة");return;}
   try{
     const records=await allTransactions();
     const salaryTx=records.filter(r=>r.type==="income"&&r.isSalaryBase).sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time))[0];
-    if(!salaryTx){showToast("لا توجد معاملة راتب أساسي.");return}
+    if(!salaryTx){showToast("لا توجد معاملة راتب أساسي.");return;}
     writeDateParts("analysis-from",salaryTx.date);
     writeDateParts("analysis-to",todayISO());
     showToast(`بداية الدورة: ${fmtDate(salaryTx.date)} ⚡`);
-  }catch(e){console.error(e);showToast("تعذر تحديد الدورة.")}
+  }catch(e){console.error(e);showToast("تعذر تحديد الدورة.");}
 }
 async function refreshCurrentBalance(){
-  if(!db)try{await openDB();}catch(e){return}
+  if(!db)try{await openDB();}catch(e){return;}
   try{
     const records=await allTransactions();
     const s=getSettings();
@@ -1245,27 +1015,23 @@ async function refreshCurrentBalance(){
       else if(r.type==="expense")balance-=Number(r.amount||0);
       else if(r.type==="transfer")balance-=Number(r.totalCostKwd||0);
       else if(r.type==="debt"){
-        if(isCreditorEntry(r))balance-=Number(r.amount||0);
-        else if(isDebtorEntry(r))balance+=Number(r.amount||0);
+        // ✅ أخدنا دين = كاش زاد، سددنا دين = كاش نقص
+        if(isCreditorEntry(r))balance+=Number(r.amount||0);
+        else if(isDebtorEntry(r))balance-=Number(r.amount||0);
       }
     }
     $("current-balance-value").textContent=money(balance);
     $("opening-balance-note").textContent=s.openingBalance?`يشمل رصيدًا افتتاحيًا: ${money(s.openingBalance)}`:"لم تحدد رصيدًا افتتاحيًا بعد";
-  }catch(e){console.error(e)}
+  }catch(e){console.error(e);}
 }
 async function generateAnalysis(){
-  if(!db){try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة");return}}
+  if(!db){try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة");return;}}
   const mainType=$("analysis-type").value;
   const subType=$("analysis-subtype-wrap").classList.contains("hidden")?"all":($("analysis-subtype").value||"all");
   let from=readDateParts("analysis-from");
   let to=readDateParts("analysis-to")||todayISO();
-  if(!from){showToast("أدخل تاريخ البداية");return}
-  if(from>to){
-    const tmp=from;from=to;to=tmp;
-    writeDateParts("analysis-from",from);
-    writeDateParts("analysis-to",to);
-    showToast("تم ترتيب التواريخ تلقائيًا");
-  }
+  if(!from){showToast("أدخل تاريخ البداية");return;}
+  if(from>to){const tmp=from;from=to;to=tmp;writeDateParts("analysis-from",from);writeDateParts("analysis-to",to);showToast("تم ترتيب التواريخ تلقائيًا");}
   try{
     const records=await allTransactions();
     const periodRecords=records.filter(r=>r.date>=from&&r.date<=to);
@@ -1275,18 +1041,16 @@ async function generateAnalysis(){
     refreshCurrentBalance();
     $("analysis-filter-section").classList.add("hidden");
     $("analysis-result-section").classList.remove("hidden");
-  }catch(e){console.error(e);showToast("تعذر إنشاء التحليل")}
+  }catch(e){console.error(e);showToast("تعذر إنشاء التحليل");}
 }
-function backToAnalysisFilters(){$("analysis-result-section").classList.add("hidden");$("analysis-filter-section").classList.remove("hidden")}
-function pctOf(amount,total){return total>0?((amount/total)*100).toFixed(1)+"%":"—"}
-
+function backToAnalysisFilters(){$("analysis-result-section").classList.add("hidden");$("analysis-filter-section").classList.remove("hidden");}
+function pctOf(amount,total){return total>0?((amount/total)*100).toFixed(1)+"%":"—";}
 function buildAnalysis(records,mainType,subType,from,to,totalIncome,totalExpense){
   const daysDiff=Math.max(1,Math.round((new Date(to)-new Date(from))/(1000*60*60*24))+1);
   const netBalance=totalIncome-totalExpense;
   const expenseRatio=totalIncome>0?((totalExpense/totalIncome)*100).toFixed(1)+"%":"0.0%";
   const dailyAvg=daysDiff>0?(totalExpense/daysDiff):0;
   const mainLabel={all:"الكل",expense:"مصروفات",income:"دخل",transfer:"تحويلات خارجية",debt:"ديون"}[mainType]||mainType;
-
   $("analysis-meta").innerHTML=`
     <div class="row-between"><span>الفترة:</span><strong>من ${fmtDate(from)} إلى ${fmtDate(to)}</strong></div>
     <div class="row-between"><span>عدد الأيام:</span><strong>${daysDiff} يوم</strong></div>
@@ -1294,7 +1058,6 @@ function buildAnalysis(records,mainType,subType,from,to,totalIncome,totalExpense
     <div class="row-between"><span>عدد الحركات:</span><strong>${records.length} حركة</strong></div>
     <div class="row-between"><span>تاريخ الإصدار:</span><strong>${escapeHTML(todayLong())}</strong></div>
   `;
-
   $("analysis-kpi-box").innerHTML=`
     <div class="kpi-grid">
       <div class="kpi-card"><span>إجمالي الدخل</span><strong>${money(totalIncome)}</strong></div>
@@ -1305,9 +1068,7 @@ function buildAnalysis(records,mainType,subType,from,to,totalIncome,totalExpense
       <div class="kpi-card"><span>عدد الحركات</span><strong>${records.length}</strong></div>
     </div>
   `;
-
-  renderFinalWords("analysis-final-words", "الصافي المتبقي للفترة", netBalance);
-
+  renderFinalWords("analysis-final-words","الصافي المتبقي للفترة",netBalance);
   let body="";
   if(mainType==="all"||mainType==="expense")body+=buildExpenseSection(records,subType==="all"?null:subType,totalIncome);
   if(mainType==="all"||mainType==="income")body+=buildIncomeSection(records,subType==="all"?null:subType,totalIncome);
@@ -1332,9 +1093,7 @@ function buildExpenseSection(records,filterCategory,totalIncome){
   for(const [cat,data] of entries){
     html+=`<div class="analysis-category"><div class="row-between"><strong>${escapeHTML(cat)}</strong><span>${money(data.total)} · ${pctOf(data.total,totalIncome)}</span></div><div class="analysis-transactions">`;
     data.items.sort((a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||"")));
-    for(const item of data.items){
-      html+=`<div class="row-between"><span class="small">${fmtDate(item.date)} · ${escapeHTML(item.time||"")}</span><span class="small">${escapeHTML(item.notes||"—")}</span><span class="amount">${money(item.amount)}</span></div>`;
-    }
+    for(const item of data.items){html+=`<div class="row-between"><span class="small">${fmtDate(item.date)} · ${escapeHTML(item.time||"")}</span><span class="small">${escapeHTML(item.notes||"—")}</span><span class="amount">${money(item.amount)}</span></div>`;}
     html+=`</div></div>`;
   }
   html+=`</section>`;return html;
@@ -1384,7 +1143,7 @@ function buildDebtSection(records,totalIncome){
 }
 function exportAnalysisExcel(){
   const capture=$("analysis-body");
-  if(!capture){showToast("لا توجد بيانات.");return}
+  if(!capture){showToast("لا توجد بيانات.");return;}
   const wb=XLSX.utils.book_new();let data=[];
   data.push(["التقرير المالي"]);
   data.push([$("analysis-meta").innerText.replace(/\n/g," | ")]);
@@ -1413,14 +1172,12 @@ function shareAnalysis(){
   const wordsEl=$("analysis-final-words");
   const words=wordsEl&&!wordsEl.classList.contains("hidden")?`\n\n${wordsEl.innerText}`:"";
   const text=`📊 *التقرير المالي*\n\nرصيدي الحالي: ${balance}\n${meta}${words}\n\nمصدّر من النظام المالي الشخصي.`;
-  if(navigator.share){navigator.share({title:"التقرير المالي",text}).catch(()=>{})}
-  else{navigator.clipboard.writeText(text).then(()=>showToast("تم النسخ 📋")).catch(()=>showToast("تعذرت المشاركة"))}
+  if(navigator.share){navigator.share({title:"التقرير المالي",text}).catch(()=>{});}
+  else{navigator.clipboard.writeText(text).then(()=>showToast("تم النسخ 📋")).catch(()=>showToast("تعذرت المشاركة"));}
 }
-
-/* ============ الإعدادات والنسخ الاحتياطي ============ */
 function saveOpeningBalance(){
   const v=getNum("opening-balance");
-  if(!Number.isFinite(v)){showToast("أدخل رقمًا صحيحًا");return}
+  if(!Number.isFinite(v)){showToast("أدخل رقمًا صحيحًا");return;}
   const s=getSettings();s.openingBalance=Math.round(v*1000)/1000;
   saveSettings(s);
   $("opening-balance-status").textContent=`تم الحفظ: ${money(s.openingBalance)}`;
@@ -1440,7 +1197,7 @@ async function refreshBackupStatus(){
   }catch(e){}
 }
 async function downloadBackup(){
-  if(!db)try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة");return}
+  if(!db)try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة");return;}
   try{
     const records=await allTransactions();
     const data={version:3,exportDate:new Date().toISOString(),transactions:records,settings:getSettings(),customCategories:getCustomCategories(),people:getPeople()};
@@ -1451,36 +1208,34 @@ async function downloadBackup(){
     lastSavedAt=new Date().toISOString();localStorage.setItem("PersonalFinanceLastSaved",lastSavedAt);
     refreshBackupStatus();
     showToast("تم تنزيل النسخة 🛡️");
-  }catch(e){console.error(e);showToast("تعذر إنشاء النسخة")}
+  }catch(e){console.error(e);showToast("تعذر إنشاء النسخة");}
 }
 async function shareBackup(){
-  if(!db)try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة");return}
+  if(!db)try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة");return;}
   try{
     const records=await allTransactions();
     const data={version:3,exportDate:new Date().toISOString(),transactions:records,settings:getSettings(),customCategories:getCustomCategories(),people:getPeople()};
     const jsonStr=JSON.stringify(data,null,2);
     const file=new File([jsonStr],`PersonalFinance_Backup_${todayISO()}.json`,{type:"application/json"});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({title:"النسخة الاحتياطية",files:[file]});
-    }else if(navigator.share){
-      await navigator.share({title:"النسخة الاحتياطية",text:jsonStr.slice(0,1000)});
-    }else downloadBackup();
-  }catch(e){console.error(e);showToast("تعذرت المشاركة")}
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:"النسخة الاحتياطية",files:[file]});}
+    else if(navigator.share){await navigator.share({title:"النسخة الاحتياطية",text:jsonStr.slice(0,1000)});}
+    else downloadBackup();
+  }catch(e){console.error(e);showToast("تعذرت المشاركة");}
 }
 async function restoreBackup(){
   const fileInput=$("restore-file");
-  if(!fileInput.files||!fileInput.files[0]){showToast("اختر ملف أولًا.");return}
+  if(!fileInput.files||!fileInput.files[0]){showToast("اختر ملف أولًا.");return;}
   const file=fileInput.files[0];
   const reader=new FileReader();
   reader.onload=async e=>{
     try{
       const data=JSON.parse(e.target.result);
-      if(!data||!Array.isArray(data.transactions)){showToast("ملف غير صالح.");return}
+      if(!data||!Array.isArray(data.transactions)){showToast("ملف غير صالح.");return;}
       if(!db)await openDB();
       const tx=db.transaction(STORE_NAME,"readwrite");
       const store=tx.objectStore(STORE_NAME);
       for(const r of data.transactions)store.put(r);
-      await new Promise((resolve,reject)=>{tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+      await new Promise((resolve,reject)=>{tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});
       if(data.settings)saveSettings(data.settings);
       if(data.customCategories)saveCustomCategories(data.customCategories);
       if(Array.isArray(data.people))savePeople(data.people);
@@ -1501,7 +1256,7 @@ async function clearAllTransactions(){
   try{
     if(!db)await openDB();
     const tx=db.transaction(STORE_NAME,"readwrite");tx.objectStore(STORE_NAME).clear();
-    await new Promise((resolve,reject)=>{tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+    await new Promise((resolve,reject)=>{tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});
     localStorage.removeItem("PersonalFinanceLocalBackup");
     localStorage.removeItem(CUSTOM_CATS_KEY);
     localStorage.removeItem(SETTINGS_KEY);
@@ -1510,18 +1265,16 @@ async function clearAllTransactions(){
     await refreshAllViews();
     showToast("تم حذف كل البيانات.");
     switchMainView("input");
-  }catch(e){console.error(e);showToast("تعذر الحذف.")}
+  }catch(e){console.error(e);showToast("تعذر الحذف.");}
 }
-
-/* ============ مشاركة كصورة ============ */
 async function shareAsImage(id,name){
   const el=$(id);
-  if(!el||typeof html2canvas==="undefined"){showToast("تعذر تحميل مكتبة الصورة، تأكد من الإنترنت.");return}
+  if(!el||typeof html2canvas==="undefined"){showToast("تعذر تحميل مكتبة الصورة، تأكد من الإنترنت.");return;}
   showToast("جاري تجهيز الصور...");
   try{
     const clone=el.cloneNode(true);
     clone.querySelectorAll(".no-print").forEach(n=>n.remove());
-    clone.querySelectorAll(".table-wrap").forEach(n=>{n.style.overflow="visible";n.style.maxHeight="none"});
+    clone.querySelectorAll(".table-wrap").forEach(n=>{n.style.overflow="visible";n.style.maxHeight="none";});
     clone.style.width="100%";clone.style.margin="0";
     const wrap=document.createElement("div");
     wrap.setAttribute("dir","rtl");
@@ -1531,7 +1284,7 @@ async function shareAsImage(id,name){
     const pageCanvases=[];
     try{
       let needed=el.offsetWidth;
-      clone.querySelectorAll("table").forEach(t=>{needed=Math.max(needed,Math.ceil(t.getBoundingClientRect().width)+30)});
+      clone.querySelectorAll("table").forEach(t=>{needed=Math.max(needed,Math.ceil(t.getBoundingClientRect().width)+30);});
       wrap.style.width=needed+"px";
       await new Promise(r=>setTimeout(r,50));
       const canvas=await html2canvas(clone,{scale:2,backgroundColor:"#ffffff",useCORS:true,scrollX:0,scrollY:0,windowWidth:needed,windowHeight:Math.max(clone.scrollHeight,window.innerHeight)});
@@ -1540,16 +1293,10 @@ async function shareAsImage(id,name){
       const ratio=canvas.width/cW;
       const pageH=Math.round(cW*1.5);
       const breaks=[];
-      clone.querySelectorAll("tbody tr,.analysis-transactions > .row-between,.analysis-category,.kpi-grid,.report-meta,.report-summary,.final-words,.balance-card,.report-head").forEach(n=>{breaks.push(n.getBoundingClientRect().bottom-cTop)});
+      clone.querySelectorAll("tbody tr,.analysis-transactions > .row-between,.analysis-category,.kpi-grid,.report-meta,.report-summary,.final-words,.balance-card,.report-head").forEach(n=>{breaks.push(n.getBoundingClientRect().bottom-cTop);});
       breaks.sort((a,b)=>a-b);
       const cuts=[0];let start=0;
-      while(cH-start>pageH*1.15){
-        const limit=start+pageH;
-        let cut=null;
-        for(const b of breaks){if(b<=limit&&b>start+pageH*0.4)cut=b}
-        if(cut===null)cut=limit;
-        cuts.push(cut);start=cut;
-      }
+      while(cH-start>pageH*1.15){const limit=start+pageH;let cut=null;for(const b of breaks){if(b<=limit&&b>start+pageH*0.4)cut=b;}if(cut===null)cut=limit;cuts.push(cut);start=cut;}
       cuts.push(cH);
       const total=cuts.length-1;
       const footerH=total>1?Math.round(28*ratio):0;
@@ -1570,18 +1317,13 @@ async function shareAsImage(id,name){
         }
         pageCanvases.push(pc);
       }
-    }finally{wrap.remove()}
+    }finally{wrap.remove();}
     const blobs=[];
-    for(const pc of pageCanvases){
-      const b=await new Promise(res=>pc.toBlob(res,"image/png"));
-      if(!b){showToast("تعذر إنشاء الصورة");return}
-      blobs.push(b);
-    }
+    for(const pc of pageCanvases){const b=await new Promise(res=>pc.toBlob(res,"image/png"));if(!b){showToast("تعذر إنشاء الصورة");return;}blobs.push(b);}
     const multi=blobs.length>1;
     const files=blobs.map((b,i)=>new File([b],name+"_"+todayISO()+(multi?"_"+(i+1):"")+".png",{type:"image/png"}));
-    if(navigator.canShare&&navigator.canShare({files})){
-      await navigator.share({files,title:"التقرير المالي"});
-    }else{
+    if(navigator.canShare&&navigator.canShare({files})){await navigator.share({files,title:"التقرير المالي"});}
+    else{
       for(const f of files){
         const url=URL.createObjectURL(f);
         const a=document.createElement("a");a.href=url;a.download=f.name;a.click();
@@ -1595,40 +1337,27 @@ async function shareAsImage(id,name){
     console.error(e);showToast("تعذرت مشاركة الصورة");
   }
 }
-
-/* ============ تصدير PDF ============ */
-async function exportPDF(captureId, filename){
+async function exportPDF(captureId,filename){
   const el=$(captureId);
-  if(!el||typeof html2canvas==="undefined"||!window.jspdf){
-    showToast("تعذر تحميل مكتبة PDF، تأكد من الإنترنت.");return;
-  }
+  if(!el||typeof html2canvas==="undefined"||!window.jspdf){showToast("تعذر تحميل مكتبة PDF، تأكد من الإنترنت.");return;}
   showToast("جاري تجهيز PDF...");
   try{
     const clone=el.cloneNode(true);
     clone.querySelectorAll(".no-print").forEach(n=>n.remove());
-    clone.querySelectorAll(".table-wrap").forEach(n=>{n.style.overflow="visible";n.style.maxHeight="none"});
+    clone.querySelectorAll(".table-wrap").forEach(n=>{n.style.overflow="visible";n.style.maxHeight="none";});
     const wrap=document.createElement("div");
     wrap.setAttribute("dir","rtl");
     wrap.style.cssText="position:fixed;left:-10000px;top:0;background:#fff;padding:0;z-index:-1;width:"+el.offsetWidth+"px";
     wrap.appendChild(clone);
     document.body.appendChild(wrap);
-
     let canvas;
     try{
       let needed=el.offsetWidth;
-      clone.querySelectorAll("table").forEach(t=>{
-        needed=Math.max(needed,Math.ceil(t.getBoundingClientRect().width)+30);
-      });
+      clone.querySelectorAll("table").forEach(t=>{needed=Math.max(needed,Math.ceil(t.getBoundingClientRect().width)+30);});
       wrap.style.width=needed+"px";
       await new Promise(r=>setTimeout(r,50));
-      canvas=await html2canvas(clone,{
-        scale:2,backgroundColor:"#ffffff",useCORS:true,
-        scrollX:0,scrollY:0,
-        windowWidth:needed,
-        windowHeight:Math.max(clone.scrollHeight,window.innerHeight)
-      });
-    }finally{wrap.remove()}
-
+      canvas=await html2canvas(clone,{scale:2,backgroundColor:"#ffffff",useCORS:true,scrollX:0,scrollY:0,windowWidth:needed,windowHeight:Math.max(clone.scrollHeight,window.innerHeight)});
+    }finally{wrap.remove();}
     const {jsPDF}=window.jspdf;
     const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const pageW=pdf.internal.pageSize.getWidth();
@@ -1637,10 +1366,8 @@ async function exportPDF(captureId, filename){
     const imgW=pageW-margin*2;
     const imgH=canvas.height*imgW/canvas.width;
     const pageContentH=pageH-margin*2;
-
-    if(imgH<=pageContentH){
-      pdf.addImage(canvas,"PNG",margin,margin,imgW,imgH);
-    }else{
+    if(imgH<=pageContentH){pdf.addImage(canvas,"PNG",margin,margin,imgW,imgH);}
+    else{
       const pxPerMM=canvas.width/imgW;
       const sliceHeightPx=Math.floor(pageContentH*pxPerMM);
       const srcCanvas=document.createElement("canvas");
@@ -1658,7 +1385,6 @@ async function exportPDF(captureId, filename){
         y+=h;first=false;
       }
     }
-
     const blob=pdf.output("blob");
     const url=URL.createObjectURL(blob);
     const win=window.open(url,"_blank");
@@ -1666,17 +1392,11 @@ async function exportPDF(captureId, filename){
       const a=document.createElement("a");
       a.href=url;a.download=filename+"_"+todayISO()+".pdf";a.click();
       showToast("تم تنزيل PDF 📄");
-    }else{
-      showToast("تم فتح PDF ✅");
-    }
+    }else showToast("تم فتح PDF ✅");
     setTimeout(()=>URL.revokeObjectURL(url),60000);
-  }catch(e){
-    console.error(e);showToast("تعذر إنشاء PDF");
-  }
+  }catch(e){console.error(e);showToast("تعذر إنشاء PDF");}
 }
-
-/* ============ أحداث عامة ============ */
-document.addEventListener("click", e=>{
+document.addEventListener("click",e=>{
   const t=e.target.closest("[data-action]");
   if(!t)return;
   const action=t.dataset.action;
@@ -1702,24 +1422,21 @@ $("transfer-fee-mode").addEventListener("change",e=>{
   calculateExchange();
 });
 $("person-modal-input").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){e.preventDefault();confirmAddPerson()}
-  if(e.key==="Escape"){e.preventDefault();closePersonModal()}
+  if(e.key==="Enter"){e.preventDefault();confirmAddPerson();}
+  if(e.key==="Escape"){e.preventDefault();closePersonModal();}
 });
 $("new-person-name").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){e.preventDefault();addPersonFromSettings()}
+  if(e.key==="Enter"){e.preventDefault();addPersonFromSettings();}
 });
-
-window.addEventListener("DOMContentLoaded", async ()=>{
+window.addEventListener("DOMContentLoaded",async()=>{
   initDates();
   populateCategorySelects();
   populatePeopleSelects();
   renderPersonsManageList();
   addBeneficiary();
   onReportTypeChange();
-  try{
-    await openDB();
-    await refreshAllViews();
-  }catch(e){console.warn("IndexedDB init warning:",e)}
+  try{await openDB();await refreshAllViews();}
+  catch(e){console.warn("IndexedDB init warning:",e);}
 });
 </script>
 </body>
