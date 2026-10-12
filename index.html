@@ -71,12 +71,14 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .analysis-transactions > .row-between{gap:6px;align-items:baseline}
 .analysis-transactions > .row-between > .small{flex:1;min-width:0;overflow-wrap:anywhere}
 #toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);z-index:20;background:#0f172a;color:white;padding:10px 14px;border-radius:12px;font-size:12px;box-shadow:0 8px 25px #0002;max-width:90vw;text-align:center;display:none}
+/* قائمة الأسماء */
 .person-picker{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:stretch}
 .person-picker select{margin:0}
 .btn-plus{padding:0 12px;font-size:18px;font-weight:800;min-width:42px;line-height:1}
 .persons-manage-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
 .person-item{display:flex;justify-content:space-between;align-items:center;background:white;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12px;gap:8px}
 .person-item .name{font-weight:700;overflow-wrap:anywhere}
+/* Modal */
 .modal-overlay{position:fixed;inset:0;background:#0f172acc;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-box{background:white;border-radius:16px;padding:16px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px #0005}
 .modal-box h3{margin:0;font-size:15px;text-align:center;color:#0f172a}
@@ -103,6 +105,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
   <header class="header"><span>النظام المالي الشخصي 💼</span><span class="pill">الكويت · د.ك / مصر · ج.م</span></header>
   <main class="content">
 
+    <!-- ============ تسجيل معاملة ============ -->
     <section id="view-input" class="view stack">
       <div>
         <label>نوع المعاملة الجديدة</label>
@@ -161,6 +164,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
       </div>
     </section>
 
+    <!-- ============ التقارير ============ -->
     <section id="view-reports" class="view stack hidden">
       <div id="filter-section" class="stack">
         <div class="panel" style="background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700">حدد معايير التقرير</div>
@@ -194,7 +198,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
           <div style="font-size:9px;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9;padding-top:8px">تقرير مولّد من البيانات المحلية المسجلة. راجع الحركات قبل المشاركة.</div>
         </div>
         <div id="report-actions" class="grid2 no-print">
-          <button type="button" onclick="safeExportExcel()" class="btn btn-green">تصدير Excel 📗</button>
+          <button type="button" onclick="exportReportExcel()" class="btn btn-green">تصدير Excel 📗</button>
           <button type="button" onclick="shareReport()" class="btn btn-green">مشاركة / واتساب</button>
           <button type="button" onclick="window.print()" class="btn btn-muted">طباعة / PDF</button>
           <button type="button" onclick="shareAsImage('capture-area','Report')" class="btn btn-soft">مشاركة كصورة 🖼️</button>
@@ -202,6 +206,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
       </div>
     </section>
 
+    <!-- ============ التحليل ============ -->
     <section id="view-analysis" class="view stack hidden">
       <div id="analysis-filter-section" class="stack">
         <div class="panel" style="background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700">حدد معايير التحليل</div>
@@ -267,7 +272,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
           <div style="font-size:9px;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9;padding-top:8px">وثيقة مالية أرشيفية مولّدة من السجل المحلي.</div>
         </div>
         <div id="analysis-actions" class="grid2 no-print">
-          <button type="button" onclick="safeExportAnalysisExcel()" class="btn btn-green">تصدير Excel 📗</button>
+          <button type="button" onclick="exportAnalysisExcel()" class="btn btn-green">تصدير Excel 📗</button>
           <button type="button" onclick="window.print()" class="btn btn-muted">طباعة / PDF</button>
           <button type="button" onclick="shareAnalysis()" class="btn btn-green">مشاركة / واتساب</button>
           <button type="button" onclick="shareAsImage('analysis-capture-area','Analysis')" class="btn btn-soft">مشاركة كصورة 🖼️</button>
@@ -275,6 +280,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
       </div>
     </section>
 
+    <!-- ============ الإعدادات والنسخ الاحتياطي ============ -->
     <section id="view-backup" class="view stack hidden">
       <strong>الإعدادات والنسخ الاحتياطي ⚙️</strong>
 
@@ -288,7 +294,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 
       <div class="panel stack">
         <strong style="font-size:13px">👥 الأشخاص والجهات</strong>
-        <p class="small">هذه القائمة تُستخدم في <b>التحويلات</b> و<b>الديون</b>. أضف الأسماء هنا مسبقًا لتفادي الأخطاء الإملائية في التقارير.</p>
+        <p class="small">هذه القائمة تُستخدم في <b>التحويلات</b> و<b>الديون</b>. أضف الأسماء هنا مسبقًا لتفادي الأخطاء الإملائية في التقارير. أي اسم تكتبه هنا هيظهر في القائمة المنسدلة عند التسجيل.</p>
         <div class="person-picker">
           <input id="new-person-name" placeholder="اسم جديد..." maxlength="80">
           <button type="button" class="btn btn-primary btn-plus" onclick="addPersonFromSettings()" title="إضافة">+</button>
@@ -296,8 +302,10 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
         <div id="persons-manage-list" class="persons-manage-list"><span class="small">لا توجد أسماء محفوظة بعد.</span></div>
       </div>
 
+      <div class="hint">البيانات محفوظة محليًا في IndexedDB داخل المتصفح. نزّل نسخة احتياطية بشكل دوري.</div>
+
       <div class="panel stack">
-        <strong style="font-size:13px">نسخة احتياطية آمنة (متوافقة مع الموبايل)</strong>
+        <strong style="font-size:13px">نسخة احتياطية</strong>
         <button class="btn btn-primary" type="button" onclick="downloadBackup()">تنزيل نسخة احتياطية JSON</button>
         <button class="btn btn-green" type="button" onclick="shareBackup()">مشاركة النسخة 📤</button>
         <div id="backup-status" class="small">سيظهر هنا تاريخ آخر نسخة تم تنزيلها.</div>
@@ -327,6 +335,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 
+<!-- Modal إضافة اسم جديد -->
 <div id="person-modal" class="modal-overlay hidden">
   <div class="modal-box">
     <h3 id="person-modal-title">إضافة اسم جديد</h3>
@@ -357,7 +366,7 @@ const $=id=>document.getElementById(id);
 const fmt=(n, digits=3)=>Number(n||0).toLocaleString("en-US",{minimumFractionDigits:digits,maximumFractionDigits:digits});
 const money=n=>fmt(n)+" د.ك";
 const escapeHTML=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-function showToast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.style.display="none",3500)}
+function showToast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.style.display="none",3000)}
 function todayISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function firstOfMonthISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-01`}
 function getJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||"null");return v??fallback}catch(e){return fallback}}
@@ -368,6 +377,7 @@ function saveCustomCategories(v){localStorage.setItem(CUSTOM_CATS_KEY,JSON.strin
 function getExpenseCategories(){return [...EXPENSE_CATEGORIES_FIXED,...getCustomCategories().expense]}
 function getIncomeCategories(){return [...INCOME_CATEGORIES_FIXED,...getCustomCategories().income]}
 
+/* ====== قائمة الأشخاص ====== */
 function getPeople(){
   const list=getJSON(PEOPLE_KEY,[]);
   return Array.isArray(list)?list.filter(p=>typeof p==="string"&&p.trim()):[];
@@ -431,6 +441,7 @@ function addPersonFromSettings(){
   }else showToast("الاسم موجود بالفعل");
 }
 
+/* Modal */
 function openPersonModal(btn){
   pendingPersonTargetSelect=btn?btn.closest(".person-picker")?.querySelector("select"):null;
   $("person-modal").classList.remove("hidden");
@@ -449,6 +460,7 @@ function confirmAddPerson(){
   const existed=getPeople().includes(name);
   if(!existed)addPerson(name);
   if(pendingPersonTargetSelect){
+    // تأكد أن الاسم موجود كخيار
     if(![...pendingPersonTargetSelect.options].some(o=>o.value===name)){
       const opt=document.createElement("option");opt.value=name;opt.textContent=name;
       pendingPersonTargetSelect.appendChild(opt);
@@ -701,6 +713,7 @@ async function updateReportTargetOptions(){
 }
 function fmtDate(d){if(!d)return "—";const [y,m,day]=d.split("-");return `${day}/${m}/${y}`}
 
+/* ============ التقارير ============ */
 async function generateReport(){
   if(!db){try{await openDB();}catch(e){showToast("قاعدة البيانات غير جاهزة.");return}}
   const type=$("report-type").value,target=$("beneficiary-select").value;
@@ -894,7 +907,7 @@ async function editTransaction(id){
 function editFromReport(id){
   savedReportFilters={
     type:$("report-type").value,
-    subtype:$("report-subtype")?$("report-subtype->value":"all",
+    subtype:$("report-subtype")?$("report-subtype").value:"all",
     target:$("beneficiary-select").value,
     from:readDateParts("date-from"),
     to:readDateParts("date-to")
@@ -930,34 +943,17 @@ async function deleteTransactionFromReport(id){
   }catch(e){console.error(e);showToast("تعذر حذف المعاملة.")}
 }
 
-/* تصدير آمن يدعم الأندرويد والـ WebView */
-function safeExportExcel(){
-  try{
-    const table=$("capture-area").querySelector("table");
-    if(!table){showToast("لا توجد بيانات.");return}
-    const wb=XLSX.utils.book_new();
-    const ws=XLSX.utils.table_to_sheet(table,{raw:true});
-    ws['!rtl']=true;
-    XLSX.utils.book_append_sheet(wb,ws,"التقرير");
-    XLSX.writeFile(wb,"Report_"+todayISO()+".xlsx");
-    showToast("تم التصدير بنجاح 📗");
-  }catch(err){
-    console.warn("Direct export failed, trying data-uri fallback", err);
-    try{
-      exportReportCSV();
-    }catch(e){
-      showToast("عذراً، يرجى استخدام زر المشاركة أو الطباعة.");
-    }
-  }
+/* ============ تصدير التقارير ============ */
+function exportReportExcel(){
+  const table=$("capture-area").querySelector("table");
+  if(!table){showToast("لا توجد بيانات.");return}
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.table_to_sheet(table,{raw:true});
+  ws['!rtl']=true;
+  XLSX.utils.book_append_sheet(wb,ws,"التقرير");
+  XLSX.writeFile(wb,"Report_"+todayISO()+".xlsx");
+  showToast("تم التصدير إلى Excel 📗");
 }
-function safeExportAnalysisExcel(){
-  try{
-    exportAnalysisExcel();
-  }catch(e){
-    safeExportExcel();
-  }
-}
-
 function exportReportCSV(){
   const table=$("capture-area").querySelector("table");
   if(!table){showToast("لا توجد بيانات.");return}
@@ -972,6 +968,15 @@ function exportReportCSV(){
   URL.revokeObjectURL(url);
   showToast("تم تصدير CSV");
 }
+function exportReportJSON(){
+  if(!currentReportData){showToast("لا توجد بيانات.");return}
+  const data={exportDate:new Date().toISOString(),filters:{type:currentReportData.type,subtype:currentReportData.subtype,target:currentReportData.target,from:currentReportData.from,to:currentReportData.to},records:currentReportData.records};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="Report_"+todayISO()+".json";a.click();
+  URL.revokeObjectURL(url);
+  showToast("تم حفظ ملف JSON");
+}
 function shareReport(){
   if(!currentReportData){showToast("لا توجد بيانات.");return}
   const text=`📊 *${$("report-title").textContent}*\n\nالفترة: ${$("display-date-range").textContent}\nعدد الحركات: ${$("display-count").textContent}\n\n${$("report-summary").innerText}\n\nمصدّر من النظام المالي الشخصي.`;
@@ -979,6 +984,7 @@ function shareReport(){
   else{navigator.clipboard.writeText(text).then(()=>showToast("تم نسخ التقرير 📋")).catch(()=>showToast("تعذرت المشاركة"))}
 }
 
+/* ============ التحليل ============ */
 function initAnalysisView(){
   onAnalysisTypeChange();
   if(!readDateParts("analysis-from"))writeDateParts("analysis-from",firstOfMonthISO());
@@ -1227,6 +1233,22 @@ function exportAnalysisExcel(){
   XLSX.writeFile(wb,"Analysis_"+todayISO()+".xlsx");
   showToast("تم التصدير 📗");
 }
+function exportAnalysisCSV(){
+  const meta=$("analysis-meta").innerText;
+  let csv="\uFEFF"+"التقرير المالي\n"+meta.replace(/\n/g,",")+"\n\n";
+  document.querySelectorAll(".analysis-group").forEach(g=>{
+    csv+=`"${g.querySelector(".analysis-group-header")?.innerText.replace(/\n/g," ")||""}"\n`;
+    g.querySelectorAll(".analysis-category").forEach(c=>{
+      csv+=`"${c.querySelector(".row-between strong")?.innerText||""}","${c.querySelector(".row-between span")?.innerText||""}"\n`;
+    });
+    csv+="\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="Analysis_"+todayISO()+".csv";a.click();
+  URL.revokeObjectURL(url);
+  showToast("تم تصدير CSV");
+}
 function shareAnalysis(){
   const meta=$("analysis-meta").innerText;
   const balance=$("current-balance-value").textContent;
@@ -1235,6 +1257,7 @@ function shareAnalysis(){
   else{navigator.clipboard.writeText(text).then(()=>showToast("تم النسخ 📋")).catch(()=>showToast("تعذرت المشاركة"))}
 }
 
+/* ============ الإعدادات والنسخ الاحتياطي ============ */
 function saveOpeningBalance(){
   const v=getNum("opening-balance");
   if(!Number.isFinite(v)){showToast("أدخل رقمًا صحيحًا");return}
@@ -1330,6 +1353,7 @@ async function clearAllTransactions(){
   }catch(e){console.error(e);showToast("تعذر الحذف.")}
 }
 
+/* ============ مشاركة كصورة ============ */
 async function shareAsImage(id,name){
   const el=$(id);
   if(!el||typeof html2canvas==="undefined"){showToast("تعذر تحميل مكتبة الصورة، تأكد من الإنترنت.");return}
@@ -1355,6 +1379,7 @@ async function shareAsImage(id,name){
       const cTop=rect.top,cW=rect.width,cH=rect.height;
       const ratio=canvas.width/cW;
       const pageH=Math.round(cW*1.5);
+      /* نقاط القطع المسموحة: نهاية الصفوف والبطاقات حتى لا يُقص سطر من النص */
       const breaks=[];
       clone.querySelectorAll("tbody tr,.analysis-transactions > .row-between,.analysis-category,.kpi-grid,.report-meta,.report-summary,.balance-card,.report-head").forEach(n=>{breaks.push(n.getBoundingClientRect().bottom-cTop)});
       breaks.sort((a,b)=>a-b);
@@ -1412,6 +1437,7 @@ async function shareAsImage(id,name){
   }
 }
 
+/* ============ أحداث عامة ============ */
 document.addEventListener("click", e=>{
   const t=e.target.closest("[data-action]");
   if(!t)return;
