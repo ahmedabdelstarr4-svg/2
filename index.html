@@ -35,11 +35,11 @@ input:focus,select:focus,textarea:focus{border-color:#818cf8;box-shadow:0 0 0 3p
 .small{font-size:11px;color:var(--muted)}
 .hint{font-size:11px;line-height:1.6;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:9px}
 .panel{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:11px}
-.beneficiary{display:grid;grid-template-columns:1fr 1fr auto;gap:7px;background:#f8fafc;border:1px solid var(--line);padding:8px;border-radius:12px;margin-top:7px}
+.beneficiary{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto;gap:6px;background:#f8fafc;border:1px solid var(--line);padding:8px;border-radius:12px;margin-top:7px;align-items:center}
 .rate{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:11px;border-radius:12px;font-size:12px}
 .row-between{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .section-title{font-size:12px;font-weight:800;color:#475569}
-.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;min-width:480px;font-size:11px;text-align:right}
 th,td{padding:9px 7px;border-bottom:1px solid #eef2f7;vertical-align:top}
 th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{border-bottom:0}
@@ -82,23 +82,88 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .finance-row:last-child{border-bottom:0}
 .finance-row strong{text-align:left;font-variant-numeric:tabular-nums}
 .good{color:#047857}.bad{color:#be123c}.warning{color:#b45309}
-.alloc-row{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #eef2f7}
-.alloc-row:last-child{border-bottom:0}
-.alloc-row input{padding:8px;font-size:12px}
 .progress{height:7px;border-radius:99px;background:#e2e8f0;overflow:hidden}
 .progress span{display:block;height:100%;border-radius:99px;background:#4f46e5;width:0}
-@media(max-height:650px){.app{min-height:0;height:calc(100dvh - 16px)}.header{padding:10px 14px}.content{padding:10px}.btn{padding:10px}}
-@media print {
-  @page { size: A4 portrait; margin: 12mm; }
-  body { background: white; padding: 0; }
-  .app { height: auto; min-height: 0; max-width: none; border: 0; box-shadow: none; width: 100%; }
-  .header, .nav, #filter-section, #report-actions, #report-search-wrap, .no-print { display: none !important; }
-  .content { overflow: visible; padding: 0; }
-  .view.hidden, .stack.hidden { display: none !important; }
-  table { page-break-inside: auto; }
-  tr { page-break-inside: avoid; page-break-after: auto; }
-  thead { display: table-header-group; }
+
+/* ═════════════════════════════════════════════
+   كشف الحساب الرسمي — Statement of Account
+   ═════════════════════════════════════════════ */
+.stmt{background:#fff;border:1.5px solid #0f172a;border-radius:5px;padding:0;overflow:hidden;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin-bottom:10px;direction:rtl}
+.stmt-head{background:#0f172a;color:#fff;padding:7px 10px;text-align:center;border-bottom:1.5px solid #0f172a}
+.stmt-head h2{margin:0;font-size:12.5px;letter-spacing:.5px;font-weight:900}
+.stmt-head .en{font-size:7px;letter-spacing:1.5px;opacity:.7;margin-top:2px}
+.stmt-head .meta{margin-top:4px;padding-top:4px;border-top:1px solid #334155;font-size:8px;display:grid;grid-template-columns:1fr 1fr;gap:2px;color:#cbd5e1;text-align:center;line-height:1.3}
+.stmt-head .meta strong{color:#fff;font-weight:800;display:block;margin-top:1px;font-size:8.5px}
+
+.stmt-block{padding:5px 10px;border-bottom:1px dashed #cbd5e1}
+.stmt-block:last-child{border-bottom:0}
+.stmt-block-title{font-size:8px;font-weight:800;color:#64748b;letter-spacing:.6px;margin-bottom:3px;text-transform:uppercase}
+
+.stmt-account-grid{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:9.5px}
+.stmt-account-grid .lbl{color:#64748b;font-weight:700}
+.stmt-account-grid .val{color:#0f172a;font-weight:800}
+
+.stmt-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:9px}
+.stmt-summary-grid>div{display:flex;justify-content:space-between;gap:6px;padding:2px 0;border-bottom:1px dashed #e2e8f0}
+.stmt-summary-grid>div span{color:#64748b;font-weight:700}
+.stmt-summary-grid>div strong{color:#0f172a;font-weight:800;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.stmt-table{width:100%;border-collapse:collapse;font-size:9px;text-align:right;table-layout:fixed}
+.stmt-table th{background:#0f172a;color:#fff;padding:4px 2px;font-weight:800;font-size:8.5px;border:1px solid #0f172a;text-align:center;letter-spacing:.3px}
+.stmt-table td{padding:3px 2px;border:1px solid #cbd5e1;vertical-align:middle;font-size:9px;word-wrap:break-word;line-height:1.3}
+.stmt-table td.num{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:center;font-weight:700;direction:ltr;unicode-bidi:embed}
+.stmt-table td.col-date{direction:ltr;unicode-bidi:embed}
+.stmt-table td.col-seq{direction:ltr;unicode-bidi:embed;text-align:center}
+.stmt-table tr.opening td{background:#f1f5f9;font-weight:700}
+.stmt-table tr.total-row td{background:#0f172a;color:#fff;font-weight:900;border-color:#0f172a;font-size:9.5px;padding:5px 2px}
+.stmt-table tr:nth-child(even):not(.opening):not(.total-row) td{background:#f8fafc}
+.stmt-table .col-seq{width:20px;text-align:center;font-weight:800}
+.stmt-table .col-date{width:54px;text-align:center;font-size:8px;line-height:1.2}
+.stmt-table .col-desc{width:auto}
+.stmt-table .col-amt{width:50px}
+
+.stmt-balance-box{margin:0;padding:7px 10px;background:#0f172a;color:#fff;text-align:center}
+.stmt-balance-box .lbl{font-size:8px;letter-spacing:1.2px;opacity:.75;margin-bottom:2px}
+.stmt-balance-box .amt{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.3px;line-height:1.1;direction:ltr;unicode-bidi:embed}
+.stmt-balance-box .word{margin-top:3px;padding-top:3px;border-top:1px solid #334155;font-size:8.5px;font-weight:700;color:#cbd5e1;line-height:1.35}
+.stmt-balance-box.positive{background:linear-gradient(135deg,#b91c1c,#991b1b)}
+.stmt-balance-box.negative{background:linear-gradient(135deg,#047857,#065f46)}
+
+.stmt-legal{margin:0;padding:6px 10px;background:#fffbeb;border-top:1.5px solid #f59e0b;border-bottom:1.5px solid #f59e0b}
+.stmt-legal .title{font-size:9px;font-weight:900;color:#92400e;margin-bottom:3px;letter-spacing:.3px}
+.stmt-legal p{margin:0;font-size:8.5px;line-height:1.45;color:#78350f;font-weight:600}
+.stmt-legal.negative{background:#ecfdf5;border-color:#059669}
+.stmt-legal.negative .title{color:#065f46}
+.stmt-legal.negative p{color:#064e3b}
+
+.stmt-signatures{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:7px 10px 5px;background:#f8fafc;border-top:1px dashed #cbd5e1}
+.stmt-signatures .sig{text-align:center}
+.stmt-signatures .sig .line{border-top:1px solid #94a3b8;padding-top:3px;margin-top:12px;font-size:8px;color:#475569;font-weight:700}
+
+.stmt-footer{background:#0f172a;color:#cbd5e1;padding:5px 10px;font-size:8px;line-height:1.45;text-align:center}
+.stmt-footer .ref{color:#fff;font-weight:800}
+.stmt-empty{text-align:center;padding:16px;color:#64748b;font-size:11px}
+
+/* ═════════════════════════════════════════════
+   نافذة المعاينة السريعة للـ PDF قبل التنزيل
+   ═════════════════════════════════════════════ */
+.preview-overlay {position:fixed;inset:0;background:#0f172ae6;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;}
+.preview-card {background:white;width:100%;max-width:440px;height:85vh;border-radius:18px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.5);}
+.preview-header {background:#0f172a;color:white;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px;}
+.preview-body {flex:1;padding:10px;overflow:auto;background:#cbd5e1;display:flex;justify-content:center;align-items:flex-start;}
+.preview-body iframe {width:100%;height:100%;border:0;background:white;border-radius:8px;}
+.preview-actions {padding:10px 14px;background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+#capture-area.statement-mode .report-head,
+#capture-area.statement-mode .report-meta,
+#capture-area.statement-mode .report-summary,
+#capture-area.statement-mode #tafqit-box{
+ display:none!important;
 }
+#capture-area.statement-mode{padding:0;gap:0}
+#capture-area.statement-mode .table-wrap{border:0;border-radius:0;overflow:visible}
+
+@media(max-height:650px){.app{min-height:0;height:calc(100dvh - 16px)}.header{padding:10px 14px}.content{padding:10px}.btn{padding:10px}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -135,8 +200,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div id="section-transfer" class="stack hidden">
 <div><label>إجمالي المبلغ المدفوع (د.ك)</label><input id="total-kwd" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="مثال: 100.000" oninput="calculateExchange()"></div>
 <div><div class="row-between"><span class="section-title">المستفيدون ومبالغهم (ج.م)</span><button class="btn btn-soft" style="padding:7px 10px" type="button" onclick="addBeneficiary()">+ إضافة مستفيد</button></div><div id="beneficiaries-list"></div><div class="field-note">لو الاسم مش موجود، دوس زر ➕ جنبه لإضافته للقائمة.</div></div>
-<div><label>رسوم التحويل</label><select id="transfer-fee-mode"><option value="included">الإجمالي يشمل الرسوم</option><option value="separate">الرسوم إضافية على الإجمالي</option></select></div>
-<div id="fee-wrap" class="hidden"><label>الرسوم الإضافية (د.ك)</label><input id="transfer-fee" type="number" min="0" step="0.001" inputmode="decimal" value="0.000" oninput="calculateExchange()"></div>
 <div class="rate"><span>تكلفة كل 1000 جنيه:</span><strong id="exchange-rate-display">0.000 د.ك</strong></div>
 </div>
 <div id="section-debt" class="stack hidden">
@@ -162,7 +225,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 </div>
 
 <section id="finance-summary-view" class="stack">
-<div class="panel stack">
+<div class="panel stack no-print">
 <strong>الملخص المالي لدورة الراتب</strong>
 <div class="small" id="summary-period-note">سيتم تحديد الفترة حسب آخر راتب أساسي مسجل.</div>
 <div class="grid2">
@@ -181,13 +244,13 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div class="grid2 no-print">
 <button type="button" onclick="exportSummaryExcel()" class="btn btn-green">تصدير Excel 📗</button>
 <button type="button" onclick="shareViewWhatsApp('summary-capture-area','الملخص المالي')" class="btn btn-green">مشاركة / واتساب</button>
-<button type="button" onclick="exportPDF('summary-capture-area','Summary')" class="btn btn-muted">فتح PDF 📄</button>
+<button type="button" onclick="exportPDF('summary-capture-area','Summary')" class="btn btn-muted">معاينة الـ PDF 📄</button>
 <button type="button" onclick="shareAsImage('summary-capture-area','Summary')" class="btn btn-soft">مشاركة كصورة 🖼️</button>
 </div>
 </section>
 
 <section id="finance-budget-view" class="stack hidden">
-<div class="panel stack">
+<div class="panel stack no-print">
 <strong>موازنة دورة الراتب — النمط الثابت</strong>
 <div class="small" id="budget-period-note">—</div>
 <div class="field-note">حوالات 34% · سداد ديون 10% · احتياطي 10% · طعام 20% · فواتير 10% · مواصلات 6% · شخصي وتجارة 5% · صحة 3% · أخرى 2%</div>
@@ -202,13 +265,13 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div class="grid2 no-print">
 <button type="button" onclick="exportBudgetExcel()" class="btn btn-green">تصدير Excel 📗</button>
 <button type="button" onclick="shareViewWhatsApp('budget-capture-area','موازنة الدورة')" class="btn btn-green">مشاركة / واتساب</button>
-<button type="button" onclick="exportPDF('budget-capture-area','Budget')" class="btn btn-muted">فتح PDF 📄</button>
+<button type="button" onclick="exportPDF('budget-capture-area','Budget')" class="btn btn-muted">معاينة الـ PDF 📄</button>
 <button type="button" onclick="shareAsImage('budget-capture-area','Budget')" class="btn btn-soft">مشاركة كصورة 🖼️</button>
 </div>
 </section>
 
 <section id="finance-compare-view" class="stack hidden">
-<div class="panel stack">
+<div class="panel stack no-print">
 <strong>مقارنة فترتين ماليتين</strong>
 <div class="small" id="compare-period-note">افتراضيًا: دورة الراتب الحالية مقابل دورة الراتب السابقة.</div>
 <div class="grid2">
@@ -219,7 +282,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 </div>
 <div class="finance-card">
 <strong>الفترة الثانية (المقارنة)</strong>
-<label>من تاريخ</label><div class="date-parts"><input id="compare2-from-day" type="number" min="1" max="31" placeholder="يوم" inputmode="numeric"><input id="compare2-from-month" type="number" min="1" max="12" placeholder="شهر" inputmode="numeric"><input id="compare2-from-year" type="number" min="2000" max="2100" placeholder="سنة" inputmode="numeric"></div>
+<label>من تاريخ</label><div class="date-parts"><input id="compare2-from-day" type="number" min="1" max="31" placeholder="يوم" inputmode="numeric"><input id="compare2-from-month" type="number" min="1" max="12" placeholder="شهر" inputmode="numeric"><input id="compare2-to-year" type="number" min="2000" max="2100" placeholder="سنة" inputmode="numeric"></div>
 <label>إلى تاريخ</label><div class="date-parts"><input id="compare2-to-day" type="number" min="1" max="31" placeholder="يوم" inputmode="numeric"><input id="compare2-to-month" type="number" min="1" max="12" placeholder="شهر" inputmode="numeric"><input id="compare2-to-year" type="number" min="2000" max="2100" placeholder="سنة" inputmode="numeric"></div>
 </div>
 </div>
@@ -234,17 +297,17 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div class="grid2 no-print">
 <button type="button" onclick="exportCompareExcel()" class="btn btn-green">تصدير Excel 📗</button>
 <button type="button" onclick="shareViewWhatsApp('compare-capture-area','مقارنة الفترتين')" class="btn btn-green">مشاركة / واتساب</button>
-<button type="button" onclick="exportPDF('compare-capture-area','Compare')" class="btn btn-muted">فتح PDF 📄</button>
+<button type="button" onclick="exportPDF('compare-capture-area','Compare')" class="btn btn-muted">معاينة الـ PDF 📄</button>
 <button type="button" onclick="shareAsImage('compare-capture-area','Compare')" class="btn btn-soft">مشاركة كصورة 🖼️</button>
 </div>
 </section>
 
 <section id="finance-ledger-view" class="stack hidden">
-<div id="filter-section" class="stack">
+<div id="filter-section" class="stack no-print">
 <div class="panel" style="background:#eef2ff;color:#3730a3;font-size:12px;font-weight:700">حدد معايير التقرير</div>
 <div><label>التصنيف الرئيسي</label><select id="report-type" onchange="onReportTypeChange()"><option value="expense">مصروفات</option><option value="income">دخل</option><option value="debt">ديون وعلاقات مالية</option><option value="transfer">تحويلات مالية خارجية</option><option value="all">ملخص كل المعاملات</option></select></div>
 <div id="report-subtype-wrap"><label>النوع الفرعي</label><select id="report-subtype" onchange="updateReportTargetOptions()"></select></div>
-<div><label>الطرف / المستفيد</label><select id="beneficiary-select"><option value="all">الكل</option></select></div>
+<div id="report-target-wrap"><label>الطرف / المستفيد</label><div class="person-picker"><select id="beneficiary-select"><option value="all">الكل</option></select><button type="button" class="btn btn-soft btn-plus" onclick="openPersonModal(this)" title="إضافة اسم جديد">+</button></div></div>
 <div class="grid2">
 <div><label>من تاريخ</label><div class="date-parts"><input id="date-from-day" type="number" min="1" max="31" inputmode="numeric" placeholder="يوم"><input id="date-from-month" type="number" min="1" max="12" inputmode="numeric" placeholder="شهر"><input id="date-from-year" type="number" min="2000" max="2100" inputmode="numeric" placeholder="سنة"></div></div>
 <div><label>إلى تاريخ</label><div class="date-parts"><input id="date-to-day" type="number" min="1" max="31" inputmode="numeric" placeholder="يوم"><input id="date-to-month" type="number" min="1" max="12" inputmode="numeric" placeholder="شهر"><input id="date-to-year" type="number" min="2000" max="2100" inputmode="numeric" placeholder="سنة"></div></div>
@@ -266,7 +329,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div id="report-actions" class="grid2 no-print">
 <button type="button" onclick="exportReportExcel()" class="btn btn-green">تصدير Excel 📗</button>
 <button type="button" onclick="shareReport()" class="btn btn-green">مشاركة / واتساب</button>
-<button type="button" onclick="exportPDF('capture-area','Report')" class="btn btn-muted">فتح PDF 📄</button>
+<button type="button" onclick="exportPDF('capture-area','Report')" class="btn btn-muted">معاينة الـ PDF 📄</button>
 <button type="button" onclick="shareAsImage('capture-area','Report')" class="btn btn-soft">مشاركة كصورة 🖼️</button>
 </div>
 </div>
@@ -292,10 +355,29 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="person-modal" class="modal-overlay hidden"><div class="modal-box"><h3 id="person-modal-title">إضافة اسم جديد</h3><input id="person-modal-input" placeholder="اسم الشخص / الجهة" maxlength="80"><div class="modal-actions"><button type="button" class="btn btn-primary" onclick="confirmAddPerson()">حفظ</button><button type="button" class="btn btn-muted" onclick="closePersonModal()">إلغاء</button></div></div></div>
 
+<!-- نافذة المعاينة المباشرة قبل الحفظ والتنزيل -->
+<div id="pdf-preview-modal" class="preview-overlay hidden">
+  <div class="preview-card">
+    <div class="preview-header">
+      <span>👁️ معاينة ملف الـ PDF</span>
+      <button class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="closePdfPreview()">إغلاق ✕</button>
+    </div>
+    <div class="preview-body">
+      <iframe id="pdf-preview-iframe"></iframe>
+    </div>
+    <div class="preview-actions">
+      <button id="download-pdf-btn" class="btn btn-green" type="button">تحميل الملف 📥</button>
+      <button class="btn btn-muted" type="button" onclick="closePdfPreview()">إلغاء / رجوع</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const DB_NAME="PersonalFinanceDB",DB_VERSION=1,STORE_NAME="transactions";
 const PEOPLE_KEY="pf_people_list",OPENING_BAL_KEY="pf_opening_balance",BUDGETS_KEY="pf_budgets_store";
 let db=null,currentInputTab="expense",editingTxId=null,activePersonCallback=null;
+let currentFinanceTab="summary";
+let currentPdfBlobUrl=null;
 
 function $(id){return document.getElementById(id)}
 function showToast(msg){const t=$("toast");t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",3000)}
@@ -348,10 +430,14 @@ function populateCategorySelects(){
 
 function getPeopleList(){
  const list=localStorage.getItem(PEOPLE_KEY);
- if(!list)return["أحمد", "محمد", "محمود"];
- try{const parsed=JSON.parse(list);return Array.isArray(parsed)?parsed:["أحمد", "محمد", "محمود"];}catch{return["أحمد", "محمد", "محمود"];}
+ if(!list)return["أحمد","محمد","محمود"];
+ try{const parsed=JSON.parse(list);return Array.isArray(parsed)?parsed:["أحمد","محمد","محمود"];}catch{return["أحمد","محمد","محمود"];}
 }
-function savePeopleList(arr){localStorage.setItem(PEOPLE_KEY,JSON.stringify([...new Set(arr)]));populatePeopleSelects();renderPersonsManageList();}
+function savePeopleList(arr){
+ localStorage.setItem(PEOPLE_KEY,JSON.stringify([...new Set(arr)]));
+ populatePeopleSelects();
+ renderPersonsManageList();
+}
 function populatePeopleSelects(){
  const people=getPeopleList();
  const sel=$("debt-person-select");
@@ -418,7 +504,7 @@ function addBeneficiary(){
  const people=getPeopleList();
  const div=document.createElement("div");
  div.className="beneficiary";
- div.innerHTML=`<select class="beneficiary-name-select">${people.map(p=>`<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`).join("")}</select><input type="number" min="1" step="1" inputmode="numeric" placeholder="المبلغ (ج.م)" class="beneficiary-amount" oninput="calculateExchange()"><button type="button" class="btn btn-danger" onclick="this.parentElement.remove();calculateExchange()">✕</button>`;
+ div.innerHTML=`<select class="beneficiary-name-select">${people.map(p=>`<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`).join("")}</select><input type="number" min="1" step="1" inputmode="numeric" placeholder="المبلغ (ج.م)" class="beneficiary-amount" oninput="calculateExchange()"><button type="button" class="btn btn-soft btn-plus" onclick="openPersonModal(this)" title="إضافة اسم جديد">+</button><button type="button" class="btn btn-danger" onclick="this.parentElement.remove();calculateExchange()">✕</button>`;
  list.appendChild(div);
  calculateExchange();
 }
@@ -427,13 +513,10 @@ function calculateExchange(){
  const totalKwd=Number($("total-kwd")?.value)||0;
  let totalEgp=0;
  document.querySelectorAll(".beneficiary-amount").forEach(el=>{totalEgp+=Number(el.value)||0;});
- const mode=$("transfer-fee-mode")?.value;
- const fee=Number($("transfer-fee")?.value)||0;
- const netKwd=mode==="separate"?totalKwd:(totalKwd-fee);
  const rateDisplay=$("exchange-rate-display");
  if(rateDisplay){
-  if(totalEgp>0&&netKwd>0){
-   const rate=(netKwd/totalEgp)*1000;
+  if(totalEgp>0&&totalKwd>0){
+   const rate=(totalKwd/totalEgp)*1000;
    rateDisplay.textContent=rate.toFixed(3)+" د.ك";
   }else{
    rateDisplay.textContent="0.000 د.ك";
@@ -450,7 +533,7 @@ function switchMainView(view){
    navBtn.classList.toggle("btn-muted",v!==view);
   }
  });
- if(view==="reports")switchFinanceTab("summary");
+ if(view==="reports")switchFinanceTab(currentFinanceTab);
 }
 
 function openDB(){
@@ -501,8 +584,6 @@ async function saveTransaction(){
   const totalKwd=Number($("total-kwd").value);
   if(!Number.isFinite(totalKwd)||totalKwd<=0){showToast("أدخل إجمالي المبلغ المدفوع.");return;}
   txData.totalKwd=totalKwd;
-  txData.feeMode=$("transfer-fee-mode").value;
-  txData.fee=Number($("transfer-fee").value)||0;
   const bens=[];
   document.querySelectorAll(".beneficiary").forEach(row=>{
    const name=row.querySelector(".beneficiary-name-select").value;
@@ -518,6 +599,21 @@ async function saveTransaction(){
   txData.amount=amt;
   txData.person=$("debt-person-select").value;
   txData.debtType=$("debt-type").value;
+
+  if(txData.debtType==="opening_balance"){
+   if(!db)await openDB();
+   const existing=await allTransactions();
+   const alreadyHas=existing.some(r=>
+    r.id!==editingTxId &&
+    r.type==="debt" &&
+    r.debtType==="opening_balance" &&
+    r.person===txData.person
+   );
+   if(alreadyHas){
+    showToast(`"${txData.person}" عنده رصيد أول المدة مسجّل بالفعل.`);
+    return;
+   }
+  }
  }
 
  if(!db)await openDB();
@@ -528,6 +624,7 @@ async function saveTransaction(){
   showToast("تم حفظ المعاملة بنجاح ✅");
   resetInputForm();
   await refreshAllViews();
+  updateReportTargetOptions().catch(()=>{});
  };
  transaction.onerror=()=>showToast("فشل حفظ المعاملة");
 }
@@ -539,7 +636,6 @@ function resetInputForm(){
  $("expense-amount").value="";
  $("income-amount").value="";
  $("total-kwd").value="";
- $("transfer-fee").value="0.000";
  $("debt-amount").value="";
  $("tx-notes").value="";
  $("is-salary-base").checked=false;
@@ -565,13 +661,13 @@ async function refreshAllViews(){
 }
 
 function realAmount(t){
- if(t.type==="transfer")return t.totalKwd||0;
+ if(t.type==="transfer")return Number(t.totalKwd)||0;
  return t.amount||0;
 }
 function isCreditorEntry(t){return t.type==="debt"&&t.debtType==="creditor";}
-function isDebtorEntry(t){return t.type==="debt"&&(t.debtType==="debtor"||t.debtType==="opening_balance");}
+function isDebtorEntry(t){return t.type==="debt"&&t.debtType==="debtor";}
 
-function onReportTypeChange(){
+async function onReportTypeChange(){
  const type=$("report-type").value;
  const subWrap=$("report-subtype-wrap");
  const subSel=$("report-subtype");
@@ -585,16 +681,29 @@ function onReportTypeChange(){
  }else{
   subWrap.classList.add("hidden");
  }
- updateReportTargetOptions();
+ const targetWrap=$("report-target-wrap");
+ const needsTarget=(type==="debt"||type==="transfer"||type==="all");
+ targetWrap.classList.toggle("hidden",!needsTarget);
+ await updateReportTargetOptions();
 }
 
-function updateReportTargetOptions(){
- const people=getPeopleList();
- const benSel=$("beneficiary-select");
- if(!benSel)return;
- const cur=benSel.value;
- benSel.innerHTML='<option value="all">الكل</option>'+people.map(p=>`<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`).join("");
- if(people.includes(cur))benSel.value=cur;
+async function updateReportTargetOptions(){
+ try{
+  const records=await allTransactions();
+  const names=new Set();
+  records.forEach(r=>{
+   if(r.type==="debt"&&r.person)names.add(r.person);
+   if(r.type==="transfer")(r.beneficiaries||[]).forEach(b=>{if(b.name)names.add(b.name);});
+  });
+  const allNames=[...names].sort((a,b)=>a.localeCompare(b,"ar"));
+  const benSel=$("beneficiary-select");
+  if(!benSel)return;
+  const cur=benSel.value;
+  benSel.innerHTML='<option value="all">الكل</option>'+allNames.map(p=>`<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`).join("");
+  if(allNames.includes(cur))benSel.value=cur;
+ }catch(e){
+  console.warn("updateReportTargetOptions:",e);
+ }
 }
 
 async function generateReport(){
@@ -605,6 +714,53 @@ async function generateReport(){
  const from=readDateParts("date-from");
  const to=readDateParts("date-to");
 
+ if(type==="debt"&&subtype==="all"){
+  $("filter-section").classList.add("hidden");
+  $("report-section").classList.remove("hidden");
+  $("capture-area").classList.add("statement-mode");
+  $("display-date-range").textContent=(from?fmtDate(from):"البداية")+" إلى "+(to?fmtDate(to):"النهاية");
+  $("display-target").textContent=target==="all"?"كل الأطراف":target;
+  
+  const period=(from||to)?{from:from||"1900-01-01",to:to||"2999-12-31"}:null;
+  let statementNames=[];
+  
+  if(target==="all"){
+   const namesSet=new Set();
+   records.forEach(r=>{
+    if(r.type!=="debt"||!r.person)return;
+    if(period&&(r.date<period.from||r.date>period.to))return;
+    namesSet.add(r.person);
+   });
+   statementNames=[...namesSet].sort((a,b)=>a.localeCompare(b,"ar"));
+  }else{
+   statementNames=[target];
+  }
+  
+  $("display-count").textContent=statementNames.length+(target==="all"?" طرف":"");
+  $("report-title").textContent="كشف حساب رسمي — الديون";
+  $("report-number").textContent="";
+  
+  const tableWrap=$("capture-area").querySelector(".table-wrap");
+  const thead=$("report-table-head");
+  const tbody=$("report-table-body");
+  if(thead)thead.innerHTML="";
+  if(tbody)tbody.innerHTML="";
+  
+  if(!statementNames.length){
+   tableWrap.innerHTML='<div class="stmt-empty">لا توجد حركات ديون مطابقة للمعايير.</div>';
+   $("report-summary").innerHTML="";
+   $("tafqit-box").textContent="لم يتم العثور على أطراف مطابقة.";
+   return;
+  }
+  
+  tableWrap.innerHTML=statementNames.map(name=>buildStatementHTML(name,records,period)).join("");
+  $("report-summary").innerHTML="";
+  $("tafqit-box").textContent="";
+  return;
+ }
+
+ $("capture-area").classList.remove("statement-mode");
+ 
  let filtered=records.filter(r=>{
   if(type!=="all"&&r.type!==type)return false;
   if(type==="expense"&&subtype!=="all"&&r.category!==subtype)return false;
@@ -624,6 +780,12 @@ async function generateReport(){
  $("display-date-range").textContent=(from?fmtDate(from):"البداية")+" إلى "+(to?fmtDate(to):"النهاية");
  $("display-target").textContent=target==="all"?"الكل":target;
  $("display-count").textContent=filtered.length+" حركة";
+ $("report-title").textContent="كشف حساب مالي";
+
+ const tableWrap=$("capture-area").querySelector(".table-wrap");
+ if(!tableWrap.querySelector("table")){
+  tableWrap.innerHTML='<table><thead id="report-table-head"></thead><tbody id="report-table-body"></tbody></table>';
+ }
 
  const thead=$("report-table-head");
  const tbody=$("report-table-body");
@@ -632,6 +794,7 @@ async function generateReport(){
  if(!filtered.length){
   tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:15px">لا توجد حركات مطابقة للمعايير.</td></tr>`;
   $("report-summary").innerHTML="إجمالي المبلغ: 0.000 د.ك";
+  $("tafqit-box").textContent="لا توجد حركات.";
   return;
  }
 
@@ -685,22 +848,33 @@ async function editFromReport(id){
    $("is-salary-base").checked=!!r.isSalaryBase;
   }else if(r.type==="transfer"){
    $("total-kwd").value=r.totalKwd;
-   $("transfer-fee-mode").value=r.feeMode||"included";
-   $("transfer-fee").value=r.fee||0;
-   $("fee-wrap").classList.toggle("hidden",r.feeMode!=="separate");
    const list=$("beneficiaries-list");
    list.innerHTML="";
    (r.beneficiaries||[]).forEach(b=>{
     addBeneficiary();
     const rows=list.querySelectorAll(".beneficiary");
     const last=rows[rows.length-1];
-    last.querySelector(".beneficiary-name-select").value=b.name;
+    const sel=last.querySelector(".beneficiary-name-select");
+    if([...sel.options].some(o=>o.value===b.name)){
+     sel.value=b.name;
+    }else{
+     const opt=document.createElement("option");
+     opt.value=b.name;opt.textContent=b.name;
+     sel.appendChild(opt);sel.value=b.name;
+    }
     last.querySelector(".beneficiary-amount").value=b.egp;
    });
    calculateExchange();
   }else if(r.type==="debt"){
    $("debt-amount").value=r.amount;
-   $("debt-person-select").value=r.person;
+   const sel=$("debt-person-select");
+   if([...sel.options].some(o=>o.value===r.person)){
+    sel.value=r.person;
+   }else if(r.person){
+    const opt=document.createElement("option");
+    opt.value=r.person;opt.textContent=r.person;
+    sel.appendChild(opt);sel.value=r.person;
+   }
    $("debt-type").value=r.debtType;
   }
   $("edit-banner").classList.remove("hidden");
@@ -719,6 +893,7 @@ async function deleteTransactionFromReport(id){
   showToast("تم الحذف بنجاح");
   await generateReport();
   await refreshAllViews();
+  updateReportTargetOptions().catch(()=>{});
  };
 }
 
@@ -794,6 +969,7 @@ function restoreBackup(){
     if(json.budgets&&typeof json.budgets==="object")localStorage.setItem(BUDGETS_KEY,JSON.stringify(json.budgets));
     showToast("تمت استعادة البيانات بنجاح ✅");
     await refreshAllViews();
+    updateReportTargetOptions().catch(()=>{});
    };
   }catch{
    showToast("ملف النسخة غير صالح");
@@ -810,54 +986,130 @@ async function clearAllTransactions(){
  tx.oncomplete=async()=>{
   showToast("تم تفريغ قاعدة البيانات");
   await refreshAllViews();
+  updateReportTargetOptions().catch(()=>{});
  };
 }
 
 function exportReportExcel(){
- const table=document.querySelector("#capture-area table");
+ const capture=$("capture-area");
+ if(!capture){showToast("لا يوجد تقرير للتصدير");return;}
+ 
+ const statements=capture.querySelectorAll(".stmt");
+ if(statements.length){
+  const wb=XLSX.utils.book_new();
+  let sheetCount=0;
+  statements.forEach((stmt,idx)=>{
+   const nameCell=stmt.querySelector(".stmt-account-grid .val");
+   const name=nameCell?nameCell.textContent.trim():("Statement_"+(idx+1));
+   const tbl=stmt.querySelector(".stmt-table");
+   if(!tbl)return;
+   const clone=tbl.cloneNode(true);
+   const ws=XLSX.utils.table_to_sheet(clone,{raw:true});
+   ws['!cols']=[{wch:5},{wch:12},{wch:35},{wch:12},{wch:12},{wch:12}];
+   const sheetName=(name||"Statement").slice(0,28).replace(/[\\\/\?\*\[\]:]/g,"_");
+   XLSX.utils.book_append_sheet(wb,ws,sheetName);
+   sheetCount++;
+  });
+  if(!sheetCount){showToast("لا يوجد جدول للتصدير");return;}
+  XLSX.writeFile(wb,`statement_of_account_${todayISO()}.xlsx`);
+  showToast("تم تصدير كشف الحساب ✅");
+  return;
+ }
+ 
+ const table=capture.querySelector("table");
  if(!table){showToast("لا يوجد تقرير للتصدير");return;}
- const wb=XLSX.utils.table_to_book(table,{sheet:"Report"});
+ const clone=table.cloneNode(true);
+ clone.querySelectorAll(".no-print").forEach(el=>el.remove());
+ const wb=XLSX.utils.table_to_book(clone,{sheet:"Report"});
  XLSX.writeFile(wb,`financial_report_${todayISO()}.xlsx`);
 }
 
+/* ═════════════════════════════════════════════════════════════
+   معاينة ملف PDF حقيقي عالي الدقة دون فتح الطباعة
+   ═════════════════════════════════════════════════════════════ */
 async function exportPDF(elId,filename){
  const{jsPDF}=window.jspdf;
  const el=$(elId);
- if(!el){showToast("لا يوجد تقرير");return;}
- const canvas=await html2canvas(el,{scale:2,backgroundColor:"#ffffff"});
- const imgData=canvas.toDataURL("image/png");
- const pdf=new jsPDF("p","mm","a4");
- const pw=pdf.internal.pageSize.getWidth();
- const ph=pdf.internal.pageSize.getHeight();
- const imgW=pw;
- const imgH=canvas.height*pw/canvas.width;
- let heightLeft=imgH,position=0;
- pdf.addImage(imgData,"PNG",0,position,imgW,imgH);
- heightLeft-=ph;
- while(heightLeft>0){
-  position=heightLeft-imgH;
-  pdf.addPage();
-  pdf.addImage(imgData,"PNG",0,position,imgW,imgH);
+ if(!el){showToast("لا يوجد تقرير للمعاينة");return;}
+ 
+ showToast("جاري تجهيز معاينة الـ PDF...");
+ const originalWidth=el.style.width;
+ const originalOverflow=el.style.overflow;
+ el.style.width="820px";
+ el.style.overflow="visible";
+ 
+ try{
+  const canvas=await html2canvas(el,{scale:2.5,backgroundColor:"#ffffff",windowWidth:820});
+  const imgData=canvas.toDataURL("image/jpeg",0.98);
+  const pdf=new jsPDF("p","mm","a4",true);
+  const pw=pdf.internal.pageSize.getWidth();
+  const ph=pdf.internal.pageSize.getHeight();
+  const imgW=pw;
+  const imgH=canvas.height*pw/canvas.width;
+  let heightLeft=imgH,position=0;
+  
+  pdf.addImage(imgData,"JPEG",0,position,imgW,imgH);
   heightLeft-=ph;
+  while(heightLeft>0){
+   position=heightLeft-imgH;
+   pdf.addPage();
+   pdf.addImage(imgData,"JPEG",0,position,imgW,imgH);
+   heightLeft-=ph;
+  }
+  
+  // إنتاج رابط معاينة Blob وعرضه داخل إطار داخلي بدلاً من فتح شاشة الطباعة
+  const pdfBlob=pdf.output("blob");
+  if(currentPdfBlobUrl) URL.revokeObjectURL(currentPdfBlobUrl);
+  currentPdfBlobUrl=URL.createObjectURL(pdfBlob);
+  
+  $("pdf-preview-iframe").src=currentPdfBlobUrl;
+  $("download-pdf-btn").onclick=()=>{
+   pdf.save(`${filename}_${todayISO()}.pdf`);
+   showToast("تم تنزيل ملف الـ PDF ✅");
+  };
+  
+  $("pdf-preview-modal").classList.remove("hidden");
+ }catch(err){
+  console.error("PDF Preview Error:", err);
+  showToast("حدث خطأ أثناء إعداد المعاينة");
+ }finally{
+  el.style.width=originalWidth;
+  el.style.overflow=originalOverflow;
  }
- pdf.save(`${filename}_${todayISO()}.pdf`);
+}
+
+function closePdfPreview(){
+ $("pdf-preview-modal").classList.add("hidden");
+ $("pdf-preview-iframe").src="";
 }
 
 async function shareAsImage(elId,filename){
  const el=$(elId);
  if(!el){showToast("لا يوجد محتوى");return;}
- const canvas=await html2canvas(el,{scale:2,backgroundColor:"#ffffff"});
- canvas.toBlob(async blob=>{
-  const file=new File([blob],`${filename}.png`,{type:"image/png"});
-  if(navigator.share){
-   try{await navigator.share({title:"تقرير مالي",files:[file]});}catch{}
-  }else{
-   const url=URL.createObjectURL(blob);
-   const a=document.createElement("a");
-   a.href=url;a.download=`${filename}.png`;a.click();
-   URL.revokeObjectURL(url);
-  }
- });
+ const originalWidth=el.style.width;
+ const originalOverflow=el.style.overflow;
+ el.style.width="820px";
+ el.style.overflow="visible";
+ try{
+  const canvas=await html2canvas(el,{scale:2,backgroundColor:"#ffffff",windowWidth:820});
+  await new Promise(resolve=>{
+   canvas.toBlob(async blob=>{
+    const file=new File([blob],`${filename}.png`,{type:"image/png"});
+    if(navigator.share){
+     try{await navigator.share({title:"تقرير مالي",files:[file]});}catch{}
+    }else{
+     const url=URL.createObjectURL(blob);
+     const a=document.createElement("a");
+     a.href=url;a.download=`${filename}.png`;a.click();
+     URL.revokeObjectURL(url);
+    }
+    resolve();
+   });
+  });
+ }finally{
+  el.style.width=originalWidth;
+  el.style.overflow=originalOverflow;
+ }
 }
 
 function shareReport(){
@@ -868,9 +1120,10 @@ function shareReport(){
 }
 
 function switchFinanceTab(tab){
- const map={summary:"summary",budget:"budget",compare:"compare",ledger:"ledger"};
- Object.keys(map).forEach(k=>{
-  $("finance-"+map[k]+"-view").classList.toggle("hidden",k!==tab);
+ currentFinanceTab=tab;
+ const tabs=["summary","budget","compare","ledger"];
+ tabs.forEach(k=>{
+  $("finance-"+k+"-view").classList.toggle("hidden",k!==tab);
   $("finance-tab-"+k).classList.toggle("active",k===tab);
  });
  if(tab==="summary")renderFinancialSummary();
@@ -879,7 +1132,7 @@ function switchFinanceTab(tab){
  if(tab==="ledger"){
   $("filter-section").classList.remove("hidden");
   $("report-section").classList.add("hidden");
-  updateReportTargetOptions();
+  updateReportTargetOptions().catch(()=>{});
  }
 }
 
@@ -904,7 +1157,7 @@ function cyclePeriods(records){
 function getRange(prefix){return{from:readDateParts(prefix+"-from"),to:readDateParts(prefix+"-to")}}
 function getChosenRange(prefix,defaultFrom,defaultTo){
  const a=getRange(prefix);
- return a.from&&a.to?{from:a.from,to:a.to,manual:true}:{from:defaultFrom,to:defaultTo,manual:false}
+ return{from:a.from||defaultFrom,to:a.to||defaultTo,manual:!!(a.from||a.to)};
 }
 function inPeriod(r,p){return r.date>=p.from&&r.date<=p.to}
 function sumWhere(records,fn){return records.reduce((s,r)=>s+(fn(r)?realAmount(r):0),0)}
@@ -947,183 +1200,136 @@ async function renderFinancialSummary(){
  }catch(e){console.error(e);showToast("تعذر إنشاء الملخص المالي");}
 }
 
-// ============ Budget System (Fixed Pattern) ============
-const BUDGET_FIXED_ITEMS = [
-  { key: "transfers", label: "حوالات خارجية", pct: 34 },
-  { key: "debt",      label: "سداد ديون",     pct: 10 },
-  { key: "reserve",   label: "احتياطي/ادخار", pct: 10 }
+const BUDGET_FIXED_ITEMS=[
+ {key:"transfers",label:"حوالات خارجية",pct:34},
+ {key:"debt",label:"سداد ديون",pct:10},
+ {key:"reserve",label:"احتياطي/ادخار",pct:10}
+];
+const BUDGET_CATEGORY_ITEMS=[
+ {key:"طعام ومقاضي",label:"طعام ومقاضي",pct:20},
+ {key:"فواتير واشتراكات",label:"فواتير واشتراكات",pct:10},
+ {key:"مواصلات",label:"مواصلات",pct:6},
+ {key:"شخصي وتجارة",label:"شخصي وتجارة",pct:5},
+ {key:"صحة وطوارئ",label:"صحة وطوارئ",pct:3},
+ {key:"أخرى",label:"أخرى",pct:2}
 ];
 
-const BUDGET_CATEGORY_ITEMS = [
-  { key: "طعام ومقاضي",      label: "طعام ومقاضي",      pct: 20 },
-  { key: "فواتير واشتراكات",  label: "فواتير واشتراكات",  pct: 10 },
-  { key: "مواصلات",          label: "مواصلات",          pct: 6  },
-  { key: "شخصي وتجارة",      label: "شخصي وتجارة",      pct: 5  },
-  { key: "صحة وطوارئ",        label: "صحة وطوارئ",        pct: 3  },
-  { key: "أخرى",             label: "أخرى",             pct: 2  }
-];
-
-function getBudgets(){ 
-  try { return JSON.parse(localStorage.getItem(BUDGETS_KEY) || "{}") || {}; }
-  catch { return {}; }
+function getBudgets(){try{return JSON.parse(localStorage.getItem(BUDGETS_KEY)||"{}")||{};}catch{return{};}}
+function getSalaryTransactions(records){const today=todayISO();return records.filter(r=>r.type==="income"&&r.isSalaryBase&&r.date<=today).sort((a,b)=>a.date.localeCompare(b.date));}
+function getCurrentCycleInfo(records){
+ const salaries=getSalaryTransactions(records);const today=todayISO();
+ if(!salaries.length)return{hasSalary:false,start:firstOfMonthISO(),end:today,salaryAmount:0};
+ const last=salaries[salaries.length-1];
+ return{hasSalary:true,start:last.date,end:today,salaryAmount:realAmount(last)};
 }
 
-function getSalaryTransactions(records) {
-  const today = todayISO();
-  return records
-    .filter(r => r.type === "income" && r.isSalaryBase && r.date <= today)
-    .sort((a, b) => a.date.localeCompare(b.date));
-}
-
-function getCurrentCycleInfo(records) {
-  const salaries = getSalaryTransactions(records);
-  const today = todayISO();
-  if (!salaries.length) {
-    return { hasSalary: false, start: firstOfMonthISO(), end: today, salaryAmount: 0 };
+function calculateCarryOver(records,beforeDate){
+ const opening=Number(localStorage.getItem(OPENING_BAL_KEY)||0);let balance=opening;
+ records.filter(r=>r.date<beforeDate).forEach(r=>{
+  if(r.type==="income")balance+=realAmount(r);
+  else if(r.type==="expense")balance-=realAmount(r);
+  else if(r.type==="transfer")balance-=realAmount(r);
+  else if(r.type==="debt"){
+   if(r.debtType==="creditor")balance+=realAmount(r);
+   else if(r.debtType==="debtor")balance-=realAmount(r);
   }
-  const last = salaries[salaries.length - 1];
-  return {
-    hasSalary: true,
-    start: last.date,
-    end: today,
-    salaryAmount: realAmount(last)
-  };
+ });
+ return balance;
+}
+function calculateCurrentBalance(records){
+ const opening=Number(localStorage.getItem(OPENING_BAL_KEY)||0);const today=todayISO();let balance=opening;
+ records.filter(r=>r.date<=today).forEach(r=>{
+  if(r.type==="income")balance+=realAmount(r);
+  else if(r.type==="expense")balance-=realAmount(r);
+  else if(r.type==="transfer")balance-=realAmount(r);
+  else if(r.type==="debt"){
+   if(r.debtType==="creditor")balance+=realAmount(r);
+   else if(r.debtType==="debtor")balance-=realAmount(r);
+  }
+ });
+ return balance;
+}
+function calculateSpentInCycle(records,cycle){
+ const period={from:cycle.start,to:cycle.end};
+ const result={transfers:0,debt:0,categories:{},extraIncome:0};
+ BUDGET_CATEGORY_ITEMS.forEach(c=>result.categories[c.key]=0);
+ records.filter(r=>inPeriod(r,period)).forEach(r=>{
+  if(r.type==="expense"){
+   const cat=r.category||"أخرى";
+   result.categories[cat]=(result.categories[cat]||0)+realAmount(r);
+  }else if(r.type==="transfer"){
+   result.transfers+=realAmount(r);
+  }else if(r.type==="debt"){
+   if(r.debtType==="debtor")result.debt+=realAmount(r);
+  }else if(r.type==="income"&&!r.isSalaryBase){
+   result.extraIncome+=realAmount(r);
+  }
+ });
+ return result;
 }
 
-function calculateCarryOver(records, beforeDate) {
-  const opening = Number(localStorage.getItem(OPENING_BAL_KEY) || 0);
-  let balance = opening;
-  records.filter(r => r.date < beforeDate).forEach(r => {
-    if (r.type === "income") balance += realAmount(r);
-    else if (r.type === "expense") balance -= realAmount(r);
-    else if (r.type === "transfer") balance -= realAmount(r);
-    else if (r.type === "debt") {
-      if (r.debtType === "creditor") balance += realAmount(r);
-      else if (r.debtType === "debtor") balance -= realAmount(r);
-    }
+function renderBudgetView(){
+ getAllForFinance().then(records=>{
+  const cycle=getCurrentCycleInfo(records);
+  const noteEl=$("budget-period-note"),periodEl=$("budget-report-period");
+  const cardsEl=$("budget-balance-cards"),resultsEl=$("budget-results");
+
+  if(!cycle.hasSalary){
+   noteEl.textContent="لم يتم تسجيل راتب أساسي بعد.";
+   if(periodEl)periodEl.textContent="—";
+   cardsEl.innerHTML="";
+   resultsEl.innerHTML='<div class="hint">سجّل راتبك من شاشة التسجيل (نوع: دخل + فعّل خيار "راتب أساسي") لبدء دورة الموازنة.</div>';
+   return;
+  }
+  const salary=cycle.salaryAmount;
+  const carryOver=calculateCarryOver(records,cycle.start);
+  const spent=calculateSpentInCycle(records,cycle);
+  const currentBalance=calculateCurrentBalance(records);
+  const totalSpentInCycle=spent.transfers+spent.debt+Object.values(spent.categories).reduce((s,v)=>s+v,0);
+
+  noteEl.textContent=`الدورة من ${fmtDate(cycle.start)} إلى ${fmtDate(cycle.end)} · الراتب ${money(salary)}`;
+  if(periodEl)periodEl.textContent=`${fmtDate(cycle.start)} → ${fmtDate(cycle.end)} · الراتب ${money(salary)}`;
+
+  cardsEl.innerHTML=`
+   <div class="balance-card"><span>الرصيد الجاري (الموجود معاك دلوقتي)</span><strong>${money(currentBalance)}</strong></div>
+   <div class="metric-grid">
+    ${metric("الرصيد المرحّل",money(carryOver),"مدخرات من دورات سابقة")}
+    ${metric("الراتب الحالي",money(salary))}
+    ${metric("دخل إضافي",money(spent.extraIncome),"يُضاف للرصيد الجاري")}
+    ${metric("إجمالي المصروفات",money(totalSpentInCycle),"خلال الدورة الحالية")}
+   </div>`;
+
+  function renderItemRow(item,allocated,actual,isReserve){
+   const remaining=allocated-actual;
+   const ratio=allocated>0?Math.min(100,(actual/allocated)*100):0;
+   const statusColor=actual>allocated?"#e11d48":(ratio>=80?"#d97706":"#4f46e5");
+   let statusText,statusClass;
+   if(isReserve){statusText=`وفّرت ${money(allocated)} (احتياطي)`;statusClass="good";}
+   else if(actual>allocated){statusText=`⚠️ تجاوزت بـ ${money(actual-allocated)} — توقف عن الصرف من هنا`;statusClass="bad";}
+   else if(ratio>=99.9){statusText=`⛔ وصلت للحد — توقف عن الصرف من هنا`;statusClass="warning";}
+   else if(ratio>=80){statusText=`قربت تخلص — باقي ${money(remaining)}`;statusClass="warning";}
+   else{statusText=actual===0?`لم تصرف — وفّرت ${money(remaining)}`:`وفّرت ${money(remaining)}`;statusClass="good";}
+   return `<div class="finance-row"><div style="flex:1"><strong>${escapeHTML(item.label)}</strong><div class="small">مخصص ${money(allocated)} (${item.pct}%) · صرفت ${money(actual)}</div><div class="progress"><span style="width:${ratio}%;background:${statusColor}"></span></div><small class="${statusClass}">${statusText}</small></div></div>`;
+  }
+
+  let html='<div class="finance-card"><strong>البنود الثابتة</strong>';
+  BUDGET_FIXED_ITEMS.forEach(item=>{
+   const allocated=salary*item.pct/100;let actual=0;
+   if(item.key==="transfers")actual=spent.transfers;
+   else if(item.key==="debt")actual=spent.debt;
+   html+=renderItemRow(item,allocated,actual,item.key==="reserve");
   });
-  return balance;
-}
+  html+='</div>';
 
-function calculateCurrentBalance(records) {
-  const opening = Number(localStorage.getItem(OPENING_BAL_KEY) || 0);
-  const today = todayISO();
-  let balance = opening;
-  records.filter(r => r.date <= today).forEach(r => {
-    if (r.type === "income") balance += realAmount(r);
-    else if (r.type === "expense") balance -= realAmount(r);
-    else if (r.type === "transfer") balance -= realAmount(r);
-    else if (r.type === "debt") {
-      if (r.debtType === "creditor") balance += realAmount(r);
-      else if (r.debtType === "debtor") balance -= realAmount(r);
-    }
+  html+='<div class="finance-card"><strong>تصنيفات المصروفات</strong>';
+  BUDGET_CATEGORY_ITEMS.forEach(item=>{
+   const allocated=salary*item.pct/100;
+   const actual=spent.categories[item.key]||0;
+   html+=renderItemRow(item,allocated,actual,false);
   });
-  return balance;
-}
-
-function calculateSpentInCycle(records, cycle) {
-  const period = { from: cycle.start, to: cycle.end };
-  const result = { transfers: 0, debt: 0, categories: {}, extraIncome: 0 };
-  BUDGET_CATEGORY_ITEMS.forEach(c => result.categories[c.key] = 0);
-
-  records.filter(r => inPeriod(r, period)).forEach(r => {
-    if (r.type === "expense") {
-      const cat = r.category || "أخرى";
-      result.categories[cat] = (result.categories[cat] || 0) + realAmount(r);
-    } else if (r.type === "transfer") {
-      result.transfers += realAmount(r);
-    } else if (r.type === "debt") {
-      if (r.debtType === "debtor") result.debt += realAmount(r);
-    } else if (r.type === "income" && !r.isSalaryBase) {
-      result.extraIncome += realAmount(r);
-    }
-  });
-  return result;
-}
-
-function renderBudgetView() {
-  getAllForFinance().then(records => {
-    const cycle = getCurrentCycleInfo(records);
-    const noteEl = $("budget-period-note");
-    const periodEl = $("budget-report-period");
-    const cardsEl = $("budget-balance-cards");
-    const resultsEl = $("budget-results");
-
-    if (!cycle.hasSalary) {
-      noteEl.textContent = "لم يتم تسجيل راتب أساسي بعد.";
-      if (periodEl) periodEl.textContent = "—";
-      cardsEl.innerHTML = "";
-      resultsEl.innerHTML = '<div class="hint">سجّل راتبك من شاشة التسجيل (نوع: دخل + فعّل خيار "راتب أساسي") لبدء دورة الموازنة. سيوزّع النظام الراتب تلقائيًا على التصنيفات بالنسب المتفق عليها.</div>';
-      return;
-    }
-
-    const salary = cycle.salaryAmount;
-    const carryOver = calculateCarryOver(records, cycle.start);
-    const spent = calculateSpentInCycle(records, cycle);
-    const currentBalance = calculateCurrentBalance(records);
-    const totalSpentInCycle = spent.transfers + spent.debt +
-      Object.values(spent.categories).reduce((s, v) => s + v, 0);
-
-    noteEl.textContent = `الدورة من ${fmtDate(cycle.start)} إلى ${fmtDate(cycle.end)} · الراتب ${money(salary)}`;
-    if (periodEl) periodEl.textContent = `${fmtDate(cycle.start)} → ${fmtDate(cycle.end)} · الراتب ${money(salary)}`;
-
-    cardsEl.innerHTML = `
-      <div class="balance-card"><span>الرصيد الجاري (الموجود معاك دلوقتي)</span><strong>${money(currentBalance)}</strong></div>
-      <div class="metric-grid">
-        ${metric("الرصيد المرحّل", money(carryOver), "مدخرات من دورات سابقة")}
-        ${metric("الراتب الحالي", money(salary))}
-        ${metric("دخل إضافي", money(spent.extraIncome), "يُضاف للرصيد الجاري")}
-        ${metric("إجمالي المصروفات", money(totalSpentInCycle), "خلال الدورة الحالية")}
-      </div>
-    `;
-
-    function renderItemRow(item, allocated, actual, isReserve) {
-      const remaining = allocated - actual;
-      const ratio = allocated > 0 ? Math.min(100, (actual / allocated) * 100) : 0;
-      const statusColor = actual > allocated ? "#e11d48" : (ratio >= 80 ? "#d97706" : "#4f46e5");
-      let statusText, statusClass;
-      if (isReserve) {
-        statusText = `وفّرت ${money(allocated)} (احتياطي)`;
-        statusClass = "good";
-      } else if (actual > allocated) {
-        statusText = `⚠️ تجاوزت بـ ${money(actual - allocated)} — توقف عن الصرف من هنا`;
-        statusClass = "bad";
-      } else if (ratio >= 99.9) {
-        statusText = `⛔ وصلت للحد — توقف عن الصرف من هنا`;
-        statusClass = "warning";
-      } else if (ratio >= 80) {
-        statusText = `قربت تخلص — باقي ${money(remaining)}`;
-        statusClass = "warning";
-      } else {
-        statusText = actual === 0 ? `لم تصرف — وفّرت ${money(remaining)}` : `وفّرت ${money(remaining)}`;
-        statusClass = "good";
-      }
-      return `<div class="finance-row"><div style="flex:1"><strong>${escapeHTML(item.label)}</strong><div class="small">مخصص ${money(allocated)} (${item.pct}%) · صرفت ${money(actual)}</div><div class="progress"><span style="width:${ratio}%;background:${statusColor}"></span></div><small class="${statusClass}">${statusText}</small></div></div>`;
-    }
-
-    let html = '<div class="finance-card"><strong>البنود الثابتة</strong>';
-    BUDGET_FIXED_ITEMS.forEach(item => {
-      const allocated = salary * item.pct / 100;
-      let actual = 0;
-      if (item.key === "transfers") actual = spent.transfers;
-      else if (item.key === "debt") actual = spent.debt;
-      html += renderItemRow(item, allocated, actual, item.key === "reserve");
-    });
-    html += '</div>';
-
-    html += '<div class="finance-card"><strong>تصنيفات المصروفات</strong>';
-    BUDGET_CATEGORY_ITEMS.forEach(item => {
-      const allocated = salary * item.pct / 100;
-      const actual = spent.categories[item.key] || 0;
-      html += renderItemRow(item, allocated, actual, false);
-    });
-    html += '</div>';
-
-    resultsEl.innerHTML = html;
-  }).catch(e => {
-    console.error(e);
-    $("budget-results").innerHTML = '<div class="hint">تعذر تحميل الموازنة.</div>';
-  });
+  html+='</div>';
+  resultsEl.innerHTML=html;
+ }).catch(e=>{console.error(e);$("budget-results").innerHTML='<div class="hint">تعذر تحميل الموازنة.</div>';});
 }
 
 function compareTableRow(name,a,b,incA,incB){
@@ -1145,117 +1351,315 @@ async function renderFinancialComparison(){
  }catch(e){console.error(e);showToast("تعذرت المقارنة المالية");}
 }
 
-// ============ Generic Export Helpers ============
-function shareViewWhatsApp(captureId, title) {
-  const el = $(captureId);
-  if (!el) { showToast("لا يوجد محتوى للمشاركة"); return; }
-  const text = `📊 *${title}*\n\n${el.innerText}`;
-  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-  window.open(url, "_blank");
+function shareViewWhatsApp(captureId,title){
+ const el=$(captureId);
+ if(!el){showToast("لا يوجد محتوى للمشاركة");return;}
+ const text=`📊 *${title}*\n\n${el.innerText}`;
+ const url=`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+ window.open(url,"_blank");
 }
 
-function exportDataToExcel(title, rows, filename) {
-  const wb = XLSX.utils.book_new();
-  const data = [[title], [], ...rows];
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [{wch: 32}, {wch: 18}, {wch: 18}, {wch: 18}];
-  XLSX.utils.book_append_sheet(wb, ws, "Report");
-  XLSX.writeFile(wb, `${filename}_${todayISO()}.xlsx`);
+function exportDataToExcel(title,rows,filename){
+ const wb=XLSX.utils.book_new();
+ const data=[[title],[],...rows];
+ const ws=XLSX.utils.aoa_to_sheet(data);
+ ws['!cols']=[{wch:32},{wch:18},{wch:18},{wch:18}];
+ XLSX.utils.book_append_sheet(wb,ws,"Report");
+ XLSX.writeFile(wb,`${filename}_${todayISO()}.xlsx`);
 }
 
-async function exportSummaryExcel() {
-  try {
-    const records = await getAllForFinance();
-    const cycle = cyclePeriods(records);
-    const chosen = getChosenRange("summary", cycle.start, cycle.end);
-    const p = { from: chosen.from, to: chosen.to };
-    const list = records.filter(r => inPeriod(r, p));
-    const income = sumWhere(list, r => r.type === "income");
-    const expenses = sumWhere(list, r => r.type === "expense");
-    const transfers = sumWhere(list, r => r.type === "transfer");
-    const debtsOut = sumWhere(list, isDebtorEntry);
-    const debtsIn = sumWhere(list, isCreditorEntry);
-    const net = income - expenses - transfers - debtsOut;
-    const rows = [
-      ["الفترة", `${fmtDate(p.from)} → ${fmtDate(p.to)}`],
-      [],
-      ["البند", "المبلغ (د.ك)"],
-      ["الدخل الفعلي", income.toFixed(3)],
-      ["المصروفات العادية", expenses.toFixed(3)],
-      ["الحوالات", transfers.toFixed(3)],
-      ["سداد الديون", debtsOut.toFixed(3)],
-      ["ديون مستلمة", debtsIn.toFixed(3)],
-      ["المتبقي", net.toFixed(3)],
-      [],
-      ["المصروفات حسب التصنيف", "المبلغ"],
-      ...groupAmounts(records, p, r => r.type === "expense", r => r.category).map(([n, a]) => [n, a.toFixed(3)])
-    ];
-    exportDataToExcel("الملخص المالي", rows, "Summary");
-    showToast("تم تصدير الملخص");
-  } catch (e) { console.error(e); showToast("تعذر تصدير الملخص"); }
+async function exportSummaryExcel(){
+ try{
+  const records=await getAllForFinance();
+  const cycle=cyclePeriods(records);
+  const chosen=getChosenRange("summary",cycle.start,cycle.end);
+  const p={from:chosen.from,to:chosen.to};
+  const list=records.filter(r=>inPeriod(r,p));
+  const income=sumWhere(list,r=>r.type==="income");
+  const expenses=sumWhere(list,r=>r.type==="expense");
+  const transfers=sumWhere(list,r=>r.type==="transfer");
+  const debtsOut=sumWhere(list,isDebtorEntry);
+  const debtsIn=sumWhere(list,isCreditorEntry);
+  const net=income-expenses-transfers-debtsOut;
+  const rows=[
+   ["الفترة",`${fmtDate(p.from)} → ${fmtDate(p.to)}`],[],
+   ["البند","المبلغ (د.ك)"],
+   ["الدخل الفعلي",income.toFixed(3)],
+   ["المصروفات العادية",expenses.toFixed(3)],
+   ["الحوالات",transfers.toFixed(3)],
+   ["سداد الديون",debtsOut.toFixed(3)],
+   ["ديون مستلمة",debtsIn.toFixed(3)],
+   ["المتبقي",net.toFixed(3)],
+   [],
+   ["المصروفات حسب التصنيف","المبلغ"],
+   ...groupAmounts(records,p,r=>r.type==="expense",r=>r.category).map(([n,a])=>[n,a.toFixed(3)])
+  ];
+  exportDataToExcel("الملخص المالي",rows,"Summary");
+  showToast("تم تصدير الملخص");
+ }catch(e){console.error(e);showToast("تعذر تصدير الملخص");}
 }
 
-async function exportBudgetExcel() {
-  try {
-    const records = await getAllForFinance();
-    const cycle = getCurrentCycleInfo(records);
-    if (!cycle.hasSalary) { showToast("لا يوجد راتب مسجل"); return; }
-    const salary = cycle.salaryAmount;
-    const carryOver = calculateCarryOver(records, cycle.start);
-    const spent = calculateSpentInCycle(records, cycle);
-    const currentBalance = calculateCurrentBalance(records);
-    const rows = [
-      ["الفترة", `${fmtDate(cycle.start)} → ${fmtDate(cycle.end)}`],
-      ["الراتب", salary.toFixed(3)],
-      ["الرصيد المرحّل", carryOver.toFixed(3)],
-      ["الرصيد الجاري", currentBalance.toFixed(3)],
-      ["دخل إضافي", spent.extraIncome.toFixed(3)],
-      [],
-      ["البند", "المخصص", "المصروف الفعلي", "المتبقي"]
-    ];
-    BUDGET_FIXED_ITEMS.forEach(item => {
-      const allocated = salary * item.pct / 100;
-      let actual = 0;
-      if (item.key === "transfers") actual = spent.transfers;
-      else if (item.key === "debt") actual = spent.debt;
-      rows.push([`${item.label} (${item.pct}%)`, allocated.toFixed(3), actual.toFixed(3), (allocated - actual).toFixed(3)]);
-    });
-    BUDGET_CATEGORY_ITEMS.forEach(item => {
-      const allocated = salary * item.pct / 100;
-      const actual = spent.categories[item.key] || 0;
-      rows.push([`${item.label} (${item.pct}%)`, allocated.toFixed(3), actual.toFixed(3), (allocated - actual).toFixed(3)]);
-    });
-    exportDataToExcel("موازنة الدورة", rows, "Budget");
-    showToast("تم تصدير الموازنة");
-  } catch (e) { console.error(e); showToast("تعذر تصدير الموازنة"); }
+async function exportBudgetExcel(){
+ try{
+  const records=await getAllForFinance();
+  const cycle=getCurrentCycleInfo(records);
+  if(!cycle.hasSalary){showToast("لا يوجد راتب مسجل");return;}
+  const salary=cycle.salaryAmount;
+  const carryOver=calculateCarryOver(records,cycle.start);
+  const spent=calculateSpentInCycle(records,cycle);
+  const currentBalance=calculateCurrentBalance(records);
+  const rows=[
+   ["الفترة",`${fmtDate(cycle.start)} → ${fmtDate(cycle.end)}`],
+   ["الراتب",salary.toFixed(3)],
+   ["الرصيد المرحّل",carryOver.toFixed(3)],
+   ["الرصيد الجاري",currentBalance.toFixed(3)],
+   ["دخل إضافي",spent.extraIncome.toFixed(3)],
+   [],
+   ["البند","المخصص","المصروف الفعلي","المتبقي"]
+  ];
+  BUDGET_FIXED_ITEMS.forEach(item=>{
+   const allocated=salary*item.pct/100;let actual=0;
+   if(item.key==="transfers")actual=spent.transfers;
+   else if(item.key==="debt")actual=spent.debt;
+   rows.push([`${item.label} (${item.pct}%)`,allocated.toFixed(3),actual.toFixed(3),(allocated-actual).toFixed(3)]);
+  });
+  BUDGET_CATEGORY_ITEMS.forEach(item=>{
+   const allocated=salary*item.pct/100;
+   const actual=spent.categories[item.key]||0;
+   rows.push([`${item.label} (${item.pct}%)`,allocated.toFixed(3),actual.toFixed(3),(allocated-actual).toFixed(3)]);
+  });
+  exportDataToExcel("موازنة الدورة",rows,"Budget");
+  showToast("تم تصدير الموازنة");
+ }catch(e){console.error(e);showToast("تعذر تصدير الموازنة");}
 }
 
-async function exportCompareExcel() {
-  try {
-    const records = await getAllForFinance();
-    const c = cyclePeriods(records);
-    const p1 = getChosenRange("compare1", c.previousStart, c.previousEnd);
-    const p2 = getChosenRange("compare2", c.start, c.end);
-    const a = { from: p1.from, to: p1.to }, b = { from: p2.from, to: p2.to };
-    const ia = incomeFor(records, a), ib = incomeFor(records, b);
-    const ea = expenseFor(records, a), eb = expenseFor(records, b);
-    const ta = transferFor(records, a), tb = transferFor(records, b);
-    const da = debtPaidFor(records, a), dbb = debtPaidFor(records, b);
-    const ba = debtTakenFor(records, a), bb = debtTakenFor(records, b);
-    const rows = [
-      ["الفترة الأولى", `${fmtDate(a.from)} → ${fmtDate(a.to)}`],
-      ["الفترة الثانية", `${fmtDate(b.from)} → ${fmtDate(b.to)}`],
-      [],
-      ["البند", "الفترة الأولى", "الفترة الثانية", "الفرق"],
-      ["الدخل المكتسب", ia.toFixed(3), ib.toFixed(3), (ib - ia).toFixed(3)],
-      ["المصروفات العادية", ea.toFixed(3), eb.toFixed(3), (eb - ea).toFixed(3)],
-      ["الحوالات", ta.toFixed(3), tb.toFixed(3), (tb - ta).toFixed(3)],
-      ["سداد الديون", da.toFixed(3), dbb.toFixed(3), (dbb - da).toFixed(3)],
-      ["ديون مستلمة", ba.toFixed(3), bb.toFixed(3), (bb - ba).toFixed(3)]
-    ];
-    exportDataToExcel("مقارنة الفترتين", rows, "Compare");
-    showToast("تم تصدير المقارنة");
-  } catch (e) { console.error(e); showToast("تعذر تصدير المقارنة"); }
+async function exportCompareExcel(){
+ try{
+  const records=await getAllForFinance();
+  const c=cyclePeriods(records);
+  const p1=getChosenRange("compare1",c.previousStart,c.previousEnd);
+  const p2=getChosenRange("compare2",c.start,c.end);
+  const a={from:p1.from,to:p1.to},b={from:p2.from,to:p2.to};
+  const ia=incomeFor(records,a),ib=incomeFor(records,b);
+  const ea=expenseFor(records,a),eb=expenseFor(records,b);
+  const ta=transferFor(records,a),tb=transferFor(records,b);
+  const da=debtPaidFor(records,a),dbb=debtPaidFor(records,b);
+  const ba=debtTakenFor(records,a),bb=debtTakenFor(records,b);
+  const rows=[
+   ["الفترة الأولى",`${fmtDate(a.from)} → ${fmtDate(a.to)}`],
+   ["الفترة الثانية",`${fmtDate(b.from)} → ${fmtDate(b.to)}`],
+   [],
+   ["البند","الفترة الأولى","الفترة الثانية","الفرق"],
+   ["الدخل المكتسب",ia.toFixed(3),ib.toFixed(3),(ib-ia).toFixed(3)],
+   ["المصروفات العادية",ea.toFixed(3),eb.toFixed(3),(eb-ea).toFixed(3)],
+   ["الحوالات",ta.toFixed(3),tb.toFixed(3),(tb-ta).toFixed(3)],
+   ["سداد الديون",da.toFixed(3),dbb.toFixed(3),(dbb-da).toFixed(3)],
+   ["ديون مستلمة",ba.toFixed(3),bb.toFixed(3),(bb-ba).toFixed(3)]
+  ];
+  exportDataToExcel("مقارنة الفترتين",rows,"Compare");
+  showToast("تم تصدير المقارنة");
+ }catch(e){console.error(e);showToast("تعذر تصدير المقارنة");}
+}
+
+function numberToArabicWords(num){
+ if(num===0)return "صفر";
+ const ones=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة","عشرة",
+  "أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];
+ const tens=["","","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"];
+ const hundreds=["","مائة","مائتان","ثلاثمائة","أربعمائة","خمسمائة","ستمائة","سبعمائة","ثمانمائة","تسعمائة"];
+ function under1000(n){
+  if(n===0)return "";
+  const h=Math.floor(n/100),r=n%100;
+  let s=hundreds[h]||"";
+  if(r>0){
+   if(s)s+=" و";
+   if(r<20)s+=ones[r];
+   else{
+    const t=Math.floor(r/10),o=r%10;
+    if(o>0)s+=ones[o]+" و";
+    s+=tens[t];
+   }
+  }
+  return s;
+ }
+ const intPart=Math.floor(num);
+ const decPart=Math.round((num-intPart)*1000);
+ const thousands=Math.floor(intPart/1000);
+ const rest=intPart%1000;
+ let words="";
+ if(thousands>0){
+  if(thousands===1)words="ألف";
+  else if(thousands===2)words="ألفان";
+  else if(thousands<=10)words=under1000(thousands)+" آلاف";
+  else words=under1000(thousands)+" ألف";
+  if(rest>0)words+=" و"+under1000(rest);
+ }else{
+  words=under1000(rest);
+ }
+ if(!words)words="صفر";
+ words+=" دينار كويتي";
+ if(decPart>0)words+=" و"+under1000(decPart)+" فلس";
+ return words+" لا غير";
+}
+
+function buildStatementHTML(person,txs,period){
+ const personTxs=txs.filter(t=>t.type==="debt"&&t.person===person)
+   .filter(t=>!period||(t.date>=period.from&&t.date<=period.to));
+
+ if(!personTxs.length){
+  return `<div class="stmt"><div class="stmt-empty">لا توجد حركات لهذا الطرف.</div></div>`;
+ }
+
+ const opening=personTxs.filter(t=>t.debtType==="opening_balance");
+ const others=personTxs.filter(t=>t.debtType!=="opening_balance")
+   .sort((a,b)=>a.date.localeCompare(b.date)||(a.time||"").localeCompare(b.time||""));
+
+ const rows=[];
+ let balance=0,seq=0;
+
+ opening.forEach(r=>{
+  const amt=realAmount(r);
+  balance+=amt;
+  rows.push({seq:++seq,ref:"OPN-"+String(seq).padStart(3,"0"),date:"—",desc:"رصيد افتتاحي",madden:amt,daen:0,balance,opening:true});
+ });
+
+ others.forEach(r=>{
+  const amt=realAmount(r);
+  const isMadden=r.debtType==="creditor";
+  const madden=isMadden?amt:0;
+  const daen=isMadden?0:amt;
+  balance+=madden-daen;
+  rows.push({
+   seq:++seq,ref:"TX-"+String(seq).padStart(5,"0"),date:fmtDate(r.date),
+   desc:r.debtType==="creditor"?"دين جديد (استلام)":"سداد (دفع)",
+   madden,daen,balance,opening:false,notes:r.notes||""
+  });
+ });
+
+ const totalMadden=rows.reduce((s,r)=>s+r.madden,0);
+ const totalDaen=rows.reduce((s,r)=>s+r.daen,0);
+ const finalBalance=balance;
+ const isNegative=finalBalance<0;
+ const isZero=finalBalance===0;
+
+ const now=new Date();
+ const stamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+ const timeStr=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+ const refNumber=`SOA-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}-${String(Math.floor(Math.random()*900)+100)}`;
+
+ const periodText=period
+   ?`من ${fmtDate(period.from)} إلى ${fmtDate(period.to)}`
+   :`كافة الحركات المسجّلة`;
+
+ let tableRows="";
+ rows.forEach(r=>{
+  const descHTML=`${escapeHTML(r.desc)}`+
+   (r.ref?`<br><small style="color:#94a3b8;font-size:7.5px;display:block;margin-top:1px">${r.ref}</small>`:"")+
+   (r.notes?`<br><small style="color:#94a3b8;font-size:7.5px">${escapeHTML(r.notes)}</small>`:"");
+  tableRows+=`<tr class="${r.opening?'opening':''}">
+   <td class="col-seq">${r.seq}</td>
+   <td class="col-date">${r.date}</td>
+   <td class="col-desc">${descHTML}</td>
+   <td class="col-amt num" style="color:${r.madden>0?'#991b1b':'#cbd5e1'}">${r.madden>0?money(r.madden):"—"}</td>
+   <td class="col-amt num" style="color:${r.daen>0?'#047857':'#cbd5e1'}">${r.daen>0?money(r.daen):"—"}</td>
+   <td class="col-amt num" style="color:${r.balance<0?'#047857':'#0f172a'}">${money(Math.abs(r.balance))}${r.balance<0?" له":""}</td>
+  </tr>`;
+ });
+
+ const balanceBoxClass=isNegative?"negative":(isZero?"":"positive");
+ const balanceLabel=isNegative?"الرصيد المستحق لصاحب الحساب":(isZero?"الحساب مسدَّد بالكامل":"الرصيد المستحق على صاحب الحساب");
+ const balanceDisplay=money(Math.abs(finalBalance));
+
+ const legalBlock=isNegative?`
+  <div class="stmt-legal negative">
+   <div class="title">⚖️ إقرار بحق مالي</div>
+   <p>
+    يُشهد بأن صاحب هذا الحساب قد أوفى بكامل ما في ذمته من التزامات مالية تجاه الطرف الثاني المذكور أعلاه، وزيادةً على ذلك بمبلغ <strong>${balanceDisplay}</strong>، وبذلك يُعدّ صاحب الحساب <strong>دائنًا</strong> بهذا المبلغ في ذمة الطرف الثاني.
+    <br>
+    ويُعتد بهذا الكشف كمستند رسمي يُثبت أحقية صاحب الحساب في المطالبة بالمبلغ المتبقي، ويُعمل به عند الحاجة أمام الجهات المختصة.
+   </p>
+  </div>`:`
+  <div class="stmt-legal">
+   <div class="title">📋 إقرار بالمبلغ المستحق</div>
+   <p>
+    يُشهد بأن صاحب هذا الحساب مدين للطرف الثاني المذكور أعلاه بمبلغ <strong>${balanceDisplay}</strong>، وذلك بموجب الحركات المالية المثبتة أعلاه.
+    <br>
+    هذا الكشف صادر إلكترونيًا من النظام المالي الشخصي، ويُعد إقرارًا بالمبلغ المذكور عند الحاجة.
+   </p>
+  </div>`;
+
+ return `
+  <div class="stmt">
+   <div class="stmt-head">
+    <h2>كشف حساب رسمي</h2>
+    <div class="en">STATEMENT OF ACCOUNT</div>
+    <div class="meta">
+     <span>المرجع<strong>${refNumber}</strong></span>
+     <span>الإصدار<strong>${stamp} — ${timeStr}</strong></span>
+    </div>
+   </div>
+
+   <div class="stmt-block">
+    <div class="stmt-block-title">بيانات الحساب</div>
+    <div class="stmt-account-grid">
+     <span class="lbl">الطرف الثاني:</span><span class="val">${escapeHTML(person)}</span>
+     <span class="lbl">نوع الحساب:</span><span class="val">ذمم شخصية</span>
+     <span class="lbl">العملة:</span><span class="val">دينار كويتي (KWD)</span>
+    </div>
+   </div>
+
+   <div class="stmt-block">
+    <div class="stmt-block-title">ملخص الفترة</div>
+    <div class="stmt-summary-grid">
+     <div><span>الفترة:</span><strong>${periodText}</strong></div>
+     <div><span>عدد الحركات:</span><strong>${rows.length}</strong></div>
+     <div><span>إجمالي المدين:</span><strong>${money(totalMadden)}</strong></div>
+     <div><span>إجمالي الدائن:</span><strong>${money(totalDaen)}</strong></div>
+    </div>
+   </div>
+
+   <div class="stmt-block" style="padding:0">
+    <table class="stmt-table">
+     <thead>
+      <tr>
+       <th class="col-seq">#</th>
+       <th class="col-date">التاريخ</th>
+       <th class="col-desc">البيان / المرجع</th>
+       <th class="col-amt">مدين</th>
+       <th class="col-amt">دائن</th>
+       <th class="col-amt">الرصيد</th>
+      </tr>
+     </thead>
+     <tbody>
+      ${tableRows}
+      <tr class="total-row">
+       <td colspan="3" style="text-align:center">الإجمالي</td>
+       <td class="num">${money(totalMadden)}</td>
+       <td class="num">${money(totalDaen)}</td>
+       <td class="num">${money(Math.abs(finalBalance))}${finalBalance<0?" له":""}</td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+
+   <div class="stmt-balance-box ${balanceBoxClass}">
+    <div class="lbl">${balanceLabel}</div>
+    <div class="amt">${balanceDisplay}</div>
+    <div class="word">${numberToArabicWords(Math.abs(finalBalance))}</div>
+   </div>
+
+   ${legalBlock}
+
+   <div class="stmt-signatures">
+    <div class="sig"><div class="line">توقيع صاحب الحساب</div></div>
+    <div class="sig"><div class="line">توقيع الطرف الثاني</div></div>
+   </div>
+
+   <div class="stmt-footer">
+    <div>مستند صادر إلكترونيًا من النظام المالي الشخصي · المرجع <span class="ref">${refNumber}</span></div>
+    <div>تاريخ الطباعة: ${stamp} — ${timeStr}</div>
+   </div>
+  </div>`;
 }
 
 document.addEventListener("click",e=>{
@@ -1269,10 +1673,6 @@ document.addEventListener("click",e=>{
  }
 });
 
-$("transfer-fee-mode").addEventListener("change",e=>{
- $("fee-wrap").classList.toggle("hidden",e.target.value!=="separate");
- calculateExchange();
-});
 $("person-modal-input").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();confirmAddPerson();}if(e.key==="Escape"){e.preventDefault();closePersonModal();}});
 $("new-person-name").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addPersonFromSettings();}});
 
@@ -1282,12 +1682,12 @@ window.addEventListener("DOMContentLoaded",async()=>{
  populatePeopleSelects();
  renderPersonsManageList();
  addBeneficiary();
- onReportTypeChange();
  $("opening-balance").value=Number(localStorage.getItem(OPENING_BAL_KEY)||0);
  try{
   await openDB();
   await refreshAllViews();
- }catch(e){console.warn("IndexedDB init warning:",e);}
+  await onReportTypeChange();
+ }catch(e){console.warn("Init warning:",e);}
 });
 </script>
 </body>
