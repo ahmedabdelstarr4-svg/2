@@ -20,14 +20,41 @@
   --red-soft:#fff1f2;
 }
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
-body{padding:8px;padding-bottom:calc(65px + env(safe-area-inset-bottom, 8px));display:flex;justify-content:center;align-items:stretch}
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+body {
+  padding: 8px;
+  padding-bottom: calc(85px + env(safe-area-inset-bottom, 12px));
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
 button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:manipulation}
 
-.app{width:100%;max-width:480px;min-height:calc(100dvh - 16px);background:var(--card);border:1px solid #dbe3ee;border-radius:22px;box-shadow:0 12px 35px #0f172a12;overflow:hidden;display:flex;flex-direction:column}
-.header{background:#0f172a;color:white;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:800;gap:8px}
+.app {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card);
+  border: 1px solid #dbe3ee;
+  border-radius: 22px;
+  box-shadow: 0 12px 35px #0f172a12;
+  display: flex;
+  flex-direction: column;
+}
+.header{background:#0f172a;color:white;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:800;gap:8px;border-top-left-radius:21px;border-top-right-radius:21px}
 .pill{font-size:10px;background:#1e293b;color:#cbd5e1;padding:5px 8px;border-radius:8px;white-space:nowrap}
-.content{padding:14px;overflow:auto;flex:1;overscroll-behavior:contain}
+.content {
+  padding: 14px;
+  flex: 1;
+}
 .view{display:block}.hidden{display:none!important}.stack{display:flex;flex-direction:column;gap:12px}
 
 label{display:block;color:#475569;font-size:12px;font-weight:700;margin-bottom:5px}
@@ -50,8 +77,8 @@ input:focus,select:focus,textarea:focus{border-color:#059669;box-shadow:0 0 0 3p
 .field-note{font-size:10px;color:#64748b;line-height:1.5;margin-top:3px}
 .field-note.warn{color:#92400e;background:#fffbeb;padding:7px 9px;border-radius:9px;border:1px solid #fde68a;font-weight:700}
 
-/* شريط التنقل السفلي */
-.nav-bottom{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:calc(100% - 16px);max-width:480px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px;border:1px solid var(--line);background:#0f172a;border-radius:16px;box-shadow:0 10px 25px rgba(15,23,42,0.25);z-index:30}
+/* شريط التنقل السفلي الثابت (3 أزرار) */
+.nav-bottom{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:calc(100% - 16px);max-width:480px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:6px;border:1px solid var(--line);background:#0f172a;border-radius:16px;box-shadow:0 10px 25px rgba(15,23,42,0.25);z-index:30}
 .nav-bottom .nav-btn{background:transparent;border:0;color:#94a3b8;padding:8px 2px;font-size:11px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:10px}
 .nav-bottom .nav-btn.active{background:#1e293b;color:#34d399}
 
@@ -75,7 +102,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .report-meta{background:#f8fafc;border:1px solid var(--line);padding:10px;border-radius:11px;font-size:11px;display:flex;flex-direction:column;gap:7px}
 .report-summary{background:#ecfdf5;border:1px solid #a7f3d0;padding:11px;border-radius:12px;display:flex;flex-direction:column;gap:8px;font-size:12px}
 
-/* بطاقة الروافع الرئيسية */
 .balance-card{background:linear-gradient(135deg,#0f172a,#1e293b);color:white;border-radius:16px;padding:16px;text-align:center;display:flex;flex-direction:column;gap:5px;box-shadow:0 8px 20px rgba(15,23,42,0.15)}
 .balance-card span{font-size:11px;color:#94a3b8;font-weight:700}
 .balance-card strong{font-size:26px;font-weight:900;color:#34d399;font-variant-numeric:tabular-nums;letter-spacing:-0.5px}
@@ -182,7 +208,12 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 </head>
 <body>
 <div class="app">
-<header class="header"><span>النظام المالي الشخصي 💼</span><span class="pill">الكويت · د.ك / مصر · ج.م</span></header>
+
+<header class="header">
+  <span>النظام المالي الشخصي 💼</span>
+  <span class="pill">الكويت · د.ك / مصر · ج.م</span>
+</header>
+
 <main class="content">
 
 <!-- 1. الرئيسية — مركز التحكم -->
@@ -196,12 +227,12 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
     <div class="metric"><span>إجمالي المصروفات</span><strong id="dash-total-out" class="bad">0.000 د.ك</strong></div>
   </div>
   <div class="panel stack">
-    <strong style="font-size:13px">⚡ إجراءات سريعة</strong>
+    <strong style="font-size:13px">⚡ إجراءات سريعة (إضافة معاملة)</strong>
     <div class="grid2">
-      <button type="button" class="btn btn-primary" onclick="quickNavInput('expense')">➕ تسجيل مصروف</button>
-      <button type="button" class="btn btn-soft" onclick="quickNavInput('income')">📥 تسجيل دخل</button>
-      <button type="button" class="btn btn-soft" onclick="quickNavInput('transfer')">✈️ تسجيل حوالة</button>
-      <button type="button" class="btn btn-soft" onclick="quickNavInput('debt')">🤝 تسجيل دين</button>
+      <button type="button" class="btn btn-primary" onclick="openInputForm('expense')">➕ تسجيل مصروف</button>
+      <button type="button" class="btn btn-soft" onclick="openInputForm('income')">📥 تسجيل دخل</button>
+      <button type="button" class="btn btn-soft" onclick="openInputForm('transfer')">✈️ تسجيل حوالة</button>
+      <button type="button" class="btn btn-soft" onclick="openInputForm('debt')">🤝 تسجيل دين</button>
     </div>
   </div>
   <div class="panel stack">
@@ -211,10 +242,14 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
   </div>
 </section>
 
-<!-- 2. شاشة التسجيل -->
+<!-- نافذة / قسم الإدخال السريع -->
 <section id="view-input" class="view stack hidden">
+<div class="row-between">
+  <strong style="font-size:14px">إدخال / تعديل معاملة</strong>
+  <button type="button" class="btn btn-muted" style="padding:4px 10px;font-size:11px" onclick="cancelEdit()">إلغاء وعودة للرئيسية ✕</button>
+</div>
 <div>
-<label>نوع المعاملة الجديدة</label>
+<label>نوع المعاملة</label>
 <div class="grid4">
 <button class="tab active" id="subtab-expense" type="button" onclick="switchInputTab('expense')">مصروفات</button>
 <button class="tab" id="subtab-income" type="button" onclick="switchInputTab('income')">دخل</button>
@@ -222,10 +257,10 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <button class="tab" id="subtab-debt" type="button" onclick="switchInputTab('debt')">ديون</button>
 </div></div>
 <div class="grid2">
-<div><label>تاريخ المعاملة (يوم / شهر / سنة)</label><div class="date-parts"><input id="tx-day" type="number" min="1" max="31" inputmode="numeric" placeholder="اليوم"><input id="tx-month" type="number" min="1" max="12" inputmode="numeric" placeholder="الشهر"><input id="tx-year" type="number" min="2000" max="2100" inputmode="numeric" placeholder="السنة"></div></div>
+<div><label>التاريخ</label><div class="date-parts"><input id="tx-day" type="number" min="1" max="31" inputmode="numeric" placeholder="اليوم"><input id="tx-month" type="number" min="1" max="12" inputmode="numeric" placeholder="الشهر"><input id="tx-year" type="number" min="2000" max="2100" inputmode="numeric" placeholder="السنة"></div></div>
 <div><label for="tx-time">الوقت</label><input type="time" id="tx-time"></div>
 </div>
-<div id="edit-banner" class="hint hidden">أنت تعدّل معاملة محفوظة. احفظ التعديلات لتحديث السجل، أو ألغِ التعديل للعودة.<button class="btn btn-muted" style="display:block;margin-top:7px;width:100%" type="button" onclick="cancelEdit()">إلغاء التعديل</button></div>
+<div id="edit-banner" class="hint hidden">أنت تعدّل معاملة محفوظة. احفظ التعديلات لتحديث السجل.<button class="btn btn-muted" style="display:block;margin-top:7px;width:100%" type="button" onclick="cancelEdit()">إلغاء التعديل</button></div>
 <div id="section-expense" class="stack">
 <div><label>المبلغ (د.ك)</label><input id="expense-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="0.000"></div>
 <div><label>التصنيف</label><select id="expense-category"></select></div>
@@ -247,13 +282,9 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 </div>
 <div><label for="tx-notes">ملاحظات</label><textarea id="tx-notes" rows="2" placeholder="ملاحظات سريعة..." maxlength="500"></textarea></div>
 <button type="button" id="save-transaction" class="btn btn-primary" onclick="saveTransaction()">حفظ المعاملة 💾</button>
-<div class="panel stack">
-<div class="row-between"><strong style="font-size:13px">آخر المعاملات</strong><span id="transaction-count" class="small">0 معاملة</span></div>
-<div id="recent-transactions" class="stack"><span class="small">لا توجد معاملات محفوظة بعد.</span></div>
-</div>
 </section>
 
-<!-- 3. شاشة التقارير -->
+<!-- 2. شاشة التقارير -->
 <section id="view-reports" class="view stack hidden">
 <div class="finance-tabs no-print">
 <button type="button" class="tab active" id="finance-tab-ledger" onclick="switchFinanceTab('ledger')">سجل المعاملات</button>
@@ -282,9 +313,9 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div class="report-head"><h2>مقارنة الفترتين</h2><div id="compare-report-period" style="font-size:10px;color:#cbd5e1;margin-top:4px">—</div></div>
 <div id="compare-results" class="stack"></div>
 </div>
-<div class="grid2 no-print">
+<div class="grid2 no-print" style="margin-top:10px">
 <button type="button" onclick="exportCompareExcel()" class="btn btn-green">تصدير Excel 📗</button>
-<button type="button" onclick="shareViewWhatsApp('compare-capture-area','مقارنة الفترتين')" class="btn btn-green">مشاركة / واتساب</button>
+<button type="button" onclick="shareViewWhatsApp('compare-capture-area','مقارنة الفترتين')" class="btn btn-green">مشاركة / واتساب 💬</button>
 <button type="button" onclick="exportPDF('compare-capture-area','Compare')" class="btn btn-muted">معاينة الـ PDF 📄</button>
 <button type="button" onclick="shareAsImage('compare-capture-area','Compare')" class="btn btn-soft">مشاركة كصورة 🖼️</button>
 </div>
@@ -303,9 +334,11 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <button type="button" onclick="setSalaryCycleDates()" class="btn btn-soft">📅 تعبئة تاريخ آخر دورة راتب</button>
 <button type="button" onclick="generateReport()" class="btn btn-dark">إنشاء التقرير 📄</button>
 </div>
+
 <div id="report-section" class="stack hidden">
 <button type="button" onclick="backToFilters()" class="btn btn-soft no-print">⬅️ تعديل معايير التقرير</button>
 <div id="report-search-wrap" class="no-print"><label>🔍 بحث داخل التقرير (اسم / بيان / ملاحظات)</label><input id="report-search" placeholder="اكتب للبحث..." oninput="filterReportTable()"></div>
+
 <div id="capture-area" class="report">
 <div class="report-head"><h2 id="report-title">كشف حساب مالي</h2><div style="font-size:10px;color:#cbd5e1;margin-top:4px">تقرير من سجل المعاملات المحلي</div><div id="report-number" style="font-size:9px;color:#cbd5e1;margin-top:4px"></div></div>
 <div class="report-meta"><div class="row-between"><span>الفترة:</span><strong id="display-date-range">—</strong></div><div class="row-between"><span>الطرف / التصنيف:</span><strong id="display-target">الكل</strong></div><div class="row-between"><span>عدد الحركات:</span><strong id="display-count">0</strong></div></div>
@@ -315,9 +348,10 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div id="tafqit-box" class="panel" style="font-size:11px;text-align:center;font-weight:700">ملاحظات التقرير ستظهر هنا.</div>
 <div style="font-size:9px;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9;padding-top:8px">تقرير مولّد من البيانات المحلية المسجلة. راجع الحركات قبل المشاركة.</div>
 </div>
-<div id="report-actions" class="grid2 no-print">
+
+<div id="report-actions" class="grid2 no-print" style="margin-top:10px">
 <button type="button" onclick="exportReportExcel()" class="btn btn-green">تصدير Excel 📗</button>
-<button type="button" onclick="shareReport()" class="btn btn-green">مشاركة / واتساب</button>
+<button type="button" onclick="shareReport()" class="btn btn-green">مشاركة / واتساب 💬</button>
 <button type="button" onclick="exportPDF('capture-area','Report')" class="btn btn-muted">معاينة الـ PDF 📄</button>
 <button type="button" onclick="shareAsImage('capture-area','Report')" class="btn btn-soft">مشاركة كصورة 🖼️</button>
 </div>
@@ -325,7 +359,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 </section>
 </section>
 
-<!-- 4. شاشة الإعدادات -->
+<!-- 3. شاشة الإعدادات -->
 <section id="view-backup" class="view stack hidden">
 <strong>الإعدادات والنسخ الاحتياطي ⚙️</strong>
 <div class="panel stack"><strong style="font-size:13px">👥 قائمة الأسماء والجهات</strong><div class="person-picker"><input id="new-person-name" placeholder="اسم جديد..." maxlength="80"><button type="button" class="btn btn-primary btn-plus" onclick="addPersonFromSettings()" title="إضافة">+</button></div><div id="persons-manage-list" class="persons-manage-list"><span class="small">لا توجد أسماء محفوظة بعد.</span></div></div>
@@ -337,10 +371,8 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 
 </main>
 
-<!-- شريط التنقل السفلي الثابت -->
 <nav class="nav-bottom no-print">
   <button type="button" id="nav-dashboard" class="nav-btn active" onclick="switchMainView('dashboard')"><span>🏠</span><span>الرئيسية</span></button>
-  <button type="button" id="nav-input" class="nav-btn" onclick="switchMainView('input')"><span>➕</span><span>التسجيل</span></button>
   <button type="button" id="nav-reports" class="nav-btn" onclick="switchMainView('reports')"><span>📊</span><span>التقارير</span></button>
   <button type="button" id="nav-backup" class="nav-btn" onclick="switchMainView('backup')"><span>⚙️</span><span>الإعدادات</span></button>
 </nav>
@@ -538,6 +570,11 @@ function confirmAddPerson(){
  closePersonModal();
 }
 
+function openInputForm(subTab){
+ switchMainView('input');
+ switchInputTab(subTab, {force:true});
+}
+
 function switchInputTab(tab, opts={}){
  if(!opts.force && editingTxId && tab !== currentInputTab){
    if(!confirm("سيتم إلغاء تعديل المعاملة الحالية والانتقال لتبويب آخر. متابعة؟")) return false;
@@ -549,11 +586,6 @@ function switchInputTab(tab, opts={}){
   $("section-"+t).classList.toggle("hidden",t!==tab);
  });
  return true;
-}
-
-function quickNavInput(subTab){
- switchMainView('input');
- switchInputTab(subTab, {force:true});
 }
 
 function addBeneficiary(){
@@ -589,8 +621,10 @@ function switchMainView(view){
    navBtn.classList.toggle("active",v===view);
   }
  });
+
  if(view==="dashboard") refreshDashboard();
  if(view==="reports") switchFinanceTab(currentFinanceTab);
+ window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function openDB(){
@@ -640,7 +674,6 @@ async function migrateCategories(){
     tx.oncomplete=resolve;
     tx.onerror=()=>reject(tx.error);
    });
-   console.log("Category migration applied");
   }
  }catch(e){console.warn("Migration skipped:", e);}
 }
@@ -729,6 +762,7 @@ async function saveTransaction(){
   showToast("تم حفظ المعاملة بنجاح ✅");
   resetInputForm();
   await refreshAllViews();
+  switchMainView('dashboard');
   updateReportTargetOptions().catch(()=>{});
  } catch(err) {
   console.error("Save Error:", err);
@@ -754,20 +788,15 @@ function resetInputForm(){
  initDates();
 }
 
-function cancelEdit(){resetInputForm();}
+function cancelEdit(){
+ resetInputForm();
+ switchMainView('dashboard');
+}
 
 async function refreshAllViews(){
  const txs=await allTransactions();
- $("transaction-count").textContent=txs.length+" معاملة";
  $("backup-count").textContent=txs.length;
  $("last-saved").textContent=new Date().toLocaleTimeString("ar-KW");
- 
- const recent=$("recent-transactions");
- if(!txs.length){
-  recent.innerHTML='<span class="small">لا توجد معاملات محفوظة بعد.</span>';
-  return;
- }
- recent.innerHTML=txs.slice(0,5).map(t=>`<div class="row-between" style="font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>${fmtDate(t.date)} · <strong>${escapeHTML(t.type==="expense"?t.category:t.type==="income"?t.category:t.type==="transfer"?"حوالة":"دين")}</strong></span><span class="amount">${money(realAmount(t))}</span></div>`).join("");
  refreshDashboard();
 }
 
@@ -907,6 +936,7 @@ async function generateReport(){
   $("report-summary").innerHTML="";
   if($("ledger-breakdowns"))$("ledger-breakdowns").innerHTML="";
   $("tafqit-box").textContent = statementNames.length ? "كشف رسمي صادر حسب معايير التصفية." : "لم يتم العثور على أطراف مطابقة.";
+  window.scrollTo({top:0, behavior:'smooth'});
   return;
  }
 
@@ -942,6 +972,7 @@ async function generateReport(){
 
  renderReportTableRows(filtered);
  updateReportSummaries(filtered, from, to);
+ window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function renderReportTableRows(filtered){
@@ -1069,7 +1100,7 @@ async function editFromReport(id){
  const r = records.find(item => item.id === id);
  if(!r) return;
  
- if(editingTxId) cancelEdit();
+ if(editingTxId) resetInputForm();
 
  switchMainView("input");
  switchInputTab(r.type, {force: true});
@@ -1117,8 +1148,7 @@ async function editFromReport(id){
  }
  $("edit-banner").classList.remove("hidden");
  $("save-transaction").textContent="تحديث المعاملة ✏️";
- const content=document.querySelector(".content");
- if(content)content.scrollTo({top:0,behavior:"smooth"});
+ window.scrollTo({top:0, behavior:'smooth'});
 }
 
 async function deleteTransactionFromReport(id){
