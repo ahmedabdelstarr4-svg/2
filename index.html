@@ -721,6 +721,7 @@ async function refreshAllViews(){
  refreshDashboard();
 }
 
+// تعديل الصفحة الرئيسية: الحسابات اليومية الفعلية ناصعة ومستبعد منها رصيد أول المدة بالكامل
 async function refreshDashboard(){
  const txs=await allTransactions();
  $("dash-tx-count").textContent=txs.length+" معاملة";
@@ -734,8 +735,10 @@ async function refreshDashboard(){
  }
  recent.innerHTML=txs.slice(0,5).map(t=>`<div class="row-between" style="font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>${fmtDate(t.date)} · <strong>${escapeHTML(t.type==="expense"?t.category:t.type==="income"?t.category:t.type==="transfer"?"حوالة":"دين")}</strong></span><span class="amount">${money(realAmount(t))}</span></div>`).join("");
 
+ // الواردات: دخل فعلي + أخدنا دين جديد فقط
  const totalIn = txs.reduce((sum, r) => (r.type === "income" || isCreditorEntry(r)) ? sum + realAmount(r) : sum, 0);
- const totalOut = txs.reduce((sum, r) => (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r) || isOpeningEntry(r)) ? sum + realAmount(r) : sum, 0);
+ // المصروفات: مصروفات + حوالات + سداد دين فعلي (معزول عنه تماماً رصيد أول المدة)
+ const totalOut = txs.reduce((sum, r) => (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) ? sum + realAmount(r) : sum, 0);
  const net = totalIn - totalOut;
 
  $("dash-total-in").textContent = money(totalIn);
@@ -881,21 +884,21 @@ function updateReportSummaries(filtered, from, to){
  const p={from:from||"2000-01-01",to:to||"2100-12-31"};
  const type=$("report-type").value;
  
+ // المصروفات والواردات العادية المعزولة تماماً عن أول المدة
  const totalInflow = filtered.reduce((sum, r) => {
   if (r.type === "income" || isCreditorEntry(r)) return sum + realAmount(r);
   return sum;
  }, 0);
 
  const totalOutflow = filtered.reduce((sum, r) => {
-  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r) || isOpeningEntry(r)) return sum + realAmount(r);
+  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) return sum + realAmount(r);
   return sum;
  }, 0);
 
- // حساب صافي المديونية الصحيح
- // الديون المسددة (أدينا) - الديون التي علينا (أخدنا + أول المدة)
+ // حساب ميزان تقرير الديون الخاص والمستقل
  const totalPaid = filtered.reduce((s,r) => isDebtorEntry(r) ? s + realAmount(r) : s, 0);
  const totalOwed = filtered.reduce((s,r) => (isCreditorEntry(r) || isOpeningEntry(r)) ? s + realAmount(r) : s, 0);
- const debtNet = totalPaid - totalOwed; // لو موجب يبقى سددنا زيادة وسلفنا، لو سالب يبقى لسه علينا فلوس
+ const debtNet = totalPaid - totalOwed; // المسدد minus (المستجد + أول المدة القديم)
 
  let statusNotice = "";
  const absDebtNet = Math.abs(debtNet);
@@ -955,13 +958,14 @@ function updateReportSummaries(filtered, from, to){
   blocks.push(categoryBreakdown("🤝 تفصيل سداد الديون", debtItems, totalOutflow));
  }
 
+ // إظهار أرصدة أول المدة في صندوق تنبيه منفصل مخصص داخل تقرير الديون فقط
  const openingItems = filtered.filter(isOpeningEntry);
- if(openingItems.length){
+ if(type==="debt" && openingItems.length){
   const openingTotal = openingItems.reduce((s,r)=>s+realAmount(r),0);
   blocks.push(`
    <div class="finance-card" style="background:#fef3c7;border-color:#fbbf24">
-    <strong>📌 أرصدة أول المدة المسجّلة (التزامات قديمة)</strong>
-    <div class="small">تُحسب ضمن التزامات الدين السابقة</div>
+    <strong>📌 أرصدة أول المدة المسجّلة (خاصة بالديون فقط)</strong>
+    <div class="small">ديون سابقة تاريخية - لا تُحسب ضمن مصروفاتك اليومية</div>
     ${openingItems.map(r => financeRow(r.person || "غير محدد", money(realAmount(r)))).join("")}
     <div class="finance-row openings-total">
      <span><strong>الإجمالي</strong></span>
@@ -1300,7 +1304,7 @@ function totalIncomeFor(records, p){
 
 function totalExpenseFor(records, p){
  return records.filter(r => inPeriod(r, p)).reduce((sum, r) => {
-  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r) || isOpeningEntry(r)) return sum + realAmount(r);
+  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) return sum + realAmount(r);
   return sum;
  }, 0);
 }
