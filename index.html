@@ -91,7 +91,7 @@ input:focus,select:focus,textarea:focus{border-color:#059669;box-shadow:0 0 0 3p
 .section-title{font-size:12px;font-weight:800;color:#475569}
 
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;min-width:480px;font-size:11px;text-align:right}
+table{border-collapse:collapse;width:100%;min-width:100%;font-size:11px;text-align:right}
 th,td{padding:9px 7px;border-bottom:1px solid #eef2f7;vertical-align:top}
 th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{border-bottom:0}
 .amount{font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -133,63 +133,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .finance-row:last-child{border-bottom:0}
 .finance-row strong{text-align:left;font-variant-numeric:tabular-nums}
 .good{color:#047857}.bad{color:#be123c}.warning{color:#b45309}
-
-/* كشف الحساب الرسمي */
-.stmt{background:#fff;border:1.5px solid #0f172a;border-radius:5px;padding:0;overflow:hidden;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;margin-bottom:10px;direction:rtl}
-.stmt-head{background:#0f172a;color:#fff;padding:7px 10px;text-align:center;border-bottom:1.5px solid #0f172a}
-.stmt-head h2{margin:0;font-size:12.5px;letter-spacing:.5px;font-weight:900}
-.stmt-head .en{font-size:7px;letter-spacing:1.5px;opacity:.7;margin-top:2px}
-.stmt-head .meta{margin-top:4px;padding-top:4px;border-top:1px solid #334155;font-size:8px;display:grid;grid-template-columns:1fr 1fr;gap:2px;color:#cbd5e1;text-align:center;line-height:1.3}
-.stmt-head .meta strong{color:#fff;font-weight:800;display:block;margin-top:1px;font-size:8.5px}
-.stmt-block{padding:5px 10px;border-bottom:1px dashed #cbd5e1}
-.stmt-block:last-child{border-bottom:0}
-.stmt-block-title{font-size:8px;font-weight:800;color:#64748b;letter-spacing:.6px;margin-bottom:3px;text-transform:uppercase}
-.stmt-account-grid{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:9.5px}
-.stmt-account-grid .lbl{color:#64748b;font-weight:700}
-.stmt-account-grid .val{color:#0f172a;font-weight:800}
-.stmt-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:9px}
-.stmt-summary-grid>div{display:flex;justify-content:space-between;gap:6px;padding:2px 0;border-bottom:1px dashed #e2e8f0}
-.stmt-summary-grid>div span{color:#64748b;font-weight:700}
-.stmt-summary-grid>div strong{color:#0f172a;font-weight:800;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
-.stmt-table{width:100%;border-collapse:collapse;font-size:9px;text-align:right;table-layout:fixed}
-.stmt-table th{background:#0f172a;color:#fff;padding:4px 2px;font-weight:800;font-size:8.5px;border:1px solid #0f172a;text-align:center;letter-spacing:.3px}
-.stmt-table td{padding:3px 2px;border:1px solid #cbd5e1;vertical-align:middle;font-size:9px;word-wrap:break-word;line-height:1.3}
-.stmt-table td.num{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:center;font-weight:700;direction:ltr;unicode-bidi:embed}
-.stmt-table td.col-date{direction:ltr;unicode-bidi:embed}
-.stmt-table td.col-seq{direction:ltr;unicode-bidi:embed;text-align:center}
-.stmt-table tr.opening td{background:#f1f5f9;font-weight:700}
-.stmt-table tr.total-row td{background:#0f172a;color:#fff;font-weight:900;border-color:#0f172a;font-size:9.5px;padding:5px 2px}
-.stmt-table tr:nth-child(even):not(.opening):not(.total-row) td{background:#f8fafc}
-.stmt-table .col-seq{width:20px;text-align:center;font-weight:800}
-.stmt-table .col-date{width:54px;text-align:center;font-size:8px;line-height:1.2}
-.stmt-table .col-desc{width:auto}
-.stmt-table .col-amt{width:50px}
-.stmt-balance-box{margin:0;padding:7px 10px;background:#0f172a;color:#fff;text-align:center}
-.stmt-balance-box .lbl{font-size:8px;letter-spacing:1.2px;opacity:.75;margin-bottom:2px}
-.stmt-balance-box .amt{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.3px;line-height:1.1;direction:ltr;unicode-bidi:embed}
-.stmt-balance-box .word{margin-top:3px;padding-top:3px;border-top:1px solid #334155;font-size:8.5px;font-weight:700;color:#cbd5e1;line-height:1.35}
-.stmt-balance-box.positive{background:linear-gradient(135deg,#b91c1c,#991b1b)}
-.stmt-balance-box.negative{background:linear-gradient(135deg,#047857,#065f46)}
-.stmt-legal{margin:0;padding:6px 10px;background:#fffbeb;border-top:1.5px solid #f59e0b;border-bottom:1.5px solid #f59e0b}
-.stmt-legal .title{font-size:9px;font-weight:900;color:#92400e;margin-bottom:3px;letter-spacing:.3px}
-.stmt-legal p{margin:0;font-size:8.5px;line-height:1.45;color:#78350f;font-weight:600}
-.stmt-legal.negative{background:#ecfdf5;border-color:#059669}
-.stmt-legal.negative .title{color:#065f46}
-.stmt-legal.negative p{color:#064e3b}
-.stmt-signatures{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:7px 10px 5px;background:#f8fafc;border-top:1px dashed #cbd5e1}
-.stmt-signatures .sig{text-align:center}
-.stmt-signatures .sig .line{border-top:1px solid #94a3b8;padding-top:3px;margin-top:12px;font-size:8px;color:#475569;font-weight:700}
-.stmt-footer{background:#0f172a;color:#cbd5e1;padding:5px 10px;font-size:8px;line-height:1.45;text-align:center}
-.stmt-footer .ref{color:#fff;font-weight:800}
-.stmt-empty{text-align:center;padding:16px;color:#64748b;font-size:11px}
-
-#capture-area.statement-mode .report-head,
-#capture-area.statement-mode .report-meta,
-#capture-area.statement-mode .report-summary,
-#capture-area.statement-mode #tafqit-box{display:none!important}
-#capture-area.statement-mode{padding:0;gap:0}
-#capture-area.statement-mode .table-wrap{border:0;border-radius:0;overflow:visible}
-#capture-area.statement-mode ~ #report-search-wrap{display:none!important}
 
 @media print{.no-print{display:none!important}}
 @media(max-height:650px){.header{padding:10px 14px}.content{padding:10px}.btn{padding:10px}}
@@ -792,7 +735,7 @@ async function refreshDashboard(){
  recent.innerHTML=txs.slice(0,5).map(t=>`<div class="row-between" style="font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>${fmtDate(t.date)} · <strong>${escapeHTML(t.type==="expense"?t.category:t.type==="income"?t.category:t.type==="transfer"?"حوالة":"دين")}</strong></span><span class="amount">${money(realAmount(t))}</span></div>`).join("");
 
  const totalIn = txs.reduce((sum, r) => (r.type === "income" || isCreditorEntry(r)) ? sum + realAmount(r) : sum, 0);
- const totalOut = txs.reduce((sum, r) => (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) ? sum + realAmount(r) : sum, 0);
+ const totalOut = txs.reduce((sum, r) => (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r) || isOpeningEntry(r)) ? sum + realAmount(r) : sum, 0);
  const net = totalIn - totalOut;
 
  $("dash-total-in").textContent = money(totalIn);
@@ -875,51 +818,6 @@ async function generateReport(){
  
  if($("report-search")) $("report-search").value = "";
 
- if(type==="debt"&&subtype==="all"){
-  $("filter-section").classList.add("hidden");
-  $("report-section").classList.remove("hidden");
-  $("capture-area").classList.add("statement-mode");
-  cachedReportRecords = [];
-  $("display-date-range").textContent=(from?fmtDate(from):"البداية")+" إلى "+(to?fmtDate(to):"النهاية");
-  $("display-target").textContent=target==="all"?"كل الأطراف":target;
-  
-  const period=(from||to)?{from:from||"1900-01-01",to:to||"2999-12-31"}:null;
-  let statementNames=[];
-  
-  if(target==="all"){
-   const namesSet=new Set();
-   records.forEach(r=>{
-    if(r.type!=="debt"||!r.person)return;
-    if(period&&(r.date<period.from||r.date>period.to))return;
-    namesSet.add(r.person);
-   });
-   statementNames=[...namesSet].sort((a,b)=>a.localeCompare(b,"ar"));
-  }else{
-   statementNames=[target];
-  }
-  
-  $("display-count").textContent=statementNames.length+(target==="all"?" طرف":"");
-  $("report-title").textContent="كشف حساب رسمي — الديون";
-  $("report-number").textContent="";
-  
-  const tableWrap=$("capture-area").querySelector(".table-wrap");
-  if(tableWrap){
-   if(!statementNames.length){
-    tableWrap.innerHTML='<div class="stmt-empty">لا توجد حركات ديون مطابقة للفترة المحددة.</div>';
-   }else{
-    tableWrap.innerHTML=statementNames.map(name=>buildStatementHTML(name,records,period)).join("");
-   }
-  }
-  
-  $("report-summary").innerHTML="";
-  if($("ledger-breakdowns"))$("ledger-breakdowns").innerHTML="";
-  $("tafqit-box").textContent = statementNames.length ? "كشف رسمي صادر حسب معايير التصفية." : "لم يتم العثور على أطراف مطابقة.";
-  window.scrollTo({top:0, behavior:'smooth'});
-  return;
- }
-
- $("capture-area").classList.remove("statement-mode");
- 
  let filtered=records.filter(r=>{
   if(type!=="all"&&r.type!==type)return false;
   if(type==="expense"&&subtype!=="all"&&r.category!==subtype)return false;
@@ -941,12 +839,15 @@ async function generateReport(){
  $("display-date-range").textContent=(from?fmtDate(from):"البداية")+" إلى "+(to?fmtDate(to):"النهاية");
  $("display-target").textContent=target==="all"?"الكل":target;
  $("display-count").textContent=filtered.length+" حركة";
- $("report-title").textContent="كشف حساب مالي — سجل المعاملات";
+ 
+ if(type==="debt") {
+  $("report-title").textContent="كشف حساب الديون والعلاقات المالية";
+ } else {
+  $("report-title").textContent="كشف حساب مالي — سجل المعاملات";
+ }
 
  const tableWrap=$("capture-area").querySelector(".table-wrap");
- if(!tableWrap.querySelector("#report-table-head")){
-  tableWrap.innerHTML='<table><thead id="report-table-head"></thead><tbody id="report-table-body"></tbody></table>';
- }
+ tableWrap.innerHTML='<table><thead id="report-table-head"></thead><tbody id="report-table-body"></tbody></table>';
 
  renderReportTableRows(filtered);
  updateReportSummaries(filtered, from, to);
@@ -978,6 +879,7 @@ function renderReportTableRows(filtered){
 
 function updateReportSummaries(filtered, from, to){
  const p={from:from||"2000-01-01",to:to||"2100-12-31"};
+ const type=$("report-type").value;
  
  const totalInflow = filtered.reduce((sum, r) => {
   if (r.type === "income" || isCreditorEntry(r)) return sum + realAmount(r);
@@ -985,21 +887,48 @@ function updateReportSummaries(filtered, from, to){
  }, 0);
 
  const totalOutflow = filtered.reduce((sum, r) => {
-  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) return sum + realAmount(r);
+  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r) || isOpeningEntry(r)) return sum + realAmount(r);
   return sum;
  }, 0);
 
- const netBalance = totalInflow - totalOutflow;
+ // حساب صافي المديونية الصحيح
+ // الديون المسددة (أدينا) - الديون التي علينا (أخدنا + أول المدة)
+ const totalPaid = filtered.reduce((s,r) => isDebtorEntry(r) ? s + realAmount(r) : s, 0);
+ const totalOwed = filtered.reduce((s,r) => (isCreditorEntry(r) || isOpeningEntry(r)) ? s + realAmount(r) : s, 0);
+ const debtNet = totalPaid - totalOwed; // لو موجب يبقى سددنا زيادة وسلفنا، لو سالب يبقى لسه علينا فلوس
+
+ let statusNotice = "";
+ const absDebtNet = Math.abs(debtNet);
+ const wordsArabic = numberToArabicWords(absDebtNet);
+
+ if(type === "debt") {
+  if (debtNet > 0) {
+   statusNotice = `<div class="hint" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46;font-weight:700">
+    ⚖️ <strong>تنبيه هام:</strong> تم سداد كامل الالتزامات المالية وزيادة! أصبحت أنت الدائن بمبلغ <strong>${money(absDebtNet)}</strong> (${wordsArabic}).
+   </div>`;
+  } else if (debtNet < 0) {
+   statusNotice = `<div class="hint" style="background:#fff1f2;border-color:#fecdd3;color:#be123c;font-weight:700">
+    ⚠️ <strong>تنبيه دين:</strong> المتبقي عليك سداده للطرف الآخر هو <strong>${money(absDebtNet)}</strong> (${wordsArabic}).
+   </div>`;
+  } else {
+   statusNotice = `<div class="hint" style="background:#f8fafc;border-color:#cbd5e1;color:#0f172a;font-weight:700">
+    ✅ <strong>الحساب خالص تماماً:</strong> الرصيد الحالي صفر، لا توجد أي مبالغ مستحقة لأي طرف.
+   </div>`;
+  }
+ }
+
+ const standardNet = totalInflow - totalOutflow;
 
  $("report-summary").innerHTML = `
   <div style="display:flex;flex-direction:column;gap:6px">
-   <div class="row-between"><span>📥 إجمالي الوارد الشامل:</span><strong class="amount good" style="font-size:13px">${money(totalInflow)}</strong></div>
-   <div class="row-between"><span>💸 إجمالي الصادر الشامل:</span><strong class="amount bad" style="font-size:13px">${money(totalOutflow)}</strong></div>
+   <div class="row-between"><span>📥 إجمالي الوارد / المبالغ المسددة:</span><strong class="amount good" style="font-size:13px">${money(type==="debt"?totalPaid:totalInflow)}</strong></div>
+   <div class="row-between"><span>💸 إجمالي الصادر / الديون والالتزامات:</span><strong class="amount bad" style="font-size:13px">${money(type==="debt"?totalOwed:totalOutflow)}</strong></div>
    <div class="row-between" style="border-top:1px dashed #a7f3d0;padding-top:6px">
-    <span>⚖️ صافي الفروقات (النتيجة):</span>
-    <strong class="amount ${netBalance >= 0 ? 'good' : 'bad'}" style="font-size:14px">${netBalance >= 0 ? '+' : ''}${money(netBalance)} ${netBalance >= 0 ? '(فائض)' : '(عجز)'}</strong>
+    <span>⚖️ صافي حالة الحساب:</span>
+    <strong class="amount ${(type==="debt"?debtNet:standardNet) >= 0 ? 'good' : 'bad'}" style="font-size:14px">${(type==="debt"?debtNet:standardNet) >= 0 ? '+' : ''}${money(type==="debt"?debtNet:standardNet)}</strong>
    </div>
   </div>
+  ${statusNotice}
  `;
 
  const blocks=[];
@@ -1031,8 +960,8 @@ function updateReportSummaries(filtered, from, to){
   const openingTotal = openingItems.reduce((s,r)=>s+realAmount(r),0);
   blocks.push(`
    <div class="finance-card" style="background:#fef3c7;border-color:#fbbf24">
-    <strong>📌 أرصدة أول المدة المسجّلة</strong>
-    <div class="small">لا تُحسب ضمن الوارد أو الصادر — حقوق/التزامات قديمة</div>
+    <strong>📌 أرصدة أول المدة المسجّلة (التزامات قديمة)</strong>
+    <div class="small">تُحسب ضمن التزامات الدين السابقة</div>
     ${openingItems.map(r => financeRow(r.person || "غير محدد", money(realAmount(r)))).join("")}
     <div class="finance-row openings-total">
      <span><strong>الإجمالي</strong></span>
@@ -1043,7 +972,7 @@ function updateReportSummaries(filtered, from, to){
  }
 
  if($("ledger-breakdowns")) $("ledger-breakdowns").innerHTML=blocks.join("");
- $("tafqit-box").textContent="تم حساب إجمالي الوارد والصادر والفروقات بدقة تامة بناءً على المعايير والبحث الحالي.";
+ $("tafqit-box").innerHTML=`<strong>المبلغ كتابة بالألفاظ:</strong> ${wordsArabic}`;
 }
 
 function backToFilters(){
@@ -1052,7 +981,6 @@ function backToFilters(){
 }
 
 function filterReportTable(){
- if($("capture-area").classList.contains("statement-mode")) return;
  const q=$("report-search").value.toLowerCase().trim();
  if(!cachedReportRecords.length){ return; }
  
@@ -1231,40 +1159,13 @@ function exportReportExcel(){
    const capture=$("capture-area");
    if(!capture){showToast("لا يوجد تقرير للتصدير");return;}
    
-   const statements=capture.querySelectorAll(".stmt");
-   if(statements.length){
-    const wb=XLSX.utils.book_new();
-    let sheetCount=0;
-    const usedNames=new Set();
-    statements.forEach((stmt,idx)=>{
-     const nameCell=stmt.querySelector(".stmt-account-grid .val");
-     let name=nameCell?nameCell.textContent.trim():("Statement_"+(idx+1));
-     let baseName=(name||"Statement").slice(0,28).replace(/[\\\/\?\*\[\]:]/g,"_");
-     let uniqueName=baseName, counter=1;
-     while(usedNames.has(uniqueName)){
-      uniqueName=`${baseName.slice(0,24)}_${counter++}`;
-     }
-     usedNames.add(uniqueName);
-     const tbl=stmt.querySelector(".stmt-table");
-     if(!tbl)return;
-     const clone=tbl.cloneNode(true);
-     const ws=XLSX.utils.table_to_sheet(clone,{raw:true});
-     ws['!cols']=[{wch:5},{wch:12},{wch:35},{wch:12},{wch:12},{wch:12}];
-     XLSX.utils.book_append_sheet(wb,ws,uniqueName);
-     sheetCount++;
-    });
-    if(!sheetCount){showToast("لا يوجد جدول للتصدير");return;}
-    XLSX.writeFile(wb,`statement_of_account_${todayISO()}.xlsx`);
-    showToast("تم تصدير كشف الحساب ✅");
-    return;
-   }
-   
    const table=capture.querySelector("table");
    if(!table){showToast("لا يوجد تقرير للتصدير");return;}
    const clone=table.cloneNode(true);
    clone.querySelectorAll(".no-print").forEach(el=>el.remove());
    const wb=XLSX.utils.table_to_book(clone,{sheet:"Report"});
    XLSX.writeFile(wb,`financial_report_${todayISO()}.xlsx`);
+   showToast("تم تصدير ملف Excel ✅");
  } catch (err) {
    showToast("فشل التصدير إلى Excel");
  }
@@ -1389,7 +1290,6 @@ function getChosenRange(prefix,defaultFrom,defaultTo){
  return{from:a.from||defaultFrom,to:a.to||defaultTo,manual:!!(a.from||a.to)};
 }
 function inPeriod(r,p){return r.date>=p.from&&r.date<=p.to}
-function sumWhere(records,fn){return records.reduce((s,r)=>s+(fn(r)?realAmount(r):0),0)}
 
 function totalIncomeFor(records, p){
  return records.filter(r => inPeriod(r, p)).reduce((sum, r) => {
@@ -1400,7 +1300,7 @@ function totalIncomeFor(records, p){
 
 function totalExpenseFor(records, p){
  return records.filter(r => inPeriod(r, p)).reduce((sum, r) => {
-  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) return sum + realAmount(r);
+  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r) || isOpeningEntry(r)) return sum + realAmount(r);
   return sum;
  }, 0);
 }
@@ -1545,157 +1445,6 @@ function numberToArabicWords(num){
  let words = parts.length > 0 ? parts.join(" و") + " دينار كويتي" : (decPart > 0 ? "" : "دينار كويتي");
  if(decPart>0)words+=(parts.length>0?" و":"")+under1000(decPart)+" فلس";
  return words.trim() + " لا غير";
-}
-
-function buildStatementHTML(person,txs,period){
- const personTxs=txs.filter(t=>t.type==="debt"&&t.person===person)
-   .filter(t=>!period||(t.date>=period.from&&t.date<=period.to));
-
- if(!personTxs.length){
-  return `<div class="stmt"><div class="stmt-empty">لا توجد حركات لهذا الطرف.</div></div>`;
- }
-
- const opening=personTxs.filter(t=>t.debtType==="opening_balance");
- const others=personTxs.filter(t=>t.debtType!=="opening_balance")
-   .sort((a,b)=>a.date.localeCompare(b.date)||(a.time||"").localeCompare(b.time||""));
-
- const rows=[];
- let balance=0,seq=0;
-
- opening.forEach(r=>{
-  const amt=realAmount(r);
-  balance+=amt;
-  rows.push({seq:++seq,ref:"OPN-"+String(seq).padStart(3,"0"),date:"—",desc:"رصيد افتتاحي",madden:amt,daen:0,balance,opening:true});
- });
-
- others.forEach(r=>{
-  const amt=realAmount(r);
-  const isMadden=r.debtType==="creditor";
-  const madden=isMadden?amt:0;
-  const daen=isMadden?0:amt;
-  balance+=madden-daen;
-  rows.push({
-   seq:++seq,ref:"TX-"+String(seq).padStart(5,"0"),date:fmtDate(r.date),
-   desc:r.debtType==="creditor"?"دين جديد (استلام)":"سداد (دفع)",
-   madden,daen,balance,opening:false,notes:r.notes||""
-  });
- });
-
- const totalMadden=rows.reduce((s,r)=>s+r.madden,0);
- const totalDaen=rows.reduce((s,r)=>s+r.daen,0);
- const finalBalance=balance;
- const isNegative=finalBalance<0;
- const isZero=finalBalance===0;
-
- const now=new Date();
- const stamp=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
- const timeStr=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
- const refNumber=`SOA-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}-${String(Math.floor(Math.random()*900)+100)}`;
-
- const periodText=period?`من ${fmtDate(period.from)} إلى ${fmtDate(period.to)}`:`كافة الحركات المسجّلة`;
-
- let tableRows="";
- rows.forEach(r=>{
-  const descHTML=`${escapeHTML(r.desc)}`+
-   (r.ref?`<br><small style="color:#94a3b8;font-size:7.5px;display:block;margin-top:1px">${r.ref}</small>`:"")+
-   (r.notes?`<br><small style="color:#94a3b8;font-size:7.5px">${escapeHTML(r.notes)}</small>`:"");
-  tableRows+=`<tr class="${r.opening?'opening':''}">
-   <td class="col-seq">${r.seq}</td>
-   <td class="col-date">${r.date}</td>
-   <td class="col-desc">${descHTML}</td>
-   <td class="col-amt num" style="color:${r.madden>0?'#991b1b':'#cbd5e1'}">${r.madden>0?money(r.madden):"—"}</td>
-   <td class="col-amt num" style="color:${r.daen>0?'#047857':'#cbd5e1'}">${r.daen>0?money(r.daen):"—"}</td>
-   <td class="col-amt num" style="color:${r.balance<0?'#047857':'#0f172a'}">${money(Math.abs(r.balance))}${r.balance<0?" له":""}</td>
-  </tr>`;
- });
-
- const balanceBoxClass=isNegative?"negative":(isZero?"":"positive");
- const balanceLabel=isNegative?"الرصيد المستحق لصاحب الحساب":(isZero?"الحساب مسدَّد بالكامل":"الرصيد المستحق على صاحب الحساب");
- const balanceDisplay=money(Math.abs(finalBalance));
-
- const legalBlock=isNegative?`
-  <div class="stmt-legal negative">
-   <div class="title">⚖️ إقرار بحق مالي</div>
-   <p>
-    يُشهد بأن صاحب هذا الحساب قد أوفى بكامل ما في ذمته من التزامات مالية تجاه الطرف الثاني المذكور أعلاه، وزيادةً على ذلك بمبلغ <strong>${balanceDisplay}</strong>، وبذلك يُعدّ صاحب الحساب <strong>دائنًا</strong> بهذا المبلغ في ذمة الطرف الثاني.
-    <br>
-    ويُعتد بهذا الكشف كمستند رسمي يُثبت أحقية صاحب الحساب في المطالبة بالمبلغ المتبقي، ويُعمل به عند الحاجة أمام الجهات المختصة.
-   </p>
-  </div>`:`
-  <div class="stmt-legal">
-   <div class="title">📋 إقرار بالمبلغ المستحق</div>
-   <p>
-    يُشهد بأن صاحب هذا الحساب مدين للطرف الثاني المذكور أعلاه بمبلغ <strong>${balanceDisplay}</strong>، وذلك بموجب الحركات المالية المثبتة أعلاه.
-    <br>
-    هذا الكشف صادر إلكترونيًا من النظام المالي الشخصي، ويُعد إقرارًا بالمبلغ المذكور عند الحاجة.
-   </p>
-  </div>`;
-
- return `
-  <div class="stmt">
-   <div class="stmt-head">
-    <h2>كشف حساب رسمي</h2>
-    <div class="en">STATEMENT OF ACCOUNT</div>
-    <div class="meta">
-     <span>المرجع<strong>${refNumber}</strong></span>
-     <span>الإصدار<strong>${stamp} — ${timeStr}</strong></span>
-    </div>
-   </div>
-   <div class="stmt-block">
-    <div class="stmt-block-title">بيانات الحساب</div>
-    <div class="stmt-account-grid">
-     <span class="lbl">الطرف الثاني:</span><span class="val">${escapeHTML(person)}</span>
-     <span class="lbl">نوع الحساب:</span><span class="val">ذمم شخصية</span>
-     <span class="lbl">العملة:</span><span class="val">دينار كويتي (KWD)</span>
-    </div>
-   </div>
-   <div class="stmt-block">
-    <div class="stmt-block-title">ملخص الفترة</div>
-    <div class="stmt-summary-grid">
-     <div><span>الفترة:</span><strong>${periodText}</strong></div>
-     <div><span>عدد الحركات:</span><strong>${rows.length}</strong></div>
-     <div><span>إجمالي المدين:</span><strong>${money(totalMadden)}</strong></div>
-     <div><span>إجمالي الدائن:</span><strong>${money(totalDaen)}</strong></div>
-    </div>
-   </div>
-   <div class="stmt-block" style="padding:0">
-    <table class="stmt-table">
-     <thead>
-      <tr>
-       <th class="col-seq">#</th>
-       <th class="col-date">التاريخ</th>
-       <th class="col-desc">البيان / المرجع</th>
-       <th class="col-amt">مدين</th>
-       <th class="col-amt">دائن</th>
-       <th class="col-amt">الرصيد</th>
-      </tr>
-     </thead>
-     <tbody>
-      ${tableRows}
-      <tr class="total-row">
-       <td colspan="3" style="text-align:center">الإجمالي</td>
-       <td class="num">${money(totalMadden)}</td>
-       <td class="num">${money(totalDaen)}</td>
-       <td class="num">${money(Math.abs(finalBalance))}${finalBalance<0?" له":""}</td>
-      </tr>
-     </tbody>
-    </table>
-   </div>
-   <div class="stmt-balance-box ${balanceBoxClass}">
-    <div class="lbl">${balanceLabel}</div>
-    <div class="amt">${balanceDisplay}</div>
-    <div class="word">${numberToArabicWords(Math.abs(finalBalance))}</div>
-   </div>
-   ${legalBlock}
-   <div class="stmt-signatures">
-    <div class="sig"><div class="line">توقيع صاحب الحساب</div></div>
-    <div class="sig"><div class="line">توقيع الطرف الثاني</div></div>
-   </div>
-   <div class="stmt-footer">
-    <div>مستند صادر إلكترونيًا من النظام المالي الشخصي · المرجع <span class="ref">${refNumber}</span></div>
-    <div>تاريخ الطباعة: ${stamp} — ${timeStr}</div>
-   </div>
-  </div>`;
 }
 
 document.addEventListener("click",e=>{
