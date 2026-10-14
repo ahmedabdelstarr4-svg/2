@@ -11,36 +11,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Set up JDK 17
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install dependencies & Capacitor
-        run: |
-          npm install || true
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init FinancialApp com.financial.app --web-dir . --yes
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Add Android platform and copy web assets
-        run: |
-          npx cap add android
-          npx cap copy android
+      - name: Install Bubblewrap CLI
+        run: npm install -g @bubblewrap/cli
 
-      - name: Build debug APK
+      - name: Initialize & Build APK
         run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          mkdir build_app && cd build_app
+          npx @bubblewrap/cli init --manifest="https://ahmedabdelstarr4-svg.github.io/2/manifest.json" || true
+          
+          # إعداد مشروع أندرويد سريع كـ WebView
+          cd ..
+          npm install -g cordova
+          cordova create android_app com.financial.app FinancialApp
+          cd android_app
+          cp -r ../. www/
+          cordova platform add android
+          cordova build android
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android_app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
