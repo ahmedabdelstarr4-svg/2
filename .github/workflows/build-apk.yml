@@ -22,14 +22,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Capacitor
+      - name: Install dependencies & Capacitor
         run: |
-          npm init -y
+          npm install || true
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init FinancialApp com.financial.app --web-dir .
+          npx cap init FinancialApp com.financial.app --web-dir . --yes
 
-      - name: Add Android platform
-        run: npx cap add android
+      - name: Add Android platform and copy web assets
+        run: |
+          npx cap add android
+          npx cap copy android
 
       - name: Build debug APK
         run: |
