@@ -62,7 +62,6 @@ input,select,textarea{width:100%;min-width:0;padding:11px 10px;border:1px solid 
 input:focus,select:focus,textarea:focus{border-color:#059669;box-shadow:0 0 0 3px #0596691a}
 
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#f1f5f9;padding:4px;border-radius:13px}
 
 .tab{border:0;background:transparent;color:#334155;border-radius:9px;padding:10px 2px;font-size:11px;font-weight:700}
@@ -78,7 +77,6 @@ input:focus,select:focus,textarea:focus{border-color:#059669;box-shadow:0 0 0 3p
 .field-note{font-size:10px;color:#64748b;line-height:1.5;margin-top:3px}
 .field-note.warn{color:#92400e;background:#fffbeb;padding:7px 9px;border-radius:9px;border:1px solid #fde68a;font-weight:700}
 
-/* شريط التنقل السفلي الثابت (3 أزرار) */
 .nav-bottom{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);width:calc(100% - 16px);max-width:480px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:6px;border:1px solid var(--line);background:#0f172a;border-radius:16px;box-shadow:0 10px 25px rgba(15,23,42,0.25);z-index:30}
 .nav-bottom .nav-btn{background:transparent;border:0;color:#94a3b8;padding:8px 2px;font-size:11px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:10px}
 .nav-bottom .nav-btn.active{background:#1e293b;color:#34d399}
@@ -111,9 +109,9 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .person-picker{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:stretch}
 .person-picker select{margin:0}
 .btn-plus{padding:0 12px;font-size:18px;font-weight:800;min-width:42px;line-height:1}
-.manage-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:auto}
-.manage-item{display:flex;justify-content:space-between;align-items:center;background:white;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12px;gap:8px}
-.manage-item .name{font-weight:700;overflow-wrap:anywhere}
+.persons-manage-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+.person-item{display:flex;justify-content:space-between;align-items:center;background:white;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12px;gap:8px}
+.person-item .name{font-weight:700;overflow-wrap:anywhere}
 
 .modal-overlay{position:fixed;inset:0;background:#0f172acc;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-box{background:white;border-radius:16px;padding:16px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px #0005}
@@ -135,7 +133,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .finance-row strong{text-align:left;font-variant-numeric:tabular-nums}
 .good{color:#047857}.bad{color:#be123c}.warning{color:#b45309}
 
-/* حدود الطباعة */
 @media print{
   .no-print{display:none!important}
   .report tr,
@@ -153,8 +150,19 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
   .report{box-shadow:none;border:0}
 }
 @media(max-height:650px){.header{padding:10px 14px}.content{padding:10px}.btn{padding:10px}}
-</style>
 
+@media (max-width: 360px){
+  .beneficiary{
+    grid-template-columns: 1fr auto auto;
+  }
+  .beneficiary .beneficiary-name-select{
+    grid-column: 1 / -1;
+  }
+  .beneficiary .beneficiary-amount{
+    grid-column: 1 / 3;
+  }
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -169,7 +177,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 
 <main class="content">
 
-<!-- 1. الرئيسية -->
 <section id="view-dashboard" class="view stack">
   <div class="balance-card">
     <span>صافي رصيد الحركة المالية الفعلي</span>
@@ -179,12 +186,12 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
     <div class="metric">
       <span>إجمالي الواردات</span>
       <strong id="dash-total-in" class="good">0.000 د.ك</strong>
-      <small style="color:#059669;font-weight:700">(بتوع الدورة الحالية)</small>
+      <small id="dash-cycle-in" style="color:#047857">دورة حالية: 0.000 د.ك</small>
     </div>
     <div class="metric">
       <span>إجمالي المصروفات</span>
       <strong id="dash-total-out" class="bad">0.000 د.ك</strong>
-      <small style="color:#be123c;font-weight:700">(بتوع الدورة الحالية)</small>
+      <small id="dash-cycle-out" style="color:#be123c">دورة حالية: 0.000 د.ك</small>
     </div>
   </div>
   <div class="panel stack">
@@ -203,7 +210,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
   </div>
 </section>
 
-<!-- 2. نموذج الإدخال -->
 <section id="view-input" class="view stack hidden">
 <div class="row-between">
   <strong style="font-size:14px">إدخال / تعديل معاملة</strong>
@@ -245,67 +251,58 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
   <option value="opening_balance">رصيد أول المدة (دين قديم)</option>
 </select></div>
 </div>
-<div><label for="tx-notes">ملاحظات (أو الكلمة المفتاحية للمستفيد)</label><textarea id="tx-notes" rows="2" placeholder="ملاحظات سريعة / مستفيد..." maxlength="500"></textarea></div>
+<div><label for="tx-notes">ملاحظات</label><textarea id="tx-notes" rows="2" placeholder="ملاحظات سريعة..." maxlength="500"></textarea></div>
 <button type="button" id="save-transaction" class="btn btn-primary" onclick="saveTransaction()">حفظ المعاملة 💾</button>
 </section>
 
-<!-- 3. التقارير -->
 <section id="view-reports" class="view stack hidden">
 <div class="finance-tabs no-print">
 <button type="button" class="tab active" id="finance-tab-ledger" onclick="switchFinanceTab('ledger')">سجل المعاملات</button>
 <button type="button" class="tab" id="finance-tab-compare" onclick="switchFinanceTab('compare')">مقارنة الفترات</button>
 </div>
 
-<!-- 3.1 مقارنة الفترات -->
 <section id="finance-compare-view" class="stack hidden">
 <div class="panel stack no-print">
-<strong>مقارنة الفترات المالية التفاعلية</strong>
-<div class="small">حدد التصنيفات والكلمة المفتاحية والفترة المرجعية لتقوم المقارنة بحساب الفترات تلقائيًا.</div>
+<strong style="font-size:13px">📊 مقارنة دورات الراتب المسجلة</strong>
+<div class="small">اختر الدورتين من القائمتين أدناه لمقارنة الأداء المالي فوراً بدون تواريخ يدوية.</div>
 
-<div><label>التصنيف الرئيسي</label><select id="compare-type" onchange="onCompareTypeChange()"><option value="all">كل التصنيفات (شامل)</option><option value="expense">مصروفات</option><option value="income">دخل</option><option value="debt">ديون وعلاقات مالية</option><option value="transfer">تحويلات مالية خارجية</option></select></div>
-<div id="compare-subtype-wrap"><label>التصنيف الفرعي</label><select id="compare-subtype"></select></div>
-<div><label>المستفيد / كلمة مفتاحية (من الملاحظات)</label><input id="compare-keyword" placeholder="اكتب كلمة للفلترة..." oninput="renderFinancialComparison()"></div>
-
-<div class="finance-card">
-<strong>الفترة الأساسية (المرجعية)</strong>
-<div class="grid2">
-<div><label>من تاريخ</label><div class="date-parts"><input id="compare-base-from-day" type="number" min="1" max="31" placeholder="يوم" inputmode="numeric"><input id="compare-base-from-month" type="number" min="1" max="12" placeholder="شهر" inputmode="numeric"><input id="compare-base-from-year" type="number" min="2000" max="2100" placeholder="سنة" inputmode="numeric"></div></div>
-<div><label>إلى تاريخ</label><div class="date-parts"><input id="compare-base-to-day" type="number" min="1" max="31" placeholder="يوم" inputmode="numeric"><input id="compare-base-to-month" type="number" min="1" max="12" placeholder="شهر" inputmode="numeric"><input id="compare-base-to-year" type="number" min="2000" max="2100" placeholder="سنة" inputmode="numeric"></div></div>
+<div class="stack">
+  <div>
+    <label style="color:#059669;font-size:12px;font-weight:800">🟢 الدورة الأولى (الدورة الأساسية / السابقة)</label>
+    <select id="compare-cycle-1" onchange="renderFinancialComparison()"></select>
+  </div>
+  <div>
+    <label style="color:#0f172a;font-size:12px;font-weight:800">🔵 الدورة الثانية (دورة المقارنة / الحالية)</label>
+    <select id="compare-cycle-2" onchange="renderFinancialComparison()"></select>
+  </div>
 </div>
-</div>
-
-<div class="grid2">
-<div><label>قبل (عدد الشهور)</label><input id="compare-prev-months" type="number" min="0" max="24" value="1" placeholder="عدد الشهور"></div>
-<div><label>بعد (عدد الشهور)</label><input id="compare-next-months" type="number" min="0" max="24" value="0" placeholder="عدد الشهور"></div>
-</div>
-
-<button class="btn btn-primary" type="button" onclick="renderFinancialComparison()">إنشاء المقارنة 📊</button>
 </div>
 
 <div id="compare-capture-area" class="report">
-<div class="report-head"><h2>تقرير مقارنة الفترات</h2><div id="compare-report-period" style="font-size:10px;color:#cbd5e1;margin-top:4px">—</div></div>
+<div class="report-head">
+  <h2>مقارنة دورات الراتب</h2>
+  <div id="compare-report-period" style="font-size:11px;color:#cbd5e1;margin-top:4px">—</div>
+</div>
 <div id="compare-results" class="stack"></div>
 </div>
 
 <div class="grid2 no-print" style="margin-top:10px">
 <button type="button" onclick="exportCompareExcel()" class="btn btn-green">تصدير Excel 📗</button>
-<button type="button" onclick="shareViewWhatsApp('compare-capture-area','مقارنة الفترات')" class="btn btn-green">مشاركة / واتساب 💬</button>
+<button type="button" onclick="shareViewWhatsApp('compare-capture-area','مقارنة الدورات المالية')" class="btn btn-green">مشاركة / واتساب 💬</button>
 <button type="button" onclick="exportPDF('compare-capture-area','Compare')" class="btn btn-dark">تصدير PDF 📄</button>
 <button type="button" onclick="shareAsImage('compare-capture-area','Compare')" class="btn btn-soft">حفظ كصورة 🖼️</button>
 </div>
 </section>
 
-<!-- 3.2 سجل المعاملات -->
 <section id="finance-ledger-view" class="stack">
 <div id="filter-section" class="stack no-print">
 <div class="panel" style="background:#ecfdf5;color:#065f46;font-size:12px;font-weight:700">حدد معايير التقرير</div>
 <div><label>التصنيف الرئيسي</label><select id="report-type" onchange="onReportTypeChange()"><option value="expense">مصروفات</option><option value="income">دخل</option><option value="debt">ديون وعلاقات مالية</option><option value="transfer">تحويلات مالية خارجية</option><option value="all">ملخص كل المعاملات</option></select></div>
-<div id="report-subtype-wrap"><label>التصنيف الفرعي</label><select id="report-subtype"></select></div>
-<div><label>المستفيد / كلمة مفتاحية (في الملاحظات)</label><input id="report-keyword" placeholder="اكتب كلمة للبحث والمطابقة في البيان والملاحظات..."></div>
-<div id="report-target-wrap" class="hidden"><label>الطرف / الشخص المسجل</label><div class="person-picker"><select id="beneficiary-select"><option value="all">الكل</option></select><button type="button" class="btn btn-soft btn-plus" onclick="openPersonModal(this)" title="إضافة اسم جديد">+</button></div></div>
+<div id="report-subtype-wrap"><label>النوع الفرعي</label><select id="report-subtype" onchange="updateReportTargetOptions()"></select></div>
+<div id="report-target-wrap"><label>الطرف / المستفيد</label><div class="person-picker"><select id="beneficiary-select"><option value="all">الكل</option></select><button type="button" class="btn btn-soft btn-plus" onclick="openPersonModal(this)" title="إضافة اسم جديد">+</button></div></div>
 <div class="grid2">
 <div><label>من تاريخ</label><div class="date-parts"><input id="date-from-day" type="number" min="1" max="31" inputmode="numeric" placeholder="يوم"><input id="date-from-month" type="number" min="1" max="12" inputmode="numeric" placeholder="شهر"><input id="date-from-year" type="number" min="2000" max="2100" inputmode="numeric" placeholder="سنة"></div></div>
-<div><label>إلى تاريخ</label><div class="date-parts"><input id="date-to-day" type="number" min="1" max="31" inputmode="numeric" placeholder="يوم"><input id="date-to-month" type="number" min="1" max="12" inputmode="numeric" placeholder="شهر"><input id="date-to-year" type="number" min="2000" max="2100" placeholder="سنة"></div></div>
+<div><label>إلى تاريخ</label><div class="date-parts"><input id="date-to-day" type="number" min="1" max="31" inputmode="numeric" placeholder="يوم"><input id="date-to-month" type="number" min="1" max="12" inputmode="numeric" placeholder="شهر"><input id="date-to-year" type="number" min="2000" max="2100" inputmode="numeric" placeholder="سنة"></div></div>
 </div>
 <button type="button" onclick="setSalaryCycleDates()" class="btn btn-soft">📅 تعبئة تاريخ آخر دورة راتب</button>
 <button type="button" onclick="generateReport()" class="btn btn-dark">إنشاء التقرير 📄</button>
@@ -313,11 +310,11 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 
 <div id="report-section" class="stack hidden">
 <button type="button" onclick="backToFilters()" class="btn btn-soft no-print">⬅️ تعديل معايير التقرير</button>
-<div id="report-search-wrap" class="no-print"><label>🔍 بحث سريع داخل النتائج</label><input id="report-search" placeholder="اكتب للبحث السريع..." oninput="filterReportTable()"></div>
+<div id="report-search-wrap" class="no-print"><label>🔍 بحث داخل التقرير (اسم / بيان / ملاحظات)</label><input id="report-search" placeholder="اكتب للبحث..." oninput="filterReportTable()"></div>
 
 <div id="capture-area" class="report">
 <div class="report-head"><h2 id="report-title">كشف حساب مالي</h2><div style="font-size:10px;color:#cbd5e1;margin-top:4px">تقرير من سجل المعاملات المحلي</div><div id="report-number" style="font-size:9px;color:#cbd5e1;margin-top:4px"></div></div>
-<div class="report-meta"><div class="row-between"><span>الفترة:</span><strong id="display-date-range">—</strong></div><div class="row-between"><span>التصنيف / المستفيد:</span><strong id="display-target">الكل</strong></div><div class="row-between"><span>عدد الحركات:</span><strong id="display-count">0</strong></div></div>
+<div class="report-meta"><div class="row-between"><span>الفترة:</span><strong id="display-date-range">—</strong></div><div class="row-between"><span>الطرف / التصنيف:</span><strong id="display-target">الكل</strong></div><div class="row-between"><span>عدد الحركات:</span><strong id="display-count">0</strong></div></div>
 <div class="table-wrap"><table><thead id="report-table-head"></thead><tbody id="report-table-body"></tbody></table></div>
 <div class="report-summary" id="report-summary"></div>
 <div id="ledger-breakdowns" class="stack"></div>
@@ -335,24 +332,22 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 </section>
 </section>
 
-<!-- 4. الإعدادات -->
 <section id="view-backup" class="view stack hidden">
 <strong>الإعدادات والنسخ الاحتياطي ⚙️</strong>
 
 <div class="panel stack">
-<strong style="font-size:13px">🏷️ قائمة تصنيفات المصروفات</strong>
-<div class="person-picker"><input id="new-expense-cat-name" placeholder="تصنيف مصروف جديد..." maxlength="80"><button type="button" class="btn btn-primary btn-plus" onclick="addExpenseCategoryFromSettings()" title="إضافة">+</button></div>
-<div id="categories-manage-list" class="manage-list"><span class="small">جاري التحميل...</span></div>
+  <strong style="font-size:13px">🏷️ إدارة تصنيفات المصروفات</strong>
+  <div class="person-picker">
+    <input id="new-expense-cat-name" placeholder="تصنيف مصروف جديد..." maxlength="80">
+    <button type="button" class="btn btn-primary btn-plus" onclick="addExpenseCategoryFromSettings()" title="إضافة">+</button>
+  </div>
+  <div id="expense-cats-manage-list" class="persons-manage-list">
+    <span class="small">لا توجد تصنيفات محفوظة بعد.</span>
+  </div>
 </div>
 
-<div class="panel stack">
-<strong style="font-size:13px">👥 قائمة الأسماء والجهات (الأشخاص)</strong>
-<div class="person-picker"><input id="new-person-name" placeholder="اسم جديد..." maxlength="80"><button type="button" class="btn btn-primary btn-plus" onclick="addPersonFromSettings()" title="إضافة">+</button></div>
-<div id="persons-manage-list" class="manage-list"><span class="small">لا توجد أسماء محفوظة بعد.</span></div>
-</div>
-
+<div class="panel stack"><strong style="font-size:13px">👥 قائمة الأسماء والجهات</strong><div class="person-picker"><input id="new-person-name" placeholder="اسم جديد..." maxlength="80"><button type="button" class="btn btn-primary btn-plus" onclick="addPersonFromSettings()" title="إضافة">+</button></div><div id="persons-manage-list" class="persons-manage-list"><span class="small">لا توجد أسماء محفوظة بعد.</span></div></div>
 <div class="hint">البيانات محفوظة محليًا في IndexedDB داخل المتصفح. نزّل نسخة احتياطية بشكل دوري.</div>
-
 <div class="panel stack"><strong style="font-size:13px">نسخة احتياطية</strong><button class="btn btn-primary" type="button" onclick="downloadBackup()">تنزيل نسخة احتياطية JSON</button><button class="btn btn-green" type="button" onclick="shareBackup()">مشاركة النسخة 📤</button><div id="backup-status" class="small">سيظهر هنا تاريخ آخر نسخة تم تنزيلها.</div></div>
 <div class="panel stack"><strong style="font-size:13px">استعادة نسخة سابقة</strong><input type="file" id="restore-file" accept=".json,application/json"><button class="btn btn-muted" type="button" onclick="restoreBackup()">استعادة من الملف</button></div>
 <div class="panel stack"><strong style="font-size:13px">حالة قاعدة البيانات</strong><div class="row-between"><span class="small">عدد المعاملات</span><strong id="backup-count">0</strong></div><div class="row-between"><span class="small">آخر حفظ محلي</span><strong id="last-saved">—</strong></div><button class="btn btn-danger" type="button" onclick="clearAllTransactions()">حذف كل البيانات نهائيًا</button></div>
@@ -377,13 +372,13 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
    ============================================================ */
 const DB_NAME="PersonalFinanceDB",DB_VERSION=1,STORE_NAME="transactions";
 const PEOPLE_KEY="pf_people_list";
-const EXPENSE_CATS_KEY="pf_expense_categories_list";
+const EXPENSE_CATS_KEY="pf_expense_cats_list";
 const CATEGORY_ALIASES={"فواتير وااشتراكات":"فواتير واشتراكات"};
-const DEFAULT_EXPENSE_CATS=["طعام ومقاضي","فواتير واشتراكات","مواصلات","شخصي وتجارة","صحة وطوارئ","أخرى"];
-
 let db=null,currentInputTab="expense",editingTxId=null,activePersonCallback=null;
 let currentFinanceTab="ledger",toastTimer=null;
 let cachedReportRecords=[];
+let visibleReportRecords=[];
+let cachedReportRange={from:"",to:""};
 let reportGenerated=false;
 
 function $(id){return document.getElementById(id)}
@@ -394,6 +389,13 @@ function showToast(msg){
  toastTimer=setTimeout(()=>t.style.display="none",3000);
 }
 
+function getCleanText(el){
+ if(!el) return "";
+ const clone = el.cloneNode(true);
+ clone.querySelectorAll(".no-print").forEach(e => e.remove());
+ return clone.innerText.trim();
+}
+
 function escapeHTML(str){return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 
 function money(val, currency){
@@ -401,7 +403,7 @@ function money(val, currency){
   return Number(val||0).toFixed(3)+" "+cur;
 }
 function moneyEGP(val){
-  return Number(val||0).toLocaleString("ar-EG", {maximumFractionDigits:0})+" ج.م";
+  return Number(val||0).toLocaleString("en-US", {maximumFractionDigits:0})+" ج.م";
 }
 
 function todayISO(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
@@ -409,25 +411,26 @@ function firstOfMonthISO(){const d=new Date();return`${d.getFullYear()}-${String
 function fmtDate(iso){if(!iso)return"";const[y,m,d]=iso.split("-");return`${d}/${m}/${y}`}
 
 /* ============================================================
-   قراءة وكتابة التاريخ
+   قراءة وكتابة التاريخ من ثلاث حقول
    ============================================================ */
 function initDates(){
  const t=todayISO(),[y,m,d]=t.split("-");
- ["tx","compare-base"].forEach(p=>{
-  const dEl=$(p+"-from-day")||$(p+"-day"),mEl=$(p+"-from-month")||$(p+"-month"),yEl=$(p+"-from-year")||$(p+"-year");
+ ["tx"].forEach(p=>{
+  const dEl=$(p+"-day"),mEl=$(p+"-month"),yEl=$(p+"-year");
   if(dEl&&!dEl.value)dEl.value=Number(d);
   if(mEl&&!mEl.value)mEl.value=Number(m);
   if(yEl&&!yEl.value)yEl.value=Number(y);
  });
- const toDEl=$("compare-base-to-day"),toMEl=$("compare-base-to-month"),toYEl=$("compare-base-to-year");
- if(toDEl&&!toDEl.value)toDEl.value=Number(d);
- if(toMEl&&!toMEl.value)toMEl.value=Number(m);
- if(toYEl&&!toYEl.value)toYEl.value=Number(y);
-
  const timeEl=$("tx-time");
  if(timeEl&&!timeEl.value){
   const now=new Date();
   timeEl.value=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+ }
+ if($("date-from-year") && !$("date-from-year").value){
+   writeDateParts("date-from", firstOfMonthISO());
+ }
+ if($("date-to-year") && !$("date-to-year").value){
+   writeDateParts("date-to", todayISO());
  }
 }
 
@@ -440,7 +443,6 @@ function readDateParts(prefix){
  if(dt.getUTCFullYear()!==yy||dt.getUTCMonth()!==mm-1||dt.getUTCDate()!==dd)return"";
  return`${yy}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}`;
 }
-
 function writeDateParts(prefix,iso){
  if(!iso)return;
  const[y,m,d]=iso.split("-");
@@ -450,37 +452,33 @@ function writeDateParts(prefix,iso){
 }
 
 /* ============================================================
-   إدارة تصنيفات المصروفات وقائمة الأشخاص
+   تصنيفات وأشخاص
    ============================================================ */
 function getExpenseCategories(){
- const list=localStorage.getItem(EXPENSE_CATS_KEY);
- if(!list) return DEFAULT_EXPENSE_CATS;
- try{
-  const parsed=JSON.parse(list);
-  return Array.isArray(parsed)&&parsed.length?parsed:DEFAULT_EXPENSE_CATS;
- }catch{return DEFAULT_EXPENSE_CATS;}
+ const saved = localStorage.getItem(EXPENSE_CATS_KEY);
+ if(saved){
+  try{
+   const parsed = JSON.parse(saved);
+   if(Array.isArray(parsed) && parsed.length > 0) return parsed;
+  }catch{}
+ }
+ const defaults = ["طعام ومقاضي","فواتير واشتراكات","مواصلات","شخصي وتجارة","صحة وطوارئ","أخرى"];
+ localStorage.setItem(EXPENSE_CATS_KEY, JSON.stringify(defaults));
+ return defaults;
 }
 
 function saveExpenseCategories(arr){
- localStorage.setItem(EXPENSE_CATS_KEY,JSON.stringify([...new Set(arr)]));
+ localStorage.setItem(EXPENSE_CATS_KEY, JSON.stringify([...new Set(arr)]));
  populateCategorySelects();
- renderCategoriesManageList();
+ renderExpenseCatsManageList();
 }
 
-function getIncomeCategories(){return["راتب أساسي","عمل إضافي","أرباح / عوائد","أخرى"]}
-
-function populateCategorySelects(){
- const expSel=$("expense-category");
- if(expSel)expSel.innerHTML=getExpenseCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
- const incSel=$("income-category");
- if(incSel)incSel.innerHTML=getIncomeCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
-}
-
-function renderCategoriesManageList(){
- const list=$("categories-manage-list");
+function renderExpenseCatsManageList(){
+ const list=$("expense-cats-manage-list");
  if(!list)return;
  const cats=getExpenseCategories();
- list.innerHTML=cats.map(c=>`<div class="manage-item"><span class="name">${escapeHTML(c)}</span><button type="button" class="btn btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteExpenseCategory('${escapeHTML(c)}')">حذف</button></div>`).join("");
+ if(!cats.length){list.innerHTML='<span class="small">لا توجد تصنيفات محفوظة بعد.</span>';return;}
+ list.innerHTML=cats.map(c=>`<div class="person-item"><span class="name">${escapeHTML(c)}</span><button type="button" class="btn btn-danger" style="padding:4px 8px;font-size:11px" data-action="del-exp-cat" data-cat="${escapeHTML(c)}">حذف</button></div>`).join("");
 }
 
 function addExpenseCategoryFromSettings(){
@@ -488,13 +486,29 @@ function addExpenseCategoryFromSettings(){
  const name=inp.value.trim();if(!name)return;
  const cats=getExpenseCategories();
  if(cats.includes(name)){showToast("التصنيف موجود بالفعل");return;}
- cats.push(name);saveExpenseCategories(cats);inp.value="";showToast("تمت إضافة التصنيف");
+ cats.push(name);
+ saveExpenseCategories(cats);
+ inp.value="";
+ showToast("تمت إضافة التصنيف بنجاح");
 }
 
-function deleteExpenseCategory(cat){
- const cats=getExpenseCategories().filter(c=>c!==cat);
- if(cats.length===0){showToast("يجب أن يبقى تصنيف واحد على الأقل");return;}
- saveExpenseCategories(cats);showToast("تم حذف التصنيف");
+function deleteExpenseCategory(name){
+ const cats=getExpenseCategories();
+ if(cats.length <= 1){
+  showToast("يجب أن يبقى تصنيف واحد على الأقل");
+  return;
+ }
+ const updated = cats.filter(c => c !== name);
+ saveExpenseCategories(updated);
+ showToast("تم حذف التصنيف");
+}
+
+function getIncomeCategories(){return["راتب أساسي","عمل إضافي","أرباح / عوائد","أخرى"]}
+function populateCategorySelects(){
+ const expSel=$("expense-category");
+ if(expSel)expSel.innerHTML=getExpenseCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
+ const incSel=$("income-category");
+ if(incSel)incSel.innerHTML=getIncomeCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
 }
 
 function getPeopleList(){
@@ -502,13 +516,11 @@ function getPeopleList(){
  if(!list)return[];
  try{const parsed=JSON.parse(list);return Array.isArray(parsed)?parsed:[];}catch{return[];}
 }
-
 function savePeopleList(arr){
  localStorage.setItem(PEOPLE_KEY,JSON.stringify([...new Set(arr)]));
  populatePeopleSelects();
  renderPersonsManageList();
 }
-
 function populatePeopleSelects(){
  const people=getPeopleList();
  const sel=$("debt-person-select");
@@ -524,29 +536,36 @@ function populatePeopleSelects(){
  });
  renderPeopleHints();
 }
-
 function renderPeopleHints(){
  const people=getPeopleList();
  const debtHint=$("debt-people-hint");
  const transferHint=$("transfer-people-hint");
  if(debtHint){
-  debtHint.className=people.length===0?"field-note warn":"field-note";
-  debtHint.textContent=people.length===0?"لسه مفيش أسماء. اضغط زر ➕ لإضافة أول اسم.":"";
+  if(people.length===0){
+   debtHint.className="field-note warn";
+   debtHint.textContent="لسه مفيش أسماء. اضغط زر ➕ لإضافة أول اسم.";
+  }else{
+   debtHint.className="field-note";
+   debtHint.textContent="";
+  }
  }
  if(transferHint){
-  transferHint.className=people.length===0?"field-note warn":"field-note";
-  transferHint.textContent=people.length===0?"لسه مفيش أسماء. اضغط زر ➕ جنب الصف لإضافة أول مستفيد.":"لو الاسم مش موجود، دوس زر ➕ جنبه لإضافته للقائمة.";
+  if(people.length===0){
+   transferHint.className="field-note warn";
+   transferHint.textContent="لسه مفيش أسماء. اضغط زر ➕ جنب الصف لإضافة أول مستفيد.";
+  }else{
+   transferHint.className="field-note";
+   transferHint.textContent="لو الاسم مش موجود، دوس زر ➕ جنبه لإضافته للقائمة.";
+  }
  }
 }
-
 function renderPersonsManageList(){
  const list=$("persons-manage-list");
  if(!list)return;
  const people=getPeopleList();
  if(!people.length){list.innerHTML='<span class="small">لا توجد أسماء محفوظة بعد.</span>';return;}
- list.innerHTML=people.map(p=>`<div class="manage-item"><span class="name">${escapeHTML(p)}</span><button type="button" class="btn btn-danger" style="padding:4px 8px;font-size:11px" data-action="del-person" data-person="${escapeHTML(p)}">حذف</button></div>`).join("");
+ list.innerHTML=people.map(p=>`<div class="person-item"><span class="name">${escapeHTML(p)}</span><button type="button" class="btn btn-danger" style="padding:4px 8px;font-size:11px" data-action="del-person" data-person="${escapeHTML(p)}">حذف</button></div>`).join("");
 }
-
 function addPersonFromSettings(){
  const inp=$("new-person-name");if(!inp)return;
  const name=inp.value.trim();if(!name)return;
@@ -554,17 +573,20 @@ function addPersonFromSettings(){
  if(people.includes(name)){showToast("الاسم موجود بالفعل");return;}
  people.push(name);savePeopleList(people);inp.value="";showToast("تمت الإضافة بنجاح");
 }
-
 async function deletePerson(name){
  try{
   const records = await allTransactions();
   const hasRecords = records.some(r => r.person === name || (r.beneficiaries||[]).some(b => b.name === name));
   if(hasRecords){
-   if(!confirm(`"${name}" عنده معاملات محفوظة. سيتم حذفه من القائمة فقط، والمعاملات ستبقى باسمه. متابعة؟`)) return;
+   if(!confirm(`"${name}" عنده معاملات محفوظة. سيتم حذفه من القائمة فقط، والمعاملات ستبقى باسمه في التقارير. متابعة؟`)) return;
   }
-  savePeopleList(getPeopleList().filter(p => p !== name));
+  const people = getPeopleList().filter(p => p !== name);
+  savePeopleList(people);
   showToast("تم الحذف من القائمة");
- }catch(e){showToast("تعذر حذف الاسم");}
+ }catch(e){
+  console.error(e);
+  showToast("تعذر حذف الاسم");
+ }
 }
 
 function openPersonModal(btn){
@@ -575,20 +597,26 @@ function openPersonModal(btn){
  setTimeout(()=>$("person-modal-input").focus(),50);
 }
 function closePersonModal(){$("person-modal").classList.add("hidden");activePersonCallback=null;}
-
 function confirmAddPerson(){
  const val=$("person-modal-input").value.trim();
  if(!val){showToast("أدخل اسمًا صحيحًا");return;}
  const people=getPeopleList();
- if(!people.includes(val)){people.push(val);savePeopleList(people);showToast("تمت إضافة الاسم");}
- else{showToast("الاسم موجود بالفعل");}
+ if(people.includes(val)){
+  showToast("الاسم موجود بالفعل — تم اختياره");
+ }else{
+  people.push(val);
+  savePeopleList(people);
+  showToast("تمت إضافة الاسم بنجاح");
+ }
  populatePeopleSelects();
- if(activePersonCallback&&[...activePersonCallback.options].some(o=>o.value===val)) activePersonCallback.value=val;
+ if(activePersonCallback&&[...activePersonCallback.options].some(o=>o.value===val)){
+  activePersonCallback.value=val;
+ }
  closePersonModal();
 }
 
 /* ============================================================
-   التنقل والشاشات
+   التنقل والتبديل بين الشاشات
    ============================================================ */
 function openInputForm(subTab){
  if(editingTxId){
@@ -596,12 +624,13 @@ function openInputForm(subTab){
   resetInputForm();
  }
  switchMainView('input');
- switchInputTab(subTab, {force:true});
+ const ok = switchInputTab(subTab, {force:true});
+ if(!ok) return;
 }
 
 function switchInputTab(tab, opts={}){
  if(!opts.force && editingTxId && tab !== currentInputTab){
-   if(!confirm("سيتم إلغاء التعديل الحالي. متابعة؟")) return false;
+   if(!confirm("سيتم إلغاء تعديل المعاملة الحالية والانتقال لتبويب آخر. متابعة؟")) return false;
    resetInputForm();
  }
  currentInputTab=tab;
@@ -638,14 +667,22 @@ function calculateExchange(){
 }
 
 function switchMainView(view){
- ["dashboard","input","reports","backup"].forEach(v=>{$("view-"+v).classList.toggle("hidden",v!==view);});
+ ["dashboard","input","reports","backup"].forEach(v=>{
+  $("view-"+v).classList.toggle("hidden",v!==view);
+ });
+
  const navTarget = view === "input" ? "dashboard" : view;
  ["dashboard","reports","backup"].forEach(v=>{
   const btn=$("nav-"+v);
   if(btn) btn.classList.toggle("active", v === navTarget);
  });
+
  if(view==="dashboard") refreshDashboard();
  if(view==="reports") switchFinanceTab(currentFinanceTab);
+ if(view==="backup"){
+  renderExpenseCatsManageList();
+  renderPersonsManageList();
+ }
  window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -699,23 +736,25 @@ async function migrateCategories(){
     tx.onerror=()=>reject(tx.error);
    });
   }
- }catch(e){}
+ }catch(e){console.warn("Migration skipped:", e);}
 }
 
 /* ============================================================
-   حفظ / تحرير المعاملات
+   حفظ / تحرير / حذف المعاملات
    ============================================================ */
 async function saveTransaction(){
  const saveBtn = $("save-transaction");
  if(saveBtn.disabled) return;
+ 
  try {
   saveBtn.disabled = true;
+  
   if(editingTxId){
    if(!db) await openDB();
    const records = await allTransactions();
    const origin = records.find(r => r.id === editingTxId);
    if(origin && origin.type !== currentInputTab){
-    showToast("خطأ: نوع المعاملة لا يطابق التبويب الحالي");
+    showToast("خطأ: نوع المعاملة لا يطابق التبويب الحالي — ألغِ التعديل أولاً");
     return;
    }
   }
@@ -759,6 +798,20 @@ async function saveTransaction(){
    txData.amount=amt;
    txData.person=person;
    txData.debtType=$("debt-type").value;
+
+   if(txData.debtType==="opening_balance"){
+    const existing=await allTransactions();
+    const alreadyHas=existing.some(r=>
+     r.id!==editingTxId &&
+     r.type==="debt" &&
+     r.debtType==="opening_balance" &&
+     r.person===txData.person
+    );
+    if(alreadyHas){
+     showToast(`"${txData.person}" عنده رصيد أول المدة مسجّل بالفعل.`);
+     return;
+    }
+   }
   }
 
   if(!db) await openDB();
@@ -773,8 +826,13 @@ async function saveTransaction(){
   showToast("تم حفظ المعاملة بنجاح ✅");
   resetInputForm();
   await refreshAllViews();
+  updateReportTargetOptions().catch(()=>{});
+  if (reportGenerated) {
+    await generateReport();
+  }
   switchMainView('dashboard');
  } catch(err) {
+  console.error("Save Error:", err);
   showToast("فشل حفظ المعاملة");
  } finally {
   saveBtn.disabled = false;
@@ -797,20 +855,23 @@ function resetInputForm(){
  initDates();
 }
 
-function cancelEdit(){resetInputForm();switchMainView('dashboard');}
+function cancelEdit(){
+ resetInputForm();
+ switchMainView('dashboard');
+}
 
-async function refreshAllViews(){
- const txs=await allTransactions();
+async function refreshAllViews(optionalTxs){
+ const txs = optionalTxs || await allTransactions();
  $("backup-count").textContent=txs.length;
- $("last-saved").textContent=new Date().toLocaleTimeString("ar-KW");
- refreshDashboard();
+ $("last-saved").textContent=new Date().toLocaleTimeString("en-US");
+ await refreshDashboard(txs);
 }
 
 /* ============================================================
-   الصفحة الرئيسية (Dashboard)
+   الصفحة الرئيسية
    ============================================================ */
-async function refreshDashboard(){
- const txs=await allTransactions();
+async function refreshDashboard(preloadedTxs){
+ const txs = preloadedTxs || await allTransactions();
  $("dash-tx-count").textContent=txs.length+" معاملة";
  const recent=$("dash-recent-transactions");
  if(!txs.length){
@@ -818,24 +879,32 @@ async function refreshDashboard(){
   $("dash-total-in").textContent="0.000 د.ك";
   $("dash-total-out").textContent="0.000 د.ك";
   $("dash-net-balance").textContent="0.000 د.ك";
+  $("dash-cycle-in").textContent="دورة حالية: 0.000 د.ك";
+  $("dash-cycle-out").textContent="دورة حالية: 0.000 د.ك";
   return;
  }
  recent.innerHTML=txs.slice(0,5).map(t=>`<div class="row-between" style="font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>${fmtDate(t.date)} · <strong>${escapeHTML(t.type==="expense"?t.category:t.type==="income"?t.category:t.type==="transfer"?"حوالة":"دين")}</strong></span><span class="amount">${money(realAmount(t))}</span></div>`).join("");
 
- // حسابات الدورة الحالية
- const cycle = cyclePeriods(txs);
- const currentCycleTxs = txs.filter(r => r.date >= cycle.start && r.date <= cycle.end);
-
- const currentIn = currentCycleTxs.reduce((sum, r) => (r.type === "income" || isCreditorEntry(r)) ? sum + realAmount(r) : sum, 0);
- const currentOut = currentCycleTxs.reduce((sum, r) => (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) ? sum + realAmount(r) : sum, 0);
-
- // صافي الرصيد التراكمي الشامل
  const totalIn = txs.reduce((sum, r) => (r.type === "income" || isCreditorEntry(r)) ? sum + realAmount(r) : sum, 0);
  const totalOut = txs.reduce((sum, r) => (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) ? sum + realAmount(r) : sum, 0);
+ const net = totalIn - totalOut;
 
- $("dash-total-in").textContent = money(currentIn);
- $("dash-total-out").textContent = money(currentOut);
- $("dash-net-balance").textContent = money(totalIn - totalOut);
+ const cycles = getAllSalaryCycles(txs);
+ let cycleIn = 0;
+ let cycleOut = 0;
+ if(cycles.length > 0){
+  const currentCycle = cycles[cycles.length - 1];
+  const p = {from: currentCycle.start, to: currentCycle.end};
+  cycleIn = totalIncomeFor(txs, p);
+  cycleOut = totalExpenseFor(txs, p);
+ }
+
+ $("dash-total-in").textContent = money(totalIn);
+ $("dash-total-out").textContent = money(totalOut);
+ $("dash-net-balance").textContent = money(net);
+
+ $("dash-cycle-in").textContent = `دورة حالية: ${money(cycleIn)}`;
+ $("dash-cycle-out").textContent = `دورة حالية: ${money(cycleOut)}`;
 }
 
 function realAmount(t){
@@ -848,11 +917,15 @@ function isDebtorEntry(t){return t.type==="debt"&&t.debtType==="debtor";}
 function isOpeningEntry(t){return t.type==="debt"&&t.debtType==="opening_balance";}
 
 function debtTypeLabel(dt){
- return {creditor:"أخدنا منه (زيادة الدين)", debtor:"أدّينا له (سداد)", opening_balance:"رصيد أول المدة"}[dt] || dt || "";
+ return {
+  creditor:"أخدنا منه (زيادة الدين)",
+  debtor:"أدّينا له (سداد)",
+  opening_balance:"رصيد أول المدة"
+ }[dt] || dt || "";
 }
 
 /* ============================================================
-   فلاتر التقارير والتحكم بالتصنيفات
+   فلاتر التقارير
    ============================================================ */
 async function onReportTypeChange(){
  const type=$("report-type").value;
@@ -860,53 +933,65 @@ async function onReportTypeChange(){
  const subSel=$("report-subtype");
  subWrap.classList.remove("hidden");
  if(type==="expense"){
-  subSel.innerHTML='<option value="all">كل التصنيفات الفرعية</option>'+getExpenseCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
+  subSel.innerHTML='<option value="all">كل التصنيفات (شامل)</option>'+getExpenseCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
  }else if(type==="income"){
-  subSel.innerHTML='<option value="all">كل المصادر الفرعية</option>'+getIncomeCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
+  subSel.innerHTML='<option value="all">كل المصادر (شامل)</option>'+getIncomeCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
  }else if(type==="debt"){
-  subSel.innerHTML='<option value="all">كل أنواع الحركات</option><option value="creditor">أخدنا منه</option><option value="debtor">أدّينا له (سداد)</option><option value="opening_balance">رصيد أول المدة</option>';
+  subSel.innerHTML='<option value="all">كل الحركات (شامل)</option><option value="creditor">أخدنا منه</option><option value="debtor">أدّينا له (سداد)</option><option value="opening_balance">رصيد أول المدة</option>';
  }else{
   subWrap.classList.add("hidden");
  }
  subSel.value="all";
+ const targetWrap=$("report-target-wrap");
+ const needsTarget=(type==="debt"||type==="transfer"||type==="all");
+ targetWrap.classList.toggle("hidden",!needsTarget);
+ await updateReportTargetOptions();
 }
 
-async function onCompareTypeChange(){
- const type=$("compare-type").value;
- const subWrap=$("compare-subtype-wrap");
- const subSel=$("compare-subtype");
- subWrap.classList.remove("hidden");
- if(type==="expense"){
-  subSel.innerHTML='<option value="all">كل التصنيفات الفرعية</option>'+getExpenseCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
- }else if(type==="income"){
-  subSel.innerHTML='<option value="all">كل المصادر الفرعية</option>'+getIncomeCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
- }else if(type==="debt"){
-  subSel.innerHTML='<option value="all">كل أنواع الحركات</option><option value="creditor">أخدنا منه</option><option value="debtor">أدّينا له (سداد)</option><option value="opening_balance">رصيد أول المدة</option>';
- }else{
-  subWrap.classList.add("hidden");
+async function updateReportTargetOptions(){
+ try{
+  const records=await allTransactions();
+  const names=new Set();
+  records.forEach(r=>{
+   if(r.type==="debt"&&r.person)names.add(r.person);
+   if(r.type==="transfer")(r.beneficiaries||[]).forEach(b=>{if(b.name)names.add(b.name);});
+  });
+  const allNames=[...names].sort((a,b)=>a.localeCompare(b,"ar"));
+  const benSel=$("beneficiary-select");
+  if(!benSel)return;
+  const cur=benSel.value;
+  benSel.innerHTML='<option value="all">الكل</option>'+allNames.map(p=>`<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`).join("");
+  if(allNames.includes(cur))benSel.value=cur;
+ }catch(e){
+  console.warn("updateReportTargetOptions:",e);
  }
- subSel.value="all";
- renderFinancialComparison();
 }
 
 async function setSalaryCycleDates(){
  try{
   const records = await allTransactions();
-  const cycle = cyclePeriods(records);
-  writeDateParts("date-from", cycle.start);
-  writeDateParts("date-to", cycle.end);
-  showToast("تم تحديد فترة آخر دورة راتب 📅");
- }catch(e){showToast("تعذر تحديد فترة الراتب");}
+  const cycles = getAllSalaryCycles(records);
+  if(cycles.length > 0){
+   const latest = cycles[cycles.length - 1];
+   writeDateParts("date-from", latest.start);
+   writeDateParts("date-to", latest.end);
+   showToast("تم تحديد فترة آخر دورة راتب 📅");
+  } else {
+   showToast("لم يتم تسجيل أي راتب أساسي بعد");
+  }
+ }catch(e){
+  showToast("تعذر تحديد فترة الراتب");
+ }
 }
 
 /* ============================================================
-   توليد تقرير سجل المعاملات
+   توليد التقارير
    ============================================================ */
 async function generateReport(){
  const records=await allTransactions();
  const type=$("report-type").value;
  const subtype=$("report-subtype").value;
- const keyword=($("report-keyword").value||"").trim().toLowerCase();
+ const target=$("beneficiary-select").value;
  const from=readDateParts("date-from");
  const to=readDateParts("date-to");
  
@@ -917,28 +1002,32 @@ async function generateReport(){
   if(type==="expense"&&subtype!=="all"&&r.category!==subtype)return false;
   if(type==="income"&&subtype!=="all"&&r.category!==subtype)return false;
   if(type==="debt"&&subtype!=="all"&&r.debtType!==subtype)return false;
-  
-  if(keyword){
-   const comb = `${r.notes||""} ${r.person||""} ${(r.beneficiaries||[]).map(b=>b.name).join(" ")} ${r.category||""}`.toLowerCase();
-   if(!comb.includes(keyword)) return false;
+  if(target!=="all"){
+   if(r.type==="debt"&&r.person!==target)return false;
+   if(r.type==="transfer"&&!(r.beneficiaries||[]).some(b=>b.name===target))return false;
   }
-
   if(from&&r.date<from)return false;
   if(to&&r.date>to)return false;
   return true;
  });
 
  cachedReportRecords = filtered;
+ visibleReportRecords = filtered.slice();
+ cachedReportRange = { from, to };
 
  $("filter-section").classList.add("hidden");
  $("report-section").classList.remove("hidden");
  reportGenerated = true;
 
  $("display-date-range").textContent=(from?fmtDate(from):"البداية")+" إلى "+(to?fmtDate(to):"النهاية");
- $("display-target").textContent = (keyword ? `كلمة: "${keyword}" · ` : "") + (subtype!=="all"?subtype:type==="all"?"الكل":type);
+ $("display-target").textContent=target==="all"?"الكل":target;
  $("display-count").textContent=filtered.length+" حركة";
  
- $("report-title").textContent = type==="debt" ? "كشف حساب الديون والعلاقات المالية" : "كشف حساب مالي — سجل المعاملات";
+ if(type==="debt") {
+  $("report-title").textContent="كشف حساب الديون والعلاقات المالية";
+ } else {
+  $("report-title").textContent="كشف حساب مالي — سجل المعاملات";
+ }
 
  const tableWrap=$("capture-area").querySelector(".table-wrap");
  tableWrap.innerHTML='<table><thead id="report-table-head"></thead><tbody id="report-table-body"></tbody></table>';
@@ -952,7 +1041,7 @@ function renderReportTableRows(filtered){
  const tbody=$("report-table-body");
  const thead=$("report-table-head");
  if(!tbody || !thead) return;
- thead.innerHTML=`<tr><th>التاريخ</th><th>النوع / التفاصيل</th><th>الطرف / المستفيد</th><th class="amount">المبلغ</th><th class="no-print">إجراءات</th></tr>`;
+ thead.innerHTML=`<tr><th>التاريخ</th><th>النوع / التفاصيل</th><th>الطرف</th><th class="amount">المبلغ</th><th class="no-print">إجراءات</th></tr>`;
  
  if(!filtered.length){
   tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:15px">لا توجد حركات مطابقة للمعايير.</td></tr>`;
@@ -973,8 +1062,16 @@ function renderReportTableRows(filtered){
 
 function updateReportSummaries(filtered, from, to){
  const type=$("report-type").value;
- const totalInflow = filtered.reduce((sum, r) => (r.type === "income" || isCreditorEntry(r)) ? sum + realAmount(r) : sum, 0);
- const totalOutflow = filtered.reduce((sum, r) => (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) ? sum + realAmount(r) : sum, 0);
+ 
+ const totalInflow = filtered.reduce((sum, r) => {
+  if (r.type === "income" || isCreditorEntry(r)) return sum + realAmount(r);
+  return sum;
+ }, 0);
+
+ const totalOutflow = filtered.reduce((sum, r) => {
+  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) return sum + realAmount(r);
+  return sum;
+ }, 0);
 
  const totalPaid = filtered.reduce((s,r) => isDebtorEntry(r) ? s + realAmount(r) : s, 0);
  const totalOwed = filtered.reduce((s,r) => (isCreditorEntry(r) || isOpeningEntry(r)) ? s + realAmount(r) : s, 0);
@@ -983,22 +1080,34 @@ function updateReportSummaries(filtered, from, to){
 
  const shownNet = (type === "debt") ? debtNet : standardNet;
  const shownWords = numberToArabicWords(Math.abs(shownNet));
- const shownLabel = (type === "debt") ? (debtNet > 0 ? "صافي الديون لصالحك" : debtNet < 0 ? "صافي الديون عليك" : "صافي الديون") : "صافي الحساب";
+ const shownLabel = (type === "debt")
+   ? (debtNet > 0 ? "صافي الديون لصالحك" : debtNet < 0 ? "صافي الديون عليك" : "صافي الديون")
+   : "صافي الحساب";
 
  let statusNotice = "";
  const absDebtNet = Math.abs(debtNet);
  const debtWords = numberToArabicWords(absDebtNet);
 
  if(type === "debt") {
-  if (debtNet > 0) statusNotice = `<div class="hint" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46;font-weight:700">⚖️ <strong>تنبيه:</strong> تم سداد الالتزامات وزيادة لصالحك بمبلغ <strong>${money(absDebtNet)}</strong>.</div>`;
-  else if (debtNet < 0) statusNotice = `<div class="hint" style="background:#fff1f2;border-color:#fecdd3;color:#be123c;font-weight:700">⚠️ <strong>تنبيه دين:</strong> المتبقي عليك سداده هو <strong>${money(absDebtNet)}</strong>.</div>`;
-  else statusNotice = `<div class="hint" style="background:#f8fafc;border-color:#cbd5e1;color:#0f172a;font-weight:700">✅ <strong>الحساب خالص تمامًا:</strong> الرصيد الحالي صفر.</div>`;
+  if (debtNet > 0) {
+   statusNotice = `<div class="hint" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46;font-weight:700">
+    ⚖️ <strong>تنبيه هام:</strong> تم سداد كامل الالتزامات وزيادة. أصبحت أنت الدائن بمبلغ <strong>${money(absDebtNet)}</strong> (${debtWords}).
+   </div>`;
+  } else if (debtNet < 0) {
+   statusNotice = `<div class="hint" style="background:#fff1f2;border-color:#fecdd3;color:#be123c;font-weight:700">
+    ⚠️ <strong>تنبيه دين:</strong> المتبقي عليك سداده هو <strong>${money(absDebtNet)}</strong> (${debtWords}).
+   </div>`;
+  } else {
+   statusNotice = `<div class="hint" style="background:#f8fafc;border-color:#cbd5e1;color:#0f172a;font-weight:700">
+    ✅ <strong>الحساب خالص تمامًا:</strong> الرصيد الحالي صفر، لا توجد أي مبالغ مستحقة لأي طرف.
+   </div>`;
+  }
  }
 
  $("report-summary").innerHTML = `
   <div style="display:flex;flex-direction:column;gap:6px">
    <div class="row-between"><span>${type === "debt" ? "📥 إجمالي ما تم سداده:" : "📥 إجمالي الواردات:"}</span><strong class="amount good" style="font-size:13px">${money(type === "debt" ? totalPaid : totalInflow)}</strong></div>
-   <div class="row-between"><span>${type === "debt" ? "💸 إجمالي الالتزامات:" : "💸 إجمالي المصروفات:"}</span><strong class="amount bad" style="font-size:13px">${money(type === "debt" ? totalOwed : totalOutflow)}</strong></div>
+   <div class="row-between"><span>${type === "debt" ? "💸 إجمالي الالتزامات (مستجد + أول المدة):" : "💸 إجمالي المصروفات:"}</span><strong class="amount bad" style="font-size:13px">${money(type === "debt" ? totalOwed : totalOutflow)}</strong></div>
    <div class="row-between" style="border-top:1px dashed #a7f3d0;padding-top:6px">
     <span>⚖️ صافي حالة الحساب:</span>
     <strong class="amount ${shownNet >= 0 ? 'good' : 'bad'}" style="font-size:14px">${shownNet >= 0 ? '+' : ''}${money(shownNet)}</strong>
@@ -1008,11 +1117,51 @@ function updateReportSummaries(filtered, from, to){
  `;
 
  const blocks=[];
+ const incomeItems=[
+  ...groupAmounts(filtered,{from,to},r=>r.type==="income",r=>r.category),
+  ...groupAmounts(filtered,{from,to},isCreditorEntry,r=>"أخدنا منه: "+(r.person||"غير محدد"))
+ ];
+ if(incomeItems.length){
+  blocks.push(categoryBreakdown("📥 تفصيل الواردات الشاملة", incomeItems, totalInflow));
+ }
+
  const expItems=groupAmounts(filtered,{from,to},r=>r.type==="expense",r=>r.category);
- if(expItems.length) blocks.push(categoryBreakdown("💸 تفصيل المصروفات", expItems, totalOutflow));
+ if(expItems.length){
+  blocks.push(categoryBreakdown("💸 تفصيل المصروفات العادية", expItems, totalOutflow));
+ }
+
+ const transItems=groupAmounts(filtered,{from,to},r=>r.type==="transfer",r=>(r.beneficiaries||[]).map(b=>b.name).join("، ")||"حوالة");
+ if(transItems.length){
+  blocks.push(categoryBreakdown("✈️ تفصيل الحوالات الخارجية", transItems, totalOutflow));
+ }
+
+ const debtItems=groupAmounts(filtered,{from,to},isDebtorEntry,r=>r.person||"غير محدد");
+ if(debtItems.length){
+  blocks.push(categoryBreakdown("🤝 تفصيل سداد الديون", debtItems, totalOutflow));
+ }
+
+ const openingItems = filtered.filter(isOpeningEntry);
+ if(type==="debt" && openingItems.length){
+  const openingTotal = openingItems.reduce((s,r)=>s+realAmount(r),0);
+  blocks.push(`
+   <div class="finance-card" style="background:#fef3c7;border-color:#fbbf24">
+    <strong>📌 أرصدة أول المدة المسجّلة (خاصة بالديون فقط)</strong>
+    <div class="small">ديون سابقة تاريخية - لا تُحسب ضمن مصروفاتك اليومية</div>
+    ${openingItems.map(r => financeRow(r.person || "غير محدد", money(realAmount(r)))).join("")}
+    <div class="finance-row openings-total">
+     <span><strong>الإجمالي</strong></span>
+     <strong>${money(openingTotal)}</strong>
+    </div>
+   </div>
+  `);
+ }
 
  if($("ledger-breakdowns")) $("ledger-breakdowns").innerHTML=blocks.join("");
  $("tafqit-box").innerHTML=`<strong>${shownLabel} كتابةً:</strong> ${shownWords}`;
+
+ document.querySelectorAll(".report-summary .amount").forEach(el=>{
+   el.style.fontVariantNumeric = "tabular-nums";
+ });
 }
 
 function backToFilters(){
@@ -1024,20 +1173,29 @@ function backToFilters(){
 function filterReportTable(){
  const q=$("report-search").value.toLowerCase().trim();
  if(!cachedReportRecords.length) return;
+ 
  const searched = !q ? cachedReportRecords.slice() : cachedReportRecords.filter(r => {
-  const desc = r.type==="expense"||r.type==="income" ? r.category : r.type==="transfer" ? ("حوالة " + (r.beneficiaries||[]).map(b=>b.name).join(" ")) : debtTypeLabel(r.debtType);
-  const comb = `${desc} ${r.person||""} ${r.notes||""} ${fmtDate(r.date)}`.toLowerCase();
+  const desc = r.type==="expense"||r.type==="income" ? r.category :
+               r.type==="transfer" ? ("حوالة " + (r.beneficiaries||[]).map(b=>b.name).join(" ")) :
+               r.type==="debt" ? debtTypeLabel(r.debtType) : r.type;
+  const person = r.person || (r.beneficiaries||[]).map(b=>b.name).join(" ") || "";
+  const notes = r.notes || "";
+  const comb = `${desc} ${person} ${notes} ${fmtDate(r.date)}`.toLowerCase();
   return comb.includes(q);
  });
+
+ visibleReportRecords = searched;
+
  renderReportTableRows(searched);
- updateReportSummaries(searched, readDateParts("date-from"), readDateParts("date-to"));
- $("display-count").textContent = searched.length + " حركة (مفلترة)";
+ updateReportSummaries(searched, cachedReportRange.from, cachedReportRange.to);
+ $("display-count").textContent = searched.length + (q ? " حركة (مفلترة بالبحث)" : " حركة");
 }
 
 async function editFromReport(id){
  const records = await allTransactions();
  const r = records.find(item => item.id === id);
  if(!r) return;
+ 
  if(editingTxId) resetInputForm();
 
  switchMainView("input");
@@ -1061,13 +1219,27 @@ async function editFromReport(id){
    addBeneficiary();
    const rows=list.querySelectorAll(".beneficiary");
    const last=rows[rows.length-1];
-   last.querySelector(".beneficiary-name-select").value=b.name;
+   const sel=last.querySelector(".beneficiary-name-select");
+   if([...sel.options].some(o=>o.value===b.name)){
+    sel.value=b.name;
+   }else{
+    const opt=document.createElement("option");
+    opt.value=b.name;opt.textContent=b.name;
+    sel.appendChild(opt);sel.value=b.name;
+   }
    last.querySelector(".beneficiary-amount").value=b.egp;
   });
   calculateExchange();
  }else if(r.type==="debt"){
   $("debt-amount").value=r.amount;
-  $("debt-person-select").value=r.person;
+  const sel=$("debt-person-select");
+  if([...sel.options].some(o=>o.value===r.person)){
+   sel.value=r.person;
+  }else if(r.person){
+   const opt=document.createElement("option");
+   opt.value=r.person;opt.textContent=r.person;
+   sel.appendChild(opt);sel.value=r.person;
+  }
   $("debt-type").value=r.debtType;
  }
  $("edit-banner").classList.remove("hidden");
@@ -1083,134 +1255,15 @@ async function deleteTransactionFromReport(id){
  tx.oncomplete=async()=>{
   showToast("تم الحذف بنجاح");
   await refreshAllViews();
-  if (reportGenerated) generateReport();
+  updateReportTargetOptions().catch(()=>{});
+  if (reportGenerated) {
+   await generateReport();
+  }
  };
-}
-
-/* ============================================================
-   تحديث ميزة مقارنة الفترات التفاعلية (قبل / بعد)
-   ============================================================ */
-function addMonthsToISO(isoStr, months) {
- if(!isoStr) return "";
- const [y,m,d] = isoStr.split("-").map(Number);
- const dt = new Date(Date.UTC(y, m - 1 + months, d));
- return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,"0")}-${String(dt.getUTCDate()).padStart(2,"0")}`;
-}
-
-async function renderFinancialComparison(){
- try{
-  const records = await allTransactions();
-  const type = $("compare-type").value;
-  const subtype = $("compare-subtype").value;
-  const keyword = ($("compare-keyword").value||"").trim().toLowerCase();
-
-  const baseFrom = readDateParts("compare-base-from");
-  const baseTo = readDateParts("compare-base-to");
-
-  if(!baseFrom || !baseTo){
-   $("compare-results").innerHTML='<div class="hint">يرجى إدخال تاريخ بداية ونهاية الفترة الأساسية بشكل صحيح.</div>';
-   return;
-  }
-
-  const prevMonths = Math.max(0, Number($("compare-prev-months").value)||0);
-  const nextMonths = Math.max(0, Number($("compare-next-months").value)||0);
-
-  const filterFn = (r) => {
-   if(type!=="all" && r.type!==type) return false;
-   if(type==="expense" && subtype!=="all" && r.category!==subtype) return false;
-   if(type==="income" && subtype!=="all" && r.category!==subtype) return false;
-   if(type==="debt" && subtype!=="all" && r.debtType!==subtype) return false;
-   if(keyword){
-    const comb = `${r.notes||""} ${r.person||""} ${(r.beneficiaries||[]).map(b=>b.name).join(" ")} ${r.category||""}`.toLowerCase();
-    if(!comb.includes(keyword)) return false;
-   }
-   return true;
-  };
-
-  const periods = [];
-  
-  if(prevMonths > 0){
-   periods.push({
-    title: `الفترة السابقة (${prevMonths} شهر قبل)`,
-    from: addMonthsToISO(baseFrom, -prevMonths),
-    to: addMonthsToISO(baseTo, -prevMonths),
-    key: "prev"
-   });
-  }
-
-  periods.push({
-   title: "الفترة الأساسية (المرجعية)",
-   from: baseFrom,
-   to: baseTo,
-   key: "base"
-  });
-
-  if(nextMonths > 0){
-   periods.push({
-    title: `الفترة التالية (${nextMonths} شهر بعد)`,
-    from: addMonthsToISO(baseFrom, nextMonths),
-    to: addMonthsToISO(baseTo, nextMonths),
-    key: "next"
-   });
-  }
-
-  let periodText = periods.map(p => `${p.title}: [${fmtDate(p.from)} → ${fmtDate(p.to)}]`).join(" | ");
-  if($("compare-report-period")) $("compare-report-period").textContent = periodText;
-
-  let html = `<div class="panel stack"><strong>📋 خيارات الفلترة المطبقة:</strong><div class="small">التصنيف: <strong>${subtype!=="all"?subtype:type}</strong> ${keyword?`| كلمة مفتاحية: "<strong>${escapeHTML(keyword)}</strong>"`:""}</div></div>`;
-
-  html += `<div class="table-wrap"><table><thead><tr><th>البند / الفترة</th>` + periods.map(p=>`<th>${p.title}<br><small>${fmtDate(p.from)} - ${fmtDate(p.to)}</small></th>`).join("") + `</tr></thead><tbody>`;
-
-  const incData = periods.map(p => totalIncomeFor(records, p, filterFn));
-  const expData = periods.map(p => totalExpenseFor(records, p, filterFn));
-
-  if(type==="all" || type==="income"){
-   html += `<tr><td><strong>إجمالي الواردات</strong></td>` + incData.map(v=>`<td class="good"><strong>${money(v)}</strong></td>`).join("") + `</tr>`;
-  }
-  if(type==="all" || type==="expense" || type==="transfer" || type==="debt"){
-   html += `<tr><td><strong>إجمالي المصروفات</strong></td>` + expData.map(v=>`<td class="bad"><strong>${money(v)}</strong></td>`).join("") + `</tr>`;
-  }
-  if(type==="all"){
-   html += `<tr><td><strong>صافي الفارق</strong></td>` + periods.map((p,i)=>{
-    const net = incData[i] - expData[i];
-    return `<td class="${net>=0?'good':'bad'}"><strong>${money(net)}</strong></td>`;
-   }).join("") + `</tr>`;
-  }
-
-  html += `</tbody></table></div>`;
-  $("compare-results").innerHTML = html;
-
- }catch(e){showToast("تعذرت المقارنة المالية");}
-}
-
-function totalIncomeFor(records, p, filterFn){
- return records.filter(r => inPeriod(r, p) && filterFn(r)).reduce((sum, r) => (r.type === "income" || isCreditorEntry(r)) ? sum + realAmount(r) : sum, 0);
-}
-
-function totalExpenseFor(records, p, filterFn){
- return records.filter(r => inPeriod(r, p) && filterFn(r)).reduce((sum, r) => (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) ? sum + realAmount(r) : sum, 0);
-}
-
-function inPeriod(r,p){return r.date>=p.from&&r.date<=p.to}
-
-function groupAmounts(records,p,filter,keyFn){
- const out={};
- records.filter(r=>inPeriod(r,p)&&filter(r)).forEach(r=>{
-  const k=keyFn(r)||"غير مصنف";
-  out[k]=(out[k]||0)+realAmount(r);
- });
- return Object.entries(out).sort((a,b)=>b[1]-a[1]);
-}
-
-function percent(n,base){return base>0?n/base*100:0}
-function pctText(n,base){return base>0?percent(n,base).toFixed(1)+"%":"0.0%"}
-function financeRow(label,value,sub=""){return`<div class="finance-row"><span>${escapeHTML(label)}${sub?`<br><small>${escapeHTML(sub)}</small>`:""}</span><strong>${escapeHTML(value)}</strong></div>`}
-
-function categoryBreakdown(title,items,baseTotal){
- return `<div class="finance-card">
-   <strong>${escapeHTML(title)}</strong>
-   ${items.length ? items.map(([name, amount]) => financeRow(name, money(amount), pctText(amount, baseTotal) + " من إجمالي الفترة")).join("") : '<div class="small">لا توجد بيانات.</div>'}
- </div>`;
+ tx.onerror = () => {
+   console.error("delete error:", tx.error);
+   showToast("فشل حذف المعاملة");
+ };
 }
 
 /* ============================================================
@@ -1218,7 +1271,7 @@ function categoryBreakdown(title,items,baseTotal){
    ============================================================ */
 function buildBackupPayload(records){
  return {
-  version:8,
+  version:7,
   savedAt:new Date().toISOString(),
   transactions:records,
   people:getPeopleList(),
@@ -1228,13 +1281,14 @@ function buildBackupPayload(records){
 
 async function downloadBackup(){
  const records=await allTransactions();
- const blob=new Blob([JSON.stringify(buildBackupPayload(records),null,2)],{type:"application/json"});
+ const data=buildBackupPayload(records);
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob);
  const a=document.createElement("a");
  a.href=url;a.download=`finance_backup_${todayISO()}.json`;
  a.click();
  URL.revokeObjectURL(url);
- $("backup-status").textContent="آخر تنزيل: "+new Date().toLocaleTimeString("ar-KW");
+ $("backup-status").textContent="آخر تنزيل: "+new Date().toLocaleTimeString("en-US");
  showToast("تم تنزيل النسخة الاحتياطية بنجاح");
 }
 
@@ -1249,33 +1303,61 @@ async function shareBackup(){
      return;
     }catch{}
    }
-   await navigator.clipboard.writeText(str);
-   showToast("تم نسخ البيانات للحافظة");
- } catch { showToast("تعذر مشاركة النسخة الاحتياطية"); }
+   if (navigator.clipboard && window.isSecureContext) {
+     await navigator.clipboard.writeText(str);
+     showToast("تم نسخ البيانات للحافظة");
+   } else {
+     const ta=document.createElement("textarea");
+     ta.value=str;
+     ta.style.position="fixed";
+     ta.style.opacity="0";
+     document.body.appendChild(ta);
+     ta.select();
+     try { document.execCommand("copy"); showToast("تم نسخ البيانات"); }
+     catch { showToast("تعذر النسخ — نزّل النسخة كملف"); }
+     ta.remove();
+   }
+ } catch (err) {
+   console.error("shareBackup:", err);
+   showToast("تعذر مشاركة النسخة الاحتياطية");
+ }
 }
 
 function restoreBackup(){
  const fileInput=$("restore-file");
  if(!fileInput.files.length){showToast("اختر ملف النسخة الاحتياطية أولاً");return;}
+ const file=fileInput.files[0];
  const reader=new FileReader();
  reader.onload=async e=>{
   try{
    const json=JSON.parse(e.target.result);
    const records=Array.isArray(json.transactions)?json.transactions:[];
+   const validRecords = records.filter(r => r && r.id && r.date && r.type);
+   if(!validRecords.length && records.length > 0){
+    showToast("لا توجد معاملات صالحة للاستعادة");
+    return;
+   }
    if(!db)await openDB();
    const tx=db.transaction(STORE_NAME,"readwrite");
    const store=tx.objectStore(STORE_NAME);
    store.clear();
-   records.forEach(r=>store.put(r));
+   validRecords.forEach(r=>store.put(r));
    tx.oncomplete=async()=>{
-    if(Array.isArray(json.people)) savePeopleList(json.people);
-    if(Array.isArray(json.expenseCategories)) saveExpenseCategories(json.expenseCategories);
+    if(Array.isArray(json.people))savePeopleList(json.people);
+    if(Array.isArray(json.expenseCategories))saveExpenseCategories(json.expenseCategories);
     showToast("تمت استعادة البيانات بنجاح ✅");
     await refreshAllViews();
+    updateReportTargetOptions().catch(()=>{});
    };
-  }catch{ showToast("ملف النسخة غير صالح"); }
+   tx.onerror=()=>{
+     console.error("restore error:", tx.error);
+     showToast("فشلت عملية الاستعادة");
+   };
+  }catch{
+   showToast("ملف النسخة غير صالح");
+  }
  };
- reader.readAsText(fileInput.files[0]);
+ reader.readAsText(file);
 }
 
 async function clearAllTransactions(){
@@ -1286,6 +1368,11 @@ async function clearAllTransactions(){
  tx.oncomplete=async()=>{
   showToast("تم تفريغ قاعدة البيانات");
   await refreshAllViews();
+  updateReportTargetOptions().catch(()=>{});
+ };
+ tx.onerror = () => {
+   console.error("clear error:", tx.error);
+   showToast("فشل تفريغ قاعدة البيانات");
  };
 }
 
@@ -1294,83 +1381,232 @@ async function clearAllTransactions(){
    ============================================================ */
 function exportReportExcel(){
  try {
-   const table=$("capture-area")?.querySelector("table");
-   if(!table){showToast("لا يوجد تقرير للتصدير");return;}
-   const clone=table.cloneNode(true);
-   clone.querySelectorAll(".no-print").forEach(el=>el.remove());
-   const wb=XLSX.utils.table_to_book(clone,{sheet:"Report"});
-   XLSX.writeFile(wb,`financial_report_${todayISO()}.xlsx`);
+   if(!window.XLSX){showToast("مكتبة Excel غير متوفرة");return;}
+   if(!visibleReportRecords.length && !cachedReportRecords.length){
+     showToast("لا يوجد تقرير للتصدير");return;
+   }
+   const list = visibleReportRecords.length ? visibleReportRecords : cachedReportRecords;
+   
+   const title = $("report-title")?.textContent.trim() || "تقرير مالي";
+   const period = $("display-date-range")?.textContent.trim() || "—";
+   const target = $("display-target")?.textContent.trim() || "—";
+   const count = $("display-count")?.textContent.trim() || "0";
+   
+   const rows = [
+     [title],
+     ["الفترة", period],
+     ["الطرف / التصنيف", target],
+     ["عدد الحركات", count],
+     [],
+     ["التاريخ","النوع / التفاصيل","الطرف","المبلغ"]
+   ];
+   
+   list.forEach(r => {
+     const amt = realAmount(r);
+     let desc;
+     if(r.type==="expense"||r.type==="income") desc = r.category;
+     else if(r.type==="transfer") desc = "حوالة (" + (r.beneficiaries||[]).map(b=>b.name+" "+moneyEGP(b.egp)).join("، ") + ")";
+     else if(r.type==="debt") desc = debtTypeLabel(r.debtType);
+     else desc = r.type;
+     const person = r.person || (r.beneficiaries||[]).map(b=>b.name).join("، ") || "—";
+     const notes = r.notes ? " — " + r.notes : "";
+     rows.push([fmtDate(r.date), desc + notes, person, Number(amt.toFixed(3))]);
+   });
+   
+   rows.push([]);
+   const summaryEl = $("report-summary");
+   if(summaryEl){
+     rows.push(["ملخص التقرير"]);
+     summaryEl.querySelectorAll(".row-between").forEach(row => {
+       const spans = row.querySelectorAll("span, strong");
+       if(spans.length >= 2){
+         rows.push([spans[0].textContent.trim(), spans[1].textContent.trim()]);
+       }
+     });
+   }
+   
+   const tafqit = $("tafqit-box")?.textContent.trim();
+   if(tafqit){
+     rows.push([]);
+     rows.push(["التفقيط", tafqit]);
+   }
+   
+   const wb = XLSX.utils.book_new();
+   const ws = XLSX.utils.aoa_to_sheet(rows);
+   ws['!cols'] = [{wch:32},{wch:50},{wch:22},{wch:15}];
+   XLSX.utils.book_append_sheet(wb, ws, "Report");
+   XLSX.writeFile(wb, `financial_report_${todayISO()}.xlsx`);
    showToast("تم تصدير ملف Excel ✅");
- } catch (err) { showToast("فشل التصدير إلى Excel"); }
+ } catch (err) {
+   console.error("exportReportExcel:", err);
+   showToast("فشل التصدير إلى Excel");
+ }
+}
+
+function exportDataToExcel(title,rows,filename){
+ const wb=XLSX.utils.book_new();
+ const data=[[title],[],...rows];
+ const ws=XLSX.utils.aoa_to_sheet(data);
+ ws['!cols']=[{wch:32},{wch:18},{wch:18},{wch:18}];
+ XLSX.utils.book_append_sheet(wb,ws,"Report");
+ XLSX.writeFile(wb,`${filename}_${todayISO()}.xlsx`);
 }
 
 async function exportCompareExcel(){
  try{
-  const table=$("compare-capture-area")?.querySelector("table");
-  if(!table){showToast("لا توجد مقارنة للتصدير");return;}
-  const wb=XLSX.utils.table_to_book(table,{sheet:"Compare"});
-  XLSX.writeFile(wb,`Compare_${todayISO()}.xlsx`);
-  showToast("تم تصدير المقارنة بنجاح");
- }catch(e){showToast("تعذرت كتابة ملف Excel");}
+  const records=await getAllForFinance();
+  const c1Val=$("compare-cycle-1")?.value;
+  const c2Val=$("compare-cycle-2")?.value;
+  if(!c1Val || !c2Val){showToast("اختر الدورتين أولاً"); return;}
+  
+  const [f1, t1] = c1Val.split("|");
+  const [f2, t2] = c2Val.split("|");
+  const a = {from: f1, to: t1};
+  const b = {from: f2, to: t2};
+
+  const incA=totalIncomeFor(records,a),incB=totalIncomeFor(records,b);
+  const expA=totalExpenseFor(records,a),expB=totalExpenseFor(records,b);
+  const rows=[
+   ["الدورة الأولى",`${fmtDate(a.from)} → ${fmtDate(a.to)}`],
+   ["الدورة الثانية",`${fmtDate(b.from)} → ${fmtDate(b.to)}`],
+   [],
+   ["البند","الدورة الأولى","الدورة الثانية","الفرق"],
+   ["إجمالي الواردات الشاملة",incA.toFixed(3),incB.toFixed(3),(incB-incA).toFixed(3)],
+   ["إجمالي المصروفات الشاملة",expA.toFixed(3),expB.toFixed(3),(expB-expA).toFixed(3)],
+   ["صافي الحساب", (incA-expA).toFixed(3), (incB-expB).toFixed(3), ((incB-expB)-(incA-expA)).toFixed(3)]
+  ];
+  exportDataToExcel("مقارنة دورات الراتب",rows,"Compare");
+  showToast("تم تصدير المقارنة");
+ }catch(e){console.error(e);showToast("تعذرت المقارنة");}
 }
 
 /* ============================================================
-   دوال القص للصور و PDF
+   دوال القص الذكي المشتركة بين PDF والصورة
    ============================================================ */
-const SAFE_SPLIT_SELECTORS = ["tr",".finance-card",".report-head",".report-meta",".report-summary",".metric",".balance-card",".panel"].join(",");
+const SAFE_SPLIT_SELECTORS = [
+  "tr",
+  ".finance-card",
+  ".report-head",
+  ".report-meta",
+  ".report-summary",
+  ".metric",
+  ".balance-card",
+  ".panel",
+  ".person-item"
+].join(",");
 
 function splitCanvasAtSafePoints(sourceCanvas, sourceEl, maxSliceHeightPx) {
   const elRect = sourceEl.getBoundingClientRect();
-  const cssToCanvas = sourceCanvas.height / elRect.height;
-  const safePoints = new Set([0, sourceCanvas.height]);
+  const scaleY = sourceCanvas.height / elRect.height;
+  const H = sourceCanvas.height;
+
+  // نجمع "كتل" العناصر — كل صف/بطاقة/ملخص يعتبر كتلة واحدة متكاملة
+  const blocks = [];
   sourceEl.querySelectorAll(SAFE_SPLIT_SELECTORS).forEach(node => {
     const r = node.getBoundingClientRect();
     if (r.height === 0) return;
-    const top = Math.round((r.top - elRect.top) * cssToCanvas);
-    const bottom = Math.round((r.bottom - elRect.top) * cssToCanvas);
-    if (top >= 0 && top <= sourceCanvas.height) safePoints.add(top);
-    if (bottom >= 0 && bottom <= sourceCanvas.height) safePoints.add(bottom);
+    const top = Math.max(0, Math.min(H, Math.round((r.top - elRect.top) * scaleY)));
+    const bottom = Math.max(0, Math.min(H, Math.round((r.bottom - elRect.top) * scaleY)));
+    if (bottom > top) blocks.push({ top, bottom });
   });
-  const safeArr = [...safePoints].sort((a, b) => a - b);
+
+  // رتّب حسب top وادمج المتداخلة
+  blocks.sort((a, b) => a.top - b.top || a.bottom - b.bottom);
+  const merged = [];
+  for (const b of blocks) {
+    if (merged.length === 0) { merged.push({ ...b }); continue; }
+    const last = merged[merged.length - 1];
+    if (b.top <= last.bottom) {
+      last.bottom = Math.max(last.bottom, b.bottom);
+    } else {
+      merged.push({ ...b });
+    }
+  }
+
+  const makeSlice = (y, end) => {
+    const h = end - y;
+    const c = document.createElement("canvas");
+    c.width = sourceCanvas.width;
+    c.height = h;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(sourceCanvas, 0, -y);
+    return { canvas: c, y, height: h };
+  };
+
+  // لو مفيش كتل (تقرير فاضي) → تقسيم خطي عادي
+  if (merged.length === 0) {
+    const slices = [];
+    for (let y = 0; y < H; y += maxSliceHeightPx) {
+      slices.push(makeSlice(y, Math.min(y + maxSliceHeightPx, H)));
+    }
+    return slices;
+  }
+
   const slices = [];
   let y = 0;
-  while (y < sourceCanvas.height) {
+
+  while (y < H) {
     const idealEnd = y + maxSliceHeightPx;
-    let end;
-    if (idealEnd >= sourceCanvas.height) { end = sourceCanvas.height; }
-    else {
-      const minAccept = y + Math.floor(maxSliceHeightPx * 0.35);
-      let best = -1;
-      for (const p of safeArr) {
-        if (p > idealEnd) break;
-        if (p >= minAccept) best = p;
-      }
-      end = best > 0 ? best : idealEnd;
+
+    if (idealEnd >= H) {
+      slices.push(makeSlice(y, H));
+      break;
     }
-    const sliceH = end - y;
-    if (sliceH <= 0) break;
-    const slice = document.createElement("canvas");
-    slice.width = sourceCanvas.width;
-    slice.height = sliceH;
-    const sctx = slice.getContext("2d");
-    sctx.fillStyle = "#ffffff";
-    sctx.fillRect(0, 0, slice.width, slice.height);
-    sctx.drawImage(sourceCanvas, 0, -y);
-    slices.push({ canvas: slice, y, height: sliceH });
-    y = end;
+
+    // ابحث عن آخر كتلة تنتهي عند أو قبل idealEnd
+    let chosenBottom = -1;
+    for (const b of merged) {
+      if (b.bottom <= idealEnd && b.bottom > y) {
+        chosenBottom = Math.max(chosenBottom, b.bottom);
+      } else if (b.top > idealEnd) {
+        break;
+      }
+    }
+
+    if (chosenBottom > y) {
+      slices.push(makeSlice(y, chosenBottom));
+      y = chosenBottom;
+    } else {
+      // مفيش كتلة كاملة تدخل → خد أول كتلة كاملة بعد y
+      let nextBottom = -1;
+      for (const b of merged) {
+        if (b.top >= y && b.bottom > y) {
+          nextBottom = b.bottom;
+          break;
+        }
+      }
+      if (nextBottom > y) {
+        slices.push(makeSlice(y, nextBottom));
+        y = nextBottom;
+      } else {
+        const end = Math.min(idealEnd, H);
+        slices.push(makeSlice(y, end));
+        y = end;
+      }
+    }
   }
+
   return slices;
 }
 
 function prepareForCapture(el) {
   const noPrintEls = el.querySelectorAll(".no-print");
   noPrintEls.forEach(e => e.style.display = "none");
+
   const restoreFns = [];
   el.querySelectorAll(".table-wrap").forEach(w => {
     const prevOverflow = w.style.overflow;
+    const prevMaxW = w.style.maxWidth;
     w.style.overflow = "visible";
-    restoreFns.push(() => { w.style.overflow = prevOverflow; });
+    w.style.maxWidth = "none";
+    restoreFns.push(() => {
+      w.style.overflow = prevOverflow;
+      w.style.maxWidth = prevMaxW;
+    });
   });
+
   return { noPrintEls, restoreFns };
 }
 
@@ -1380,60 +1616,144 @@ function restoreAfterCapture(state) {
 }
 
 async function captureElement(el) {
-  return html2canvas(el, { scale: 2, backgroundColor: "#ffffff", useCORS: true, windowWidth: el.scrollWidth, windowHeight: el.scrollHeight });
+  return html2canvas(el, {
+    scale: 2.5,
+    backgroundColor: "#ffffff",
+    useCORS: true,
+    windowWidth: el.scrollWidth,
+    windowHeight: el.scrollHeight
+  });
 }
 
+/* ============================================================
+   تصدير PDF
+   ============================================================ */
 async function exportPDF(elId, filename) {
-  if (!window.jspdf || !window.html2canvas) { showToast("المكتبات غير متوفرة — تحقق من الاتصال"); return; }
+  if (!window.jspdf)        { showToast("مكتبة PDF غير متوفرة — تحقق من الاتصال"); return; }
+  if (!window.html2canvas)  { showToast("مكتبة الرسم غير متوفرة — تحقق من الاتصال"); return; }
+
   const { jsPDF } = window.jspdf;
-  const el = $(elId); if (!el) return;
+  const el = $(elId);
+  if (!el) { showToast("لا يوجد تقرير للتصدير"); return; }
+
   showToast("جاري إنشاء ملف PDF...");
+
   const captureState = prepareForCapture(el);
+
   try {
     const canvas = await captureElement(el);
+
     const pdf = new jsPDF("p", "mm", "a4", true);
-    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
-    const marginX = 6, marginY = 6, usableW = pw - marginX * 2, usableH = ph - marginY * 2;
-    const mmPerPx = usableW / canvas.width, usableHeightPx = Math.floor(usableH / mmPerPx);
+    const pw = pdf.internal.pageSize.getWidth();
+    const ph = pdf.internal.pageSize.getHeight();
+    const marginX = 8, marginY = 8;
+    const usableW = pw - marginX * 2;
+    const usableH = ph - marginY * 2;
+
+    const mmPerPx = usableW / canvas.width;
+    const usableHeightPx = Math.floor(usableH / mmPerPx);
+
     const slices = splitCanvasAtSafePoints(canvas, el, usableHeightPx);
+
     let firstPage = true;
     for (const slice of slices) {
+      const imgData = slice.canvas.toDataURL("image/jpeg", 0.95);
+      const sliceHmm = slice.height * mmPerPx;
+
       if (!firstPage) pdf.addPage();
-      pdf.addImage(slice.canvas.toDataURL("image/jpeg", 0.95), "JPEG", marginX, marginY, usableW, slice.height * mmPerPx);
+      pdf.addImage(imgData, "JPEG", marginX, marginY, usableW, sliceHmm);
       firstPage = false;
     }
+
     pdf.save(`${filename}_${todayISO()}.pdf`);
-    showToast("تم تنزيل ملف PDF بنجاح ✅");
-  } catch (err) { showToast("حدث خطأ أثناء تصدير PDF"); }
-  finally { restoreAfterCapture(captureState); }
+    showToast("تم تنزيل ملف الـ PDF بنجاح ✅");
+  } catch (err) {
+    console.error("PDF Export Error:", err);
+    showToast("حدث خطأ أثناء تصدير PDF");
+  } finally {
+    restoreAfterCapture(captureState);
+  }
 }
 
+/* ============================================================
+   مشاركة/تنزيل التقرير كصورة
+   ============================================================ */
 async function shareAsImage(elId, filename) {
-  if (!window.html2canvas) { showToast("مكتبة الصور غير متوفرة"); return; }
-  const el = $(elId); if (!el) return;
+  if (!window.html2canvas) { showToast("مكتبة الصور غير متوفرة — تحقق من الاتصال"); return; }
+  const el = $(elId);
+  if (!el) { showToast("لا يوجد محتوى للمشاركة"); return; }
+
   showToast("جاري تجهيز الصورة...");
+
   const captureState = prepareForCapture(el);
+
   try {
     const canvas = await captureElement(el);
-    const maxSliceHeightPx = Math.round(canvas.width * (297 / 210) * 0.94);
+
+    const A4_ASPECT = 297 / 210;
+    const maxSliceHeightPx = Math.round(canvas.width * A4_ASPECT * 0.94);
+
     const slices = splitCanvasAtSafePoints(canvas, el, maxSliceHeightPx);
+    const total = slices.length;
+
     const files = [];
-    for (let i = 0; i < slices.length; i++) {
-      const blob = await new Promise(res => slices[i].canvas.toBlob(res, "image/jpeg", 0.95));
-      files.push(new File([blob], `${filename}_${todayISO()}_${i+1}.jpg`, { type: "image/jpeg" }));
+    for (let i = 0; i < total; i++) {
+      const blob = await new Promise(res =>
+        slices[i].canvas.toBlob(res, "image/jpeg", 0.95)
+      );
+      const name = total === 1
+        ? `${filename}_${todayISO()}.jpg`
+        : `${filename}_${todayISO()}_${i + 1}من${total}.jpg`;
+      files.push(new File([blob], name, { type: "image/jpeg" }));
     }
-    if (typeof navigator.share === "function" && navigator.canShare && navigator.canShare({ files })) {
-      await navigator.share({ title: "تقرير مالي", files });
-      showToast("تمت المشاركة بنجاح ✅");
-    } else {
-      for (const f of files) {
-        const url = URL.createObjectURL(f), a = document.createElement("a");
-        a.href = url; a.download = f.name; a.click(); URL.revokeObjectURL(url);
+
+    const canShareFiles =
+      typeof navigator.share === "function" &&
+      typeof navigator.canShare === "function" &&
+      navigator.canShare({ files });
+
+    let shared = false;
+
+    if (canShareFiles) {
+      try {
+        await navigator.share({
+          title: "تقرير مالي",
+          text: total > 1 ? `تقرير مالي (${total} صفحات)` : "تقرير مالي",
+          files
+        });
+        shared = true;
+        showToast("تمت المشاركة بنجاح ✅");
+      } catch (err) {
+        if (err && err.name === "AbortError") {
+          showToast("تم إلغاء المشاركة");
+          return;
+        }
+        console.warn("share failed, falling back to download:", err);
       }
-      showToast("تم تنزيل الصورة بنجاح");
     }
-  } catch (err) { showToast("تعذر إنشاء الصورة"); }
-  finally { restoreAfterCapture(captureState); }
+
+    if (!shared) {
+      for (let i = 0; i < files.length; i++) {
+        const url = URL.createObjectURL(files[i]);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = files[i].name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        if (files.length > 1) await new Promise(r => setTimeout(r, 350));
+      }
+      showToast(files.length > 1
+        ? `تم تنزيل ${files.length} صور (المشاركة غير مدعومة على هذا المتصفح)`
+        : "تم تنزيل الصورة بنجاح");
+    }
+  } catch (err) {
+    console.error("shareAsImage error:", err);
+    showToast("تعذر إنشاء الصورة");
+  } finally {
+    restoreAfterCapture(captureState);
+  }
 }
 
 /* ============================================================
@@ -1443,26 +1763,322 @@ function shareReport(){
  const title = $("report-title") ? $("report-title").textContent.trim() : "كشف حساب مالي";
  const dateRange = $("display-date-range") ? $("display-date-range").textContent.trim() : "—";
  const target = $("display-target") ? $("display-target").textContent.trim() : "الكل";
+ const count = $("display-count") ? $("display-count").textContent.trim() : "0 حركة";
 
- let text = `📄 *${title}*\n━━━━━━━━━━━━━━━━━━━━━\n📅 *الفترة:* ${dateRange}\n👤 *التصنيف / المستفيد:* ${target}\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
- if (cachedReportRecords && cachedReportRecords.length > 0) {
-   cachedReportRecords.forEach((r, idx) => {
+ let text = `📄 *${title}*\n`;
+ text += `━━━━━━━━━━━━━━━━━━━━━\n`;
+ text += `📅 *الفترة:* ${dateRange}\n`;
+ text += `👤 *الطرف / التصنيف:* ${target}\n`;
+ text += `🔢 *عدد الحركات:* ${count}\n`;
+ text += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+ text += `📋 *تفاصيل الحركات المعروضة:*\n\n`;
+ const listForShare = visibleReportRecords.length ? visibleReportRecords : cachedReportRecords;
+ if (listForShare && listForShare.length > 0) {
+   listForShare.forEach((r, idx) => {
      const amt = realAmount(r);
-     let desc = (r.type==="expense"||r.type==="income") ? r.category : r.type==="transfer" ? "حوالة" : debtTypeLabel(r.debtType);
-     text += `${idx + 1}. *${fmtDate(r.date)}* | ${desc} ${r.notes?`(${r.notes})`:""}\n   المبلغ: *${money(amt)}*\n\n`;
+     let desc;
+     if(r.type==="expense"||r.type==="income") desc = r.category;
+     else if(r.type==="transfer") desc = "حوالة (" + (r.beneficiaries||[]).map(b=>b.name+" "+moneyEGP(b.egp)).join("، ") + ")";
+     else if(r.type==="debt") desc = debtTypeLabel(r.debtType);
+     else desc = r.type;
+
+     const person = r.person || (r.beneficiaries||[]).map(b=>b.name).join("، ") || "—";
+     const notes = r.notes ? ` (${r.notes})` : "";
+
+     text += `${idx + 1}. *${fmtDate(r.date)}* | ${desc}${notes}\n`;
+     text += `   الطرف: ${person} | المبلغ: *${money(amt)}*\n\n`;
    });
+ } else {
+   text += `_لا توجد حركات مطابقة._\n\n`;
  }
+
+ text += `━━━━━━━━━━━━━━━━━━━━━\n`;
+
+ const summaryEl = $("report-summary");
+ if (summaryEl) {
+   text += `📊 *ملخص التقرير والإجماليات:*\n`;
+   summaryEl.querySelectorAll(".row-between").forEach(row => {
+     const spans = row.querySelectorAll("span, strong");
+     if (spans.length >= 2) {
+       text += `• ${spans[0].textContent.trim()} *${spans[1].textContent.trim()}*\n`;
+     }
+   });
+   text += `\n`;
+ }
+
  const tafqit = $("tafqit-box") ? $("tafqit-box").textContent.trim() : "";
- if (tafqit) text += `💬 *الملاحظة:* ${tafqit}\n\n`;
+ if (tafqit) {
+   text += `💬 *التفقيط / الملاحظة:*\n${tafqit}\n\n`;
+ }
+
  text += `_مُصدّر من النظام المالي الشخصي 💼_`;
- window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,"_blank");
+
+ const url=`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+ window.open(url,"_blank");
 }
 
 function shareViewWhatsApp(captureId,titleText){
- const el=$(captureId); if(!el) return;
- let text = `📊 *${titleText}*\n━━━━━━━━━━━━━━━━━━━━━\n`;
- text += el.innerText.trim() + `\n\n_مُصدّر من النظام المالي الشخصي 💼_`;
- window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,"_blank");
+ const el=$(captureId);
+ if(!el){showToast("لا يوجد محتوى للمشاركة");return;}
+ 
+ const period = $("compare-report-period") ? $("compare-report-period").textContent.trim() : "";
+ const resultsEl = $("compare-results");
+ 
+ let text = `📊 *${titleText}*\n`;
+ text += `━━━━━━━━━━━━━━━━━━━━━\n`;
+ if(period) text += `📅 ${period}\n`;
+ text += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+ 
+ if(resultsEl){
+   resultsEl.querySelectorAll(".metric").forEach(m => {
+     const label = m.querySelector("span")?.textContent.trim() || "";
+     const val = m.querySelector("strong")?.textContent.trim() || "";
+     if(label && val) text += `▪️ ${label}: *${val}*\n`;
+   });
+   
+   const table = resultsEl.querySelector("table");
+   if(table){
+     text += `\n📋 *جدول المقارنة:* \n`;
+     table.querySelectorAll("tbody tr").forEach(tr => {
+       const tds = tr.querySelectorAll("td");
+       if(tds.length >= 4){
+         text += `• ${tds[0].textContent.trim()}: د1 (${tds[1].textContent.trim()}) | د2 (${tds[2].textContent.trim()}) | التغير (${tds[3].textContent.replace(/\s+/g, ' ').trim()})\n`;
+       }
+     });
+   }
+ }
+ 
+ text += `\n_مُصدّر من النظام المالي الشخصي 💼_`;
+
+ const url=`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+ window.open(url,"_blank");
+}
+
+/* ============================================================
+   منطق المقارنة
+   ============================================================ */
+function dayBefore(iso){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()-1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function shiftISO(iso,days){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()+days);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+
+function getAllSalaryCycles(records){
+ const today=todayISO();
+ const bases=records.filter(r=>r.type==="income"&&r.isSalaryBase).map(r=>r.date).sort();
+ const unique=[...new Set(bases)];
+ const cycles=[];
+
+ if(!unique.length){
+  const start=firstOfMonthISO();
+  cycles.push({
+   id: `cycle_${start}_${today}`,
+   label: `الدورة الافتراضية — بدون راتب أساسي (${fmtDate(start)} → اليوم)`,
+   start: start,
+   end: today
+  });
+  return cycles;
+ }
+
+ for(let i=0; i<unique.length; i++){
+  const start = unique[i];
+  const isLast = (i === unique.length - 1);
+  const end = isLast ? today : dayBefore(unique[i+1]);
+  
+  let label = "";
+  if(isLast){
+   label = `الدورة الحالية (${fmtDate(start)} → اليوم)`;
+  } else {
+   label = `دورة (${fmtDate(start)} → ${fmtDate(end)})`;
+  }
+
+  cycles.push({
+   id: `cycle_${start}_${end}`,
+   label: label,
+   start: start,
+   end: end
+  });
+ }
+
+ return cycles;
+}
+
+async function populateCycleSelects(){
+ const records = await getAllForFinance();
+ const cycles = getAllSalaryCycles(records);
+ 
+ const sel1 = $("compare-cycle-1");
+ const sel2 = $("compare-cycle-2");
+ if(!sel1 || !sel2) return;
+
+ const optionsHtml = cycles.map(c => `<option value="${c.start}|${c.end}">${escapeHTML(c.label)}</option>`).join("");
+ sel1.innerHTML = optionsHtml;
+ sel2.innerHTML = optionsHtml;
+
+ if(cycles.length >= 2){
+  sel1.value = `${cycles[cycles.length - 2].start}|${cycles[cycles.length - 2].end}`;
+  sel2.value = `${cycles[cycles.length - 1].start}|${cycles[cycles.length - 1].end}`;
+ } else if(cycles.length === 1){
+  sel1.value = `${cycles[0].start}|${cycles[0].end}`;
+  sel2.value = `${cycles[0].start}|${cycles[0].end}`;
+ }
+}
+
+function switchFinanceTab(tab){
+ currentFinanceTab=tab;
+ ["compare","ledger"].forEach(k=>{
+  $("finance-"+k+"-view").classList.toggle("hidden",k!==tab);
+  $("finance-tab-"+k).classList.toggle("active",k===tab);
+ });
+ if(tab==="compare"){
+  populateCycleSelects().then(()=>renderFinancialComparison());
+ }
+ if(tab==="ledger"){
+  if(reportGenerated){
+   $("filter-section").classList.add("hidden");
+   $("report-section").classList.remove("hidden");
+  } else {
+   $("filter-section").classList.remove("hidden");
+   $("report-section").classList.add("hidden");
+  }
+  updateReportTargetOptions().catch(()=>{});
+ }
+}
+
+function inPeriod(r,p){return r.date>=p.from&&r.date<=p.to}
+
+function totalIncomeFor(records, p){
+ return records.filter(r => inPeriod(r, p)).reduce((sum, r) => {
+  if (r.type === "income" || isCreditorEntry(r)) return sum + realAmount(r);
+  return sum;
+ }, 0);
+}
+
+function totalExpenseFor(records, p){
+ return records.filter(r => inPeriod(r, p)).reduce((sum, r) => {
+  if (r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) return sum + realAmount(r);
+  return sum;
+ }, 0);
+}
+
+function groupAmounts(records,p,filter,keyFn){
+ const out={};
+ records.filter(r=>inPeriod(r,p)&&filter(r)).forEach(r=>{
+  const k=keyFn(r)||"غير مصنف";
+  out[k]=(out[k]||0)+realAmount(r);
+ });
+ return Object.entries(out).sort((a,b)=>b[1]-a[1]);
+}
+
+function percent(n,base){return base>0?n/base*100:0}
+function pctText(n,base){return base>0?percent(n,base).toFixed(1)+"%":"0.0%"}
+function metric(label,value,sub=""){return`<div class="metric"><span>${escapeHTML(label)}</span><strong>${escapeHTML(value)}</strong>${sub?`<small>${escapeHTML(sub)}</small>`:""}</div>`}
+function financeRow(label,value,sub=""){return`<div class="finance-row"><span>${escapeHTML(label)}${sub?`<br><small>${escapeHTML(sub)}</small>`:""}</span><strong>${escapeHTML(value)}</strong></div>`}
+
+function categoryBreakdown(title,items,baseTotal){
+ return `<div class="finance-card">
+   <strong>${escapeHTML(title)}</strong>
+   ${items.length ? items.map(([name, amount]) => financeRow(name, money(amount), pctText(amount, baseTotal) + " من إجمالي الفترة")).join("") : '<div class="small">لا توجد بيانات في هذه الفترة.</div>'}
+ </div>`;
+}
+
+async function getAllForFinance(){if(!db)await openDB();return allTransactions();}
+
+function compareTableRow(name, a, b, isExpense=false){
+ const delta = b - a;
+ const pct = a !== 0 ? ((delta / Math.abs(a)) * 100).toFixed(1) + "%" : "—";
+ 
+ let deltaClass = "";
+ if(delta > 0) {
+  deltaClass = isExpense ? "bad" : "good";
+ } else if(delta < 0) {
+  deltaClass = isExpense ? "good" : "bad";
+ }
+
+ return `<tr>
+   <td><strong>${escapeHTML(name)}</strong></td>
+   <td class="amount">${money(a)}</td>
+   <td class="amount">${money(b)}</td>
+   <td class="amount ${deltaClass}">
+     ${delta > 0 ? "+" : ""}${money(delta)}<br>
+     <small>(${pct})</small>
+   </td>
+ </tr>`;
+}
+
+async function renderFinancialComparison(){
+ try{
+  const records = await getAllForFinance();
+  const c1Val = $("compare-cycle-1")?.value;
+  const c2Val = $("compare-cycle-2")?.value;
+  
+  if(!c1Val || !c2Val) return;
+
+  const [f1, t1] = c1Val.split("|");
+  const [f2, t2] = c2Val.split("|");
+  
+  const a = {from: f1, to: t1};
+  const b = {from: f2, to: t2};
+
+  if($("compare-report-period")){
+   $("compare-report-period").textContent = `${fmtDate(a.from)} إلى ${fmtDate(a.to)}  🆚  ${fmtDate(b.from)} إلى ${fmtDate(b.to)}`;
+  }
+  
+  const incA = totalIncomeFor(records, a), incB = totalIncomeFor(records, b);
+  const expA = totalExpenseFor(records, a), expB = totalExpenseFor(records, b);
+  const netA = incA - expA, netB = incB - expB;
+
+  let html = `<div class="metric-grid">
+    ${metric("واردات الدورة الأولى", money(incA))}
+    ${metric("واردات الدورة الثانية", money(incB))}
+    ${metric("مصروفات الدورة الأولى", money(expA))}
+    ${metric("مصروفات الدورة الثانية", money(expB))}
+  </div>`;
+
+  html += `<div class="table-wrap"><table>
+    <thead>
+      <tr>
+        <th>البند المالي</th>
+        <th>الدورة الأولى</th>
+        <th>الدورة الثانية</th>
+        <th>التغير والنسبة</th>
+      </tr>
+    </thead>
+    <tbody>`;
+  
+  html += compareTableRow("إجمالي الواردات الشاملة", incA, incB, false);
+  html += compareTableRow("إجمالي المصروفات الشاملة", expA, expB, true);
+  html += compareTableRow("صافي المتبقي / الوفر", netA, netB, false);
+  
+  html += `</tbody></table></div>`;
+
+  const categories = getExpenseCategories();
+  const catRows = [];
+  categories.forEach(cat => {
+   const valA = records.filter(r => inPeriod(r, a) && r.type === "expense" && r.category === cat).reduce((s, r) => s + realAmount(r), 0);
+   const valB = records.filter(r => inPeriod(r, b) && r.type === "expense" && r.category === cat).reduce((s, r) => s + realAmount(r), 0);
+   if(valA > 0 || valB > 0){
+    catRows.push(compareTableRow(cat, valA, valB, true));
+   }
+  });
+
+  if(catRows.length > 0){
+   html += `<div class="panel stack" style="margin-top:10px">
+     <strong style="font-size:12px">🍔 مقارنة تصنيفات المصروفات بين الدورتين</strong>
+     <div class="table-wrap"><table>
+       <thead>
+         <tr>
+           <th>التصنيف</th>
+           <th>الدورة الأولى</th>
+           <th>الدورة الثانية</th>
+           <th>التغير</th>
+         </tr>
+       </thead>
+       <tbody>${catRows.join("")}</tbody>
+     </table></div>
+   </div>`;
+  }
+
+  $("compare-results").innerHTML = html;
+ }catch(e){console.error(e);showToast("تعذرت المقارنة المالية");}
 }
 
 /* ============================================================
@@ -1531,30 +2147,36 @@ document.addEventListener("click",e=>{
  if(act==="edit-report")editFromReport(t.dataset.id);
  if(act==="delete-report")deleteTransactionFromReport(t.dataset.id);
  if(act==="del-person")deletePerson(t.dataset.person);
+ if(act==="del-exp-cat")deleteExpenseCategory(t.dataset.cat);
 });
 
 document.addEventListener("keydown",e=>{
- if(e.key==="Escape"){ if(!$("person-modal").classList.contains("hidden")) closePersonModal(); }
+ if(e.key==="Escape"){
+  if(!$("person-modal").classList.contains("hidden")) closePersonModal();
+ }
 });
 
 $("person-modal-input").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();confirmAddPerson();}});
 $("new-person-name").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addPersonFromSettings();}});
-$("new-expense-cat-name")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addExpenseCategoryFromSettings();}});
+$("new-expense-cat-name").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addExpenseCategoryFromSettings();}});
 
 window.addEventListener("DOMContentLoaded",async()=>{
+ if(!window.XLSX) console.warn("XLSX غير محمّل — التصدير للـ Excel معطل");
+ if(!window.html2canvas) console.warn("html2canvas غير محمّل — الصور والـ PDF معطلة");
+ if(!window.jspdf) console.warn("jspdf غير محمّل — PDF معطل");
+
  initDates();
  populateCategorySelects();
  populatePeopleSelects();
- renderCategoriesManageList();
  renderPersonsManageList();
+ renderExpenseCatsManageList();
  addBeneficiary();
  try{
   await openDB();
   await migrateCategories();
   await refreshAllViews();
   await onReportTypeChange();
-  await onCompareTypeChange();
- }catch(e){}
+ }catch(e){console.warn("Init warning:",e);}
 });
 </script>
 </body>
