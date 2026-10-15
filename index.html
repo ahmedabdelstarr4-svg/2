@@ -291,7 +291,24 @@ function renderExpenseCatsManageList(){
  list.innerHTML=cats.map(c=>`<div class="person-item"><span class="name">${escapeHTML(c)}</span><button type="button" class="btn btn-danger" style="padding:4px 8px;font-size:11px" data-action="del-exp-cat" data-cat="${escapeHTML(c)}">حذف</button></div>`).join("");
 }
 function addExpenseCategoryFromSettings(){const inp=$("new-expense-cat-name");if(!inp)return;const name=inp.value.trim();if(!name)return;const cats=getExpenseCategories();if(cats.includes(name)){showToast("التصنيف موجود بالفعل");return}cats.push(name);saveExpenseCategories(cats);inp.value="";showToast("تمت إضافة التصنيف بنجاح")}
-function deleteExpenseCategory(name){const cats=getExpenseCategories();if(cats.length<=1){showToast("يجب أن يبقى تصنيف واحد على الأقل");return}saveExpenseCategories(cats.filter(c=>c!==name));showToast("تم حذف التصنيف")}
+
+async function deleteExpenseCategory(name){
+ const cats=getExpenseCategories();
+ if(cats.length<=1){showToast("يجب أن يبقى تصنيف واحد على الأقل");return}
+ try{
+  const records=await allTransactions();
+  const hasRecords=records.some(r=>r.type==="expense"&&r.category===name);
+  if(hasRecords){
+   if(!confirm(`"${name}" مستخدم في معاملات مسجلة. سيتم حذفه من قائمة التصنيفات فقط، والمعاملات ستبقى في التقارير. متابعة؟`))return;
+  }
+  saveExpenseCategories(cats.filter(c=>c!==name));
+  showToast("تم حذف التصنيف");
+ }catch(e){
+  console.error(e);
+  showToast("تعذر حذف التصنيف");
+ }
+}
+
 function getIncomeCategories(){return["راتب أساسي","عمل إضافي","أرباح / عوائد","أخرى"]}
 function populateCategorySelects(){const e=$("expense-category");if(e)e.innerHTML=getExpenseCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");const i=$("income-category");if(i)i.innerHTML=getIncomeCategories().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("")}
 function getPeopleList(){const l=localStorage.getItem(PEOPLE_KEY);if(!l)return[];try{const p=JSON.parse(l);return Array.isArray(p)?p:[]}catch{return[]}}
@@ -826,7 +843,7 @@ function shareViewWhatsApp(captureId,titleText){
  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,"_blank");
 }
 
-/* ============ حساب الدورات والمقارنة الشاملة المقسمة لأطر مسقلة ============ */
+/* ============ حساب الدورات والمقارنة الشاملة ============ */
 function dayBefore(iso){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()-1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function getAllSalaryCycles(records){
  const today=todayISO();
@@ -875,9 +892,9 @@ function totalDebtNetFor(records,p){
  return paid-owed;
 }
 function totalExpenseFor(records,p){return records.filter(r=>inPeriod(r,p)).reduce((s,r)=>(r.type==="expense"||r.type==="transfer"||isDebtorEntry(r))?s+realAmount(r):s,0)}
-async function getAllForFinance(){if(!db)await openDB();return allTransactions()}
+async function getAllForFinance(){if(!db)return openDB();return allTransactions()}
 
-function comparePillarRow(name,valA,valB,totalIncomeA,totalIncomeB,daysA,daysB,isExpense=true,isMain=false){
+function comparePillarRow(name,valA,valB,totalIncomeA,totalIncomeB,daysA,daysB,isExpense=true,isMain=false,extraSub=""){
  const delta=valB-valA;
  const pctDelta=valA!==0?((delta/Math.abs(valA))*100).toFixed(1)+"%":"—";
  const shareA=percent(valA,totalIncomeA).toFixed(1)+"%";
@@ -890,8 +907,8 @@ function comparePillarRow(name,valA,valB,totalIncomeA,totalIncomeB,daysA,daysB,i
  const styleAttr=isMain?' style="background:#f8fafc;font-weight:bold;"':'';
  return `<tr${styleAttr}>
   <td><strong>${escapeHTML(name)}</strong></td>
-  <td class="amount">${money(valA)}<br><small>النسبة: ${shareA} | المعدل: ${dailyA}</small></td>
-  <td class="amount">${money(valB)}<br><small>النسبة: ${shareB} | المعدل: ${dailyB}</small></td>
+  <td class="amount">${money(valA)} ${extraSub ? '<br>'+extraSub.a : ''}<br><small>النسبة: ${shareA} | المعدل: ${dailyA}</small></td>
+  <td class="amount">${money(valB)} ${extraSub ? '<br>'+extraSub.b : ''}<br><small>النسبة: ${shareB} | المعدل: ${dailyB}</small></td>
   <td class="amount ${deltaClass}">${delta>0?"+":""}${money(delta)}<br><small>(${pctDelta})</small></td>
  </tr>`;
 }
@@ -944,14 +961,45 @@ async function renderFinancialComparison(){
     <tbody>${expRows}</tbody></table></div>`;
   }
 
-  // 3. إطار فرعي مستقل: تفاصيل التحويلات حسب الأشخاص والمستفيدين
+  // 3. إطار فرعي مستقل: تفاصيل التحويلات حسب الأشخاص (عرض الدينار والجنيه معا)
   const people=getPeopleList();
   let transRows="";
   people.forEach(pName=>{
-   const transA_p=records.filter(r=>inPeriod(r,a)&&r.type==="transfer"&&(r.beneficiaries||[]).some(b=>b.name===pName)).reduce((s,r)=>{const b=(r.beneficiaries||[]).find(x=>x.name===pName);return s+(b?Number(b.egp)||0:0)},0);
-   const transB_p=records.filter(r=>inPeriod(r,b)&&r.type==="transfer"&&(r.beneficiaries||[]).some(b=>b.name===pName)).reduce((s,r)=>{const b=(r.beneficiaries||[]).find(x=>x.name===pName);return s+(b?Number(b.egp)||0:0)},0);
-   if(transA_p>0||transB_p>0)transRows+=comparePillarRow(`حوالة (ج.م) لـ: ${pName}`,transA_p,transB_p,incA,incB,daysA,daysB,true,false);
+   let kwdA_p=0, egpA_p=0;
+   records.filter(r=>inPeriod(r,a)&&r.type==="transfer").forEach(r=>{
+    const bens=r.beneficiaries||[];
+    const totalEgp=bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
+    const b=bens.find(x=>x.name===pName);
+    if(b&&totalEgp>0){
+     const egp=Number(b.egp)||0;
+     egpA_p+=egp;
+     const totalKwd=Number(r.totalKwd??r.amount)||0;
+     kwdA_p+=totalKwd*(egp/totalEgp);
+    }
+   });
+
+   let kwdB_p=0, egpB_p=0;
+   records.filter(r=>inPeriod(r,b)&&r.type==="transfer").forEach(r=>{
+    const bens=r.beneficiaries||[];
+    const totalEgp=bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
+    const b=bens.find(x=>x.name===pName);
+    if(b&&totalEgp>0){
+     const egp=Number(b.egp)||0;
+     egpB_p+=egp;
+     const totalKwd=Number(r.totalKwd??r.amount)||0;
+     kwdB_p+=totalKwd*(egp/totalEgp);
+    }
+   });
+
+   if(kwdA_p>0||kwdB_p>0||egpA_p>0||egpB_p>0){
+    const extra={
+     a:`<span style="color:#059669;font-weight:bold">(${moneyEGP(egpA_p)})</span>`,
+     b:`<span style="color:#059669;font-weight:bold">(${moneyEGP(egpB_p)})</span>`
+    };
+    transRows+=comparePillarRow(`حوالة لـ: ${pName}`,kwdA_p,kwdB_p,incA,incB,daysA,daysB,true,false,extra);
+   }
   });
+
   if(transRows){
    html+=`<div class="table-wrap">
     <div class="compare-group-title"><span>✈️ تفاصيل بند (5): التحويلات الخارجية حسب المستفيد</span></div>
