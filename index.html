@@ -38,6 +38,7 @@ input:focus,select:focus,textarea:focus{border-color:#059669;box-shadow:0 0 0 3p
 .hint{font-size:11px;line-height:1.6;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:9px}
 .panel{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:11px}
 .beneficiary{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto;gap:6px;background:#f8fafc;border:1px solid var(--line);padding:8px;border-radius:12px;margin-top:7px;align-items:center}
+.beneficiary-kwd-share{grid-column:1/-1;font-size:11px;color:#059669;font-weight:700;background:#ecfdf5;padding:4px 8px;border-radius:8px;border:1px solid #a7f3d0}
 .rate{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:11px;border-radius:12px;font-size:12px}
 .row-between{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .section-title{font-size:12px;font-weight:800;color:#475569}
@@ -78,7 +79,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .finance-row strong{text-align:left;font-variant-numeric:tabular-nums}
 .good{color:#047857}.bad{color:#be123c}.warning{color:#b45309}
 .compare-group-title{font-size:12px;font-weight:800;color:#0f172a;background:#f1f5f9;padding:8px 10px;border-radius:10px;margin-bottom:6px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between}
-@media print{.no-print{display:none!important}.report tr,.report .finance-card,.report .report-head,.report .report-meta,.report .report-summary,.report .metric,.report .balance-card,.report .panel,.table-wrap{break-inside:avoid;page-break-inside:avoid}.table-wrap{overflow:visible!important}.report{box-shadow:none;border:0}}
+@media print{.no-print{display:none!important}.report tr,.report .finance-card,.report .report-head,.report .report-meta,.report .report-summary,.report .metric,.report .balance-card,.report .panel,.person-item,.table-wrap{break-inside:avoid;page-break-inside:avoid}.table-wrap{overflow:visible!important}.report{box-shadow:none;border:0}}
 @media(max-height:650px){.header{padding:10px 14px}.content{padding:10px}.btn{padding:10px}}
 @media (max-width: 360px){.beneficiary{grid-template-columns:1fr auto auto}.beneficiary .beneficiary-name-select{grid-column:1/-1}.beneficiary .beneficiary-amount{grid-column:1/3}}
 </style>
@@ -343,16 +344,37 @@ function addBeneficiary(){
  const people=getPeopleList();
  const div=document.createElement("div");
  div.className="beneficiary";
- div.innerHTML=`<select class="beneficiary-name-select">${people.map(p=>`<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`).join("")}</select><input type="number" min="1" step="1" inputmode="numeric" placeholder="المبلغ (ج.م)" class="beneficiary-amount" oninput="calculateExchange()"><button type="button" class="btn btn-soft btn-plus" onclick="openPersonModal(this)" title="إضافة اسم جديد">+</button><button type="button" class="btn btn-danger" onclick="this.parentElement.remove();calculateExchange()">✕</button>`;
+ div.innerHTML=`<select class="beneficiary-name-select">${people.map(p=>`<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`).join("")}</select><input type="number" min="1" step="1" inputmode="numeric" placeholder="المبلغ (ج.م)" class="beneficiary-amount" oninput="calculateExchange()"><button type="button" class="btn btn-soft btn-plus" onclick="openPersonModal(this)" title="إضافة اسم جديد">+</button><button type="button" class="btn btn-danger" onclick="this.parentElement.remove();calculateExchange()">✕</button><div class="beneficiary-kwd-share">نصيبه بالدينار: 0.000 د.ك</div>`;
  list.appendChild(div);
  calculateExchange();
 }
 function calculateExchange(){
  const totalKwd=Number($("total-kwd")?.value)||0;
  let totalEgp=0;
- document.querySelectorAll(".beneficiary-amount").forEach(el=>{totalEgp+=Number(el.value)||0});
+ const rows=document.querySelectorAll(".beneficiary");
+ rows.forEach(row=>{totalEgp+=Number(row.querySelector(".beneficiary-amount")?.value)||0});
+ 
  const rd=$("exchange-rate-display");
- if(rd){if(totalEgp>0&&totalKwd>0){const rate=(totalKwd/totalEgp)*1000;rd.textContent=rate.toFixed(3)+" د.ك / 1000 ج.م"}else{rd.textContent="0.000 د.ك / 1000 ج.م"}}
+ let rate=0;
+ if(totalEgp>0&&totalKwd>0){
+  rate=(totalKwd/totalEgp)*1000;
+  if(rd)rd.textContent=rate.toFixed(3)+" د.ك / 1000 ج.م";
+ }else{
+  if(rd)rd.textContent="0.000 د.ك / 1000 ج.م";
+ }
+
+ rows.forEach(row=>{
+  const egp=Number(row.querySelector(".beneficiary-amount")?.value)||0;
+  const shareDiv=row.querySelector(".beneficiary-kwd-share");
+  if(shareDiv){
+   if(totalEgp>0&&totalKwd>0){
+    const shareKwd=(egp/totalEgp)*totalKwd;
+    shareDiv.textContent=`نصيبه بالدينار: ${money(shareKwd)}`;
+   }else{
+    shareDiv.textContent=`نصيبه بالدينار: 0.000 د.ك`;
+   }
+  }
+ });
 }
 function switchMainView(view){
  ["dashboard","input","reports","backup"].forEach(v=>{$("view-"+v).classList.toggle("hidden",v!==view)});
@@ -384,7 +406,29 @@ async function saveTransaction(){
   let txData={id:uid,date,time,notes,type:currentInputTab};
   if(currentInputTab==="expense"){const amt=Number($("expense-amount").value);if(!Number.isFinite(amt)||amt<=0){showToast("أدخل مبلغًا صحيحًا للمصروف.");return}txData.amount=amt;txData.category=$("expense-category").value;txData.isFixed=!!$("is-fixed-expense").checked}
   else if(currentInputTab==="income"){const amt=Number($("income-amount").value);if(!Number.isFinite(amt)||amt<=0){showToast("أدخل مبلغًا صحيحًا للدخل.");return}txData.amount=amt;txData.category=$("income-category").value;txData.isSalaryBase=$("is-salary-base").checked}
-  else if(currentInputTab==="transfer"){const totalKwd=Number($("total-kwd").value);if(!Number.isFinite(totalKwd)||totalKwd<=0){showToast("أدخل إجمالي المبلغ المدفوع.");return}txData.totalKwd=totalKwd;const bens=[];document.querySelectorAll(".beneficiary").forEach(row=>{const name=row.querySelector(".beneficiary-name-select").value;const egp=Number(row.querySelector(".beneficiary-amount").value)||0;if(egp>0&&name)bens.push({name,egp})});if(!bens.length){showToast("أضف مستفيدًا ومبلغًا واحدًا على الأقل.");return}txData.beneficiaries=bens;txData.amount=totalKwd}
+  else if(currentInputTab==="transfer"){
+   const totalKwd=Number($("total-kwd").value);
+   if(!Number.isFinite(totalKwd)||totalKwd<=0){showToast("أدخل إجمالي المبلغ المدفوع.");return}
+   txData.totalKwd=totalKwd;
+   const bens=[];
+   let totalEgp=0;
+   document.querySelectorAll(".beneficiary").forEach(row=>{
+    const egp=Number(row.querySelector(".beneficiary-amount").value)||0;
+    totalEgp+=egp;
+   });
+   document.querySelectorAll(".beneficiary").forEach(row=>{
+    const name=row.querySelector(".beneficiary-name-select").value;
+    const egp=Number(row.querySelector(".beneficiary-amount").value)||0;
+    if(egp>0&&name){
+     const shareKwd=totalEgp>0?(egp/totalEgp)*totalKwd:0;
+     bens.push({name,egp,shareKwd});
+    }
+   });
+   if(!bens.length){showToast("أضف مستفيدًا ومبلغًا واحدًا على الأقل.");return}
+   txData.beneficiaries=bens;
+   txData.amount=totalKwd;
+   txData.exchangeRate=(totalEgp>0&&totalKwd>0)?(totalKwd/totalEgp)*1000:0;
+  }
   else if(currentInputTab==="debt"){const amt=Number($("debt-amount").value);const person=$("debt-person-select").value;if(!person){showToast("حدد الشخص أو الجهة المعنية.");return}if(!Number.isFinite(amt)||amt<=0){showToast("أدخل مبلغًا صحيحًا للدين.");return}txData.amount=amt;txData.person=person;txData.debtType=$("debt-type").value;if(txData.debtType==="opening_balance"){const existing=await allTransactions();const alreadyHas=existing.some(r=>r.id!==editingTxId&&r.type==="debt"&&r.debtType==="opening_balance"&&r.person===txData.person);if(alreadyHas){showToast(`"${txData.person}" عنده رصيد أول المدة مسجّل بالفعل.`);return}}}
   if(!db)await openDB();
   await new Promise((resolve,reject)=>{const transaction=db.transaction(STORE_NAME,"readwrite");transaction.objectStore(STORE_NAME).put(txData);transaction.oncomplete=resolve;transaction.onerror=()=>reject(transaction.error)});
@@ -490,7 +534,15 @@ async function generateReport(){
  $("display-date-range").textContent=(from?fmtDate(from):"البداية")+" إلى "+(to?fmtDate(to):"النهاية");
  $("display-target").textContent=target==="all"?"الكل":target;
  $("display-count").textContent=filtered.length+" حركة";
- $("report-title").textContent=type==="debt"?"كشف حساب الديون والعلاقات المالية":"كشف حساب مالي — سجل المعاملات";
+ 
+ if(type==="transfer") {
+  $("report-title").textContent="كشف حساب المعاملات الخارجية (الحوالات)";
+ } else if(type==="debt") {
+  $("report-title").textContent="كشف حساب الديون والعلاقات المالية";
+ } else {
+  $("report-title").textContent="كشف حساب مالي — سجل المعاملات";
+ }
+
  const tableWrap=$("capture-area").querySelector(".table-wrap");
  tableWrap.innerHTML='<table><thead id="report-table-head"></thead><tbody id="report-table-body"></tbody></table>';
  renderReportTableRows(filtered);
@@ -500,21 +552,60 @@ async function generateReport(){
 function renderReportTableRows(filtered){
  const tbody=$("report-table-body"),thead=$("report-table-head");
  if(!tbody||!thead)return;
- thead.innerHTML=`<tr><th>التاريخ</th><th>النوع / التفاصيل</th><th>الطرف</th><th class="amount">المبلغ</th><th class="no-print">إجراءات</th></tr>`;
- if(!filtered.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:15px">لا توجد حركات مطابقة للمعايير.</td></tr>`;return}
- tbody.innerHTML=filtered.map(r=>{
-  const amt=realAmount(r);
-  let desc;
-  if(r.type==="expense"||r.type==="income")desc=r.category+(r.isFixed?" [ثابت]":"");
-  else if(r.type==="transfer")desc="حوالة ("+(r.beneficiaries||[]).map(b=>b.name+" "+moneyEGP(b.egp)).join("، ")+")";
-  else if(r.type==="debt")desc=debtTypeLabel(r.debtType);
-  else desc=r.type;
-  const person=r.person||(r.beneficiaries||[]).map(b=>b.name).join("، ")||"—";
-  return `<tr data-id="${r.id}"><td>${fmtDate(r.date)}</td><td><strong>${escapeHTML(desc)}</strong><br><small>${escapeHTML(r.notes||"")}</small></td><td>${escapeHTML(person)}</td><td class="amount">${money(amt)}</td><td class="no-print"><button class="btn btn-muted" style="padding:2px 6px;font-size:10px" data-action="edit-report" data-id="${r.id}">تعديل</button> <button class="btn btn-danger" style="padding:2px 6px;font-size:10px" data-action="delete-report" data-id="${r.id}">حذف</button></td></tr>`;
- }).join("");
+ 
+ const isTransferReport = $("report-type").value === "transfer";
+ const target=$("beneficiary-select")?$("beneficiary-select").value:"all";
+
+ if(isTransferReport) {
+  thead.innerHTML=`<tr><th>التاريخ</th><th>التفاصيل</th><th>المستفيد</th><th>سعر التحويل (لكل 1000ج)</th><th class="amount">القيمة بالمصري</th><th class="amount">نصيبه بالكويتي</th><th class="no-print">إجراءات</th></tr>`;
+ } else {
+  thead.innerHTML=`<tr><th>التاريخ</th><th>النوع / التفاصيل</th><th>الطرف</th><th class="amount">المبلغ</th><th class="no-print">إجراءات</th></tr>`;
+ }
+
+ if(!filtered.length){
+  tbody.innerHTML=`<tr><td colspan="${isTransferReport ? 7 : 5}" style="text-align:center;padding:15px">لا توجد حركات مطابقة للمعايير.</td></tr>`;
+  return;
+ }
+
+ let rowsHtml="";
+ filtered.forEach(r=>{
+  if(r.type==="transfer" && isTransferReport) {
+   const bens = r.beneficiaries || [];
+   const totalEgp = bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
+   const totalKwd = Number(r.totalKwd??r.amount)||0;
+   const rate = r.exchangeRate || (totalEgp > 0 ? (totalKwd / totalEgp) * 1000 : 0);
+   
+   bens.forEach(b => {
+    if(target !== "all" && b.name !== target) return;
+    const shareKwd = b.shareKwd !== undefined ? b.shareKwd : (totalEgp > 0 ? (b.egp / totalEgp) * totalKwd : 0);
+    
+    rowsHtml += `<tr data-id="${r.id}">
+     <td>${fmtDate(r.date)}</td>
+     <td>${escapeHTML(r.notes||"حوالة خارجية")}</td>
+     <td><strong>${escapeHTML(b.name)}</strong></td>
+     <td><span style="color:#047857;font-weight:bold">${rate.toFixed(3)} د.ك</span></td>
+     <td class="amount">${moneyEGP(b.egp)}</td>
+     <td class="amount"><strong>${money(shareKwd)}</strong></td>
+     <td class="no-print"><button class="btn btn-muted" style="padding:2px 6px;font-size:10px" data-action="edit-report" data-id="${r.id}">تعديل</button> <button class="btn btn-danger" style="padding:2px 6px;font-size:10px" data-action="delete-report" data-id="${r.id}">حذف</button></td>
+    </tr>`;
+   });
+  } else {
+   const amt=realAmount(r);
+   let desc;
+   if(r.type==="expense"||r.type==="income")desc=r.category+(r.isFixed?" [ثابت]":"");
+   else if(r.type==="transfer")desc="حوالة ("+(r.beneficiaries||[]).map(b=>b.name+" "+moneyEGP(b.egp)).join("، ")+")";
+   else if(r.type==="debt")desc=debtTypeLabel(r.debtType);
+   else desc=r.type;
+   const person=r.person||(r.beneficiaries||[]).map(b=>b.name).join("، ")||"—";
+   rowsHtml += `<tr data-id="${r.id}"><td>${fmtDate(r.date)}</td><td><strong>${escapeHTML(desc)}</strong><br><small>${escapeHTML(r.notes||"")}</small></td><td>${escapeHTML(person)}</td><td class="amount">${money(amt)}</td><td class="no-print"><button class="btn btn-muted" style="padding:2px 6px;font-size:10px" data-action="edit-report" data-id="${r.id}">تعديل</button> <button class="btn btn-danger" style="padding:2px 6px;font-size:10px" data-action="delete-report" data-id="${r.id}">حذف</button></td></tr>`;
+  }
+ });
+
+ tbody.innerHTML = rowsHtml || `<tr><td colspan="${isTransferReport ? 7 : 5}" style="text-align:center;padding:15px">لا توجد حركات مطابقة للمعايير.</td></tr>`;
 }
 function updateReportSummaries(filtered,from,to){
  const type=$("report-type").value;
+ const target=$("beneficiary-select")?$("beneficiary-select").value:"all";
  const totalInflow=filtered.reduce((s,r)=>(r.type==="income"||isCreditorEntry(r))?s+realAmount(r):s,0);
  const totalOutflow=filtered.reduce((s,r)=>(r.type==="expense"||r.type==="transfer"||isDebtorEntry(r))?s+realAmount(r):s,0);
  const totalPaid=filtered.reduce((s,r)=>isDebtorEntry(r)?s+realAmount(r):s,0);
@@ -522,20 +613,35 @@ function updateReportSummaries(filtered,from,to){
  const debtNet=totalPaid-totalOwed;
  const standardNet=totalInflow-totalOutflow;
  const shownNet=(type==="debt")?debtNet:standardNet;
- const shownWords=numberToArabicWords(Math.abs(shownNet));
- const shownLabel=(type==="debt")?(debtNet>0?"صافي الديون لصالحك":debtNet<0?"صافي الديون عليك":"صافي الديون"):"صافي الحساب";
  let statusNotice="";
  const absDebtNet=Math.abs(debtNet);
  const debtWords=numberToArabicWords(absDebtNet);
+ 
  if(type==="debt"){
   if(debtNet>0)statusNotice=`<div class="hint" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46;font-weight:700">⚖️ <strong>تنبيه هام:</strong> تم سداد كامل الالتزامات وزيادة. أصبحت أنت الدائن بمبلغ <strong>${money(absDebtNet)}</strong> (${debtWords}).</div>`;
   else if(debtNet<0)statusNotice=`<div class="hint" style="background:#fff1f2;border-color:#fecdd3;color:#be123c;font-weight:700">⚠️ <strong>تنبيه دين:</strong> المتبقي عليك سداده هو <strong>${money(absDebtNet)}</strong> (${debtWords}).</div>`;
   else statusNotice=`<div class="hint" style="background:#f8fafc;border-color:#cbd5e1;color:#0f172a;font-weight:700">✅ <strong>الحساب خالص تمامًا:</strong> الرصيد الحالي صفر، لا توجد أي مبالغ مستحقة لأي طرف.</div>`;
+ } else if(type==="transfer") {
+  let totalTransferredKwd = 0;
+  let totalTransferredEgp = 0;
+  filtered.forEach(r => {
+   const totalKwd = Number(r.totalKwd??r.amount)||0;
+   const bens = r.beneficiaries||[];
+   const totalEgp = bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
+   bens.forEach(b => {
+    if(target !== "all" && b.name !== target) return;
+    const shareKwd = b.shareKwd !== undefined ? b.shareKwd : (totalEgp > 0 ? (b.egp / totalEgp) * totalKwd : 0);
+    totalTransferredKwd += shareKwd;
+    totalTransferredEgp += Number(b.egp)||0;
+   });
+  });
+  statusNotice=`<div class="hint" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46;font-weight:700">✈️ <strong>ملخص التحويلات الخارجية:</strong> إجمالي ما تم تحويله بالدينار: <strong>${money(totalTransferredKwd)}</strong> | بالمصري: <strong>${moneyEGP(totalTransferredEgp)}</strong>.</div>`;
  }
+
  $("report-summary").innerHTML=`<div style="display:flex;flex-direction:column;gap:6px">
-   <div class="row-between"><span>${type==="debt"?"📥 إجمالي ما تم سداده:":"📥 إجمالي الواردات:"}</span><strong class="amount good" style="font-size:13px">${money(type==="debt"?totalPaid:totalInflow)}</strong></div>
-   <div class="row-between"><span>${type==="debt"?"💸 إجمالي الالتزامات (مستجد + أول المدة):":"💸 إجمالي المصروفات:"}</span><strong class="amount bad" style="font-size:13px">${money(type==="debt"?totalOwed:totalOutflow)}</strong></div>
-   <div class="row-between" style="border-top:1px dashed #a7f3d0;padding-top:6px"><span>⚖️ صافي حالة الحساب:</span><strong class="amount ${shownNet>=0?'good':'bad'}" style="font-size:14px">${shownNet>=0?'+':''}${money(shownNet)}</strong></div>
+   <div class="row-between"><span>${type==="debt"?"📥 إجمالي ما تم سداده:":type==="transfer"?"✈️ إجمالي التحويلات (د.ك):":"📥 إجمالي الواردات:"}</span><strong class="amount good" style="font-size:13px">${money(type==="debt"?totalPaid:type==="transfer"?totalOutflow:totalInflow)}</strong></div>
+   ${type!=="transfer"?`<div class="row-between"><span>${type==="debt"?"💸 إجمالي الالتزامات (مستجد + أول المدة):":"💸 إجمالي المصروفات:"}</span><strong class="amount bad" style="font-size:13px">${money(type==="debt"?totalOwed:totalOutflow)}</strong></div>`:""}
+   ${type!=="transfer"?`<div class="row-between" style="border-top:1px dashed #a7f3d0;padding-top:6px"><span>⚖️ صافي حالة الحساب:</span><strong class="amount ${shownNet>=0?'good':'bad'}" style="font-size:14px">${shownNet>=0?'+':''}${money(shownNet)}</strong></div>`:""}
   </div>${statusNotice}`;
 }
 function backToFilters(){$("report-section").classList.add("hidden");$("filter-section").classList.remove("hidden");reportGenerated=false}
@@ -569,7 +675,15 @@ async function editFromReport(id){
  else if(r.type==="transfer"){
   $("total-kwd").value=(r.totalKwd??r.amount??"");
   const list=$("beneficiaries-list");list.innerHTML="";
-  (r.beneficiaries||[]).forEach(b=>{addBeneficiary();const rows=list.querySelectorAll(".beneficiary");const last=rows[rows.length-1];const sel=last.querySelector(".beneficiary-name-select");if([...sel.options].some(o=>o.value===b.name))sel.value=b.name;else{const opt=document.createElement("option");opt.value=b.name;opt.textContent=b.name;sel.appendChild(opt);sel.value=b.name}last.querySelector(".beneficiary-amount").value=b.egp});
+  (r.beneficiaries||[]).forEach(b=>{
+   addBeneficiary();
+   const rows=list.querySelectorAll(".beneficiary");
+   const last=rows[rows.length-1];
+   const sel=last.querySelector(".beneficiary-name-select");
+   if([...sel.options].some(o=>o.value===b.name))sel.value=b.name;
+   else{const opt=document.createElement("option");opt.value=b.name;opt.textContent=b.name;sel.appendChild(opt);sel.value=b.name}
+   last.querySelector(".beneficiary-amount").value=b.egp;
+  });
   calculateExchange();
  }
  else if(r.type==="debt"){$("debt-amount").value=r.amount;const sel=$("debt-person-select");if([...sel.options].some(o=>o.value===r.person))sel.value=r.person;else if(r.person){const opt=document.createElement("option");opt.value=r.person;opt.textContent=r.person;sel.appendChild(opt);sel.value=r.person}$("debt-type").value=r.debtType}
@@ -647,26 +761,44 @@ function exportReportExcel(){
   const period=$("display-date-range")?.textContent.trim()||"—";
   const target=$("display-target")?.textContent.trim()||"—";
   const count=$("display-count")?.textContent.trim()||"0";
-  const rows=[[title],["الفترة",period],["الطرف / التصنيف",target],["عدد الحركات",count],[],["التاريخ","النوع / التفاصيل","الطرف","المبلغ"]];
-  list.forEach(r=>{
-   const amt=realAmount(r);
-   let desc;
-   if(r.type==="expense"||r.type==="income")desc=r.category+(r.isFixed?" [ثابت]":"");
-   else if(r.type==="transfer")desc="حوالة ("+(r.beneficiaries||[]).map(b=>b.name+" "+moneyEGP(b.egp)).join("، ")+")";
-   else if(r.type==="debt")desc=debtTypeLabel(r.debtType);
-   else desc=r.type;
-   const person=r.person||(r.beneficiaries||[]).map(b=>b.name).join("، ")||"—";
-   const notes=r.notes?" — "+r.notes:"";
-   rows.push([fmtDate(r.date),desc+notes,person,Number(amt.toFixed(3))]);
-  });
+  const isTransferReport = $("report-type").value === "transfer";
+
+  let rows=[[title],["الفترة",period],["الطرف / التصنيف",target],["عدد الحركات",count],[]];
+  
+  if(isTransferReport) {
+   rows.push(["التاريخ","التفاصيل","اسم المستفيد","سعر التحويل (لكل 1000ج)","القيمة بالمصري (ج.م)","نصيبه بالكويتي (د.ك)"]);
+   list.forEach(r=>{
+    const totalKwd=Number(r.totalKwd??r.amount)||0;
+    const bens=r.beneficiaries||[];
+    const totalEgp=bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
+    const rate=r.exchangeRate||(totalEgp>0?(totalKwd/totalEgp)*1000:0);
+    
+    bens.forEach(b=>{
+     if(target !== "all" && b.name !== target) return;
+     const shareKwd=b.shareKwd!==undefined?b.shareKwd:(totalEgp>0?(b.egp/totalEgp)*totalKwd:0);
+     rows.push([fmtDate(r.date),r.notes||"حوالة خارجية",b.name,Number(rate.toFixed(3)),Number(b.egp),Number(shareKwd.toFixed(3))]);
+    });
+   });
+  } else {
+   rows.push(["التاريخ","النوع / التفاصيل","الطرف","المبلغ"]);
+   list.forEach(r=>{
+    const amt=realAmount(r);
+    let desc;
+    if(r.type==="expense"||r.type==="income")desc=r.category+(r.isFixed?" [ثابت]":"");
+    else if(r.type==="debt")desc=debtTypeLabel(r.debtType);
+    else desc=r.type;
+    const person=r.person||(r.beneficiaries||[]).map(b=>b.name).join("، ")||"—";
+    const notes=r.notes?" — "+r.notes:"";
+    rows.push([fmtDate(r.date),desc+notes,person,Number(amt.toFixed(3))]);
+   });
+  }
+
   rows.push([]);
   const summaryEl=$("report-summary");
   if(summaryEl){rows.push(["ملخص التقرير"]);summaryEl.querySelectorAll(".row-between").forEach(row=>{const spans=row.querySelectorAll("span, strong");if(spans.length>=2)rows.push([spans[0].textContent.trim(),spans[1].textContent.trim()])})}
-  const tafqit=$("tafqit-box")?.textContent.trim();
-  if(tafqit){rows.push([]);rows.push(["التفقيط",tafqit])}
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[{wch:32},{wch:50},{wch:22},{wch:15}];
+  ws['!cols']=[{wch:15},{wch:25},{wch:20},{wch:20},{wch:18},{wch:18}];
   XLSX.utils.book_append_sheet(wb,ws,"Report");
   XLSX.writeFile(wb,`financial_report_${todayISO()}.xlsx`);
   showToast("تم تصدير ملف Excel ✅");
@@ -819,19 +951,34 @@ function shareReport(){
  const dateRange=$("display-date-range")?$("display-date-range").textContent.trim():"—";
  const target=$("display-target")?$("display-target").textContent.trim():"الكل";
  const count=$("display-count")?$("display-count").textContent.trim():"0 حركة";
+ const isTransferReport = $("report-type").value === "transfer";
+
  let text=`📄 *${title}*\n━━━━━━━━━━━━━━━━━━━━━\n📅 *الفترة:* ${dateRange}\n👤 *الطرف / التصنيف:* ${target}\n🔢 *عدد الحركات:* ${count}\n━━━━━━━━━━━━━━━━━━━━━\n\n`;
  const listForShare=visibleReportRecords.length?visibleReportRecords:cachedReportRecords;
  if(listForShare&&listForShare.length>0){
-  listForShare.forEach((r,idx)=>{
-   const amt=realAmount(r);
-   let desc;
-   if(r.type==="expense"||r.type==="income")desc=r.category+(r.isFixed?" [ثابت]":"");
-   else if(r.type==="transfer")desc="حوالة ("+(r.beneficiaries||[]).map(b=>b.name+" "+moneyEGP(b.egp)).join("، ")+")";
-   else if(r.type==="debt")desc=debtTypeLabel(r.debtType);
-   else desc=r.type;
-   const person=r.person||(r.beneficiaries||[]).map(b=>b.name).join(" ")||"—";
-   const notes=r.notes?` (${r.notes})`:"";
-   text+=`${idx+1}. *${fmtDate(r.date)}* | ${desc}${notes}\n   الطرف: ${person} | المبلغ: *${money(amt)}*\n\n`;
+  let idx = 1;
+  listForShare.forEach((r)=>{
+   if(r.type==="transfer" && isTransferReport) {
+    const totalKwd=Number(r.totalKwd??r.amount)||0;
+    const bens=r.beneficiaries||[];
+    const totalEgp=bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
+    const rate=r.exchangeRate||(totalEgp>0?(totalKwd/totalEgp)*1000:0);
+    
+    bens.forEach(b=>{
+     if(target !== "all" && b.name !== target) return;
+     const shareKwd=b.shareKwd!==undefined?b.shareKwd:(totalEgp>0?(b.egp/totalEgp)*totalKwd:0);
+     text+=`${idx++}. *${fmtDate(r.date)}* | المستفيد: *${b.name}*\n   • سعر التحويل: *${rate.toFixed(3)} د.ك/1000ج*\n   • بالمصري: *${moneyEGP(b.egp)}* | بالكويتي: *${money(shareKwd)}*\n\n`;
+    });
+   } else {
+    const amt=realAmount(r);
+    let desc;
+    if(r.type==="expense"||r.type==="income")desc=r.category+(r.isFixed?" [ثابت]":"");
+    else if(r.type==="debt")desc=debtTypeLabel(r.debtType);
+    else desc=r.type;
+    const person=r.person||(r.beneficiaries||[]).map(b=>b.name).join(" ")||"—";
+    const notes=r.notes?` (${r.notes})`:"";
+    text+=`${idx++}. *${fmtDate(r.date)}* | ${desc}${notes}\n   الطرف: ${person} | المبلغ: *${money(amt)}*\n\n`;
+   }
   });
  }
  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,"_blank");
@@ -934,7 +1081,6 @@ async function renderFinancialComparison(){
 
   let html=`<div class="stack">`;
   
-  // 1. الإطار الأول المحيط بالعناصر الستة الرئيسية فقط
   html+=`<div class="table-wrap">
    <div class="compare-group-title"><span>📊 المجموعة الأولى: العناصر الستة الرئيسية</span></div>
    <table><thead><tr><th>العنصر الرئيسي</th><th>الدورة الأولى (${daysA} يوم)</th><th>الدورة الثانية (${daysB} يوم)</th><th>الفرق والتغير</th></tr></thead><tbody>`;
@@ -946,7 +1092,6 @@ async function renderFinancialComparison(){
   html+=comparePillarRow("6. الديون والعلاقات",debtA,debtB,incA,incB,daysA,daysB,false,true);
   html+=`</tbody></table></div>`;
 
-  // 2. إطار فرعي مستقل: تفاصيل المصروفات العادية حسب التصنيفات
   const allExpCats=getExpenseCategories();
   let expRows="";
   allExpCats.forEach(cat=>{
@@ -961,7 +1106,6 @@ async function renderFinancialComparison(){
     <tbody>${expRows}</tbody></table></div>`;
   }
 
-  // 3. إطار فرعي مستقل: تفاصيل التحويلات حسب الأشخاص (عرض الدينار والجنيه معا)
   const people=getPeopleList();
   let transRows="";
   people.forEach(pName=>{
@@ -974,7 +1118,7 @@ async function renderFinancialComparison(){
      const egp=Number(b.egp)||0;
      egpA_p+=egp;
      const totalKwd=Number(r.totalKwd??r.amount)||0;
-     kwdA_p+=totalKwd*(egp/totalEgp);
+     kwdA_p+=b.shareKwd!==undefined?b.shareKwd:totalKwd*(egp/totalEgp);
     }
    });
 
@@ -987,7 +1131,7 @@ async function renderFinancialComparison(){
      const egp=Number(b.egp)||0;
      egpB_p+=egp;
      const totalKwd=Number(r.totalKwd??r.amount)||0;
-     kwdB_p+=totalKwd*(egp/totalEgp);
+     kwdB_p+=b.shareKwd!==undefined?b.shareKwd:totalKwd*(egp/totalEgp);
     }
    });
 
@@ -1007,7 +1151,6 @@ async function renderFinancialComparison(){
     <tbody>${transRows}</tbody></table></div>`;
   }
 
-  // 4. إطار فرعي مستقل: تفاصيل الديون والعلاقات المالية
   let debtRows="";
   people.forEach(pName=>{
    const debtA_p=records.filter(r=>inPeriod(r,a)&&r.type==="debt"&&r.person===pName).reduce((s,r)=>s+realAmount(r),0);
