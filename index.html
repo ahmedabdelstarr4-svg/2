@@ -200,8 +200,8 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div class="grid2 no-print" style="margin-top:10px">
 <button type="button" onclick="exportCompareExcel()" class="btn btn-green">تصدير Excel 📗</button>
 <button type="button" onclick="shareViewWhatsApp('compare-capture-area','مقارنة الدورات المالية')" class="btn btn-green">مشاركة / واتساب 💬</button>
-<button type="button" onclick="exportPDF('capture-area','Compare')" class="btn btn-dark">تصدير PDF 📄</button>
-<button type="button" onclick="shareAsImage('capture-area','Compare')" class="btn btn-soft">حفظ كصورة 🖼️</button>
+<button type="button" onclick="exportPDF('compare-capture-area','Compare','l')" class="btn btn-dark">تصدير PDF 📄</button>
+<button type="button" onclick="shareAsImage('compare-capture-area','Compare')" class="btn btn-soft">حفظ كصورة 🖼️</button>
 </div>
 </section>
 
@@ -233,7 +233,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div id="report-actions" class="grid2 no-print" style="margin-top:10px">
 <button type="button" onclick="exportReportExcel()" class="btn btn-green">تصدير Excel 📗</button>
 <button type="button" onclick="shareReport()" class="btn btn-green">مشاركة / واتساب 💬</button>
-<button type="button" onclick="exportPDF('capture-area','Report')" class="btn btn-dark">تصدير PDF 📄</button>
+<button type="button" onclick="exportPDF('capture-area','Report','p')" class="btn btn-dark">تصدير PDF 📄</button>
 <button type="button" onclick="shareAsImage('capture-area','Report')" class="btn btn-soft">حفظ كصورة 🖼️</button>
 </div>
 </div>
@@ -831,22 +831,25 @@ function exportReportExcel(){
   showToast("تم تصدير ملف Excel ✅");
  }catch(err){console.error("exportReportExcel:",err);showToast("فشل التصدير إلى Excel")}
 }
-function exportDataToExcel(title,rows,filename){
- const wb=XLSX.utils.book_new();
- const ws=XLSX.utils.aoa_to_sheet([[title],[],...rows]);
- ws['!cols']=[{wch:32},{wch:18},{wch:18},{wch:18}];
- XLSX.utils.book_append_sheet(wb,ws,"Report");
- XLSX.writeFile(wb,`${filename}_${todayISO()}.xlsx`);
-}
 
 async function exportCompareExcel(){
  try{
+  if(!window.XLSX){showToast("مكتبة Excel غير متوفرة");return}
   const records=await getAllForFinance();
   const activeCycles=getFilteredCycles(records);
   if(!activeCycles.length){showToast("لا توجد دورات للتصدير");return}
+  
   const analysisType=$("compare-analysis-type")?.value||"all";
-  let rows=[["تقرير المقارنة الشامل لدورات الراتب"],["نوع التحليل",analysisType],[]];
-  let header=["البند / العنصر الرئيسي"];
+  const analysisLabel = analysisType === "personal" ? "مصروفاتي الشخصية فقط" : analysisType === "transfers" ? "التحويلات الخارجية فقط" : analysisType === "debts" ? "الديون والتسويات فقط" : "كل الحركات (شامل)";
+  
+  let rows=[
+    ["تقرير مقارنة الدورات المالية الأرباعية"],
+    ["نوع التحليل", analysisLabel],
+    ["عدد الدورات المحللة", activeCycles.length + " دورة"],
+    []
+  ];
+  
+  let header=["البند / العنصر الأساسي"];
   activeCycles.forEach((c,idx)=>{
     const title = c.isPriorPeriod ? "الأرصدة والتسويات القديمة" : `دورة ${c.cycleIndex || (idx+1)}`;
     header.push(`${title} (${fmtDate(c.start)})`);
@@ -863,47 +866,80 @@ async function exportCompareExcel(){
   ];
 
   pillars.forEach(p=>{
+    if(analysisType==="personal" && (p.name.includes("التحويلات")||p.name.includes("الديون"))) return;
+    if(analysisType==="transfers" && !p.name.includes("التحويلات")) return;
+    if(analysisType==="debts" && !p.name.includes("الديون")) return;
+
     let row=[p.name];
-    activeCycles.forEach(c=>row.push(p.fn(records,c).toFixed(3)));
+    activeCycles.forEach(c=>row.push(Number(p.fn(records,c).toFixed(3))));
     rows.push(row);
   });
 
-  exportDataToExcel("تقرير المقارنة المالية الشامل",rows,"Compare_Multi_Cycles");
-  showToast("تم تصدير المقارنة لـ Excel");
- }catch(e){console.error(e);showToast("تعذرت المقارنة")}
+  rows.push([], ["تم التصدير من النظام المالي الشخصي - مقارنة الدورات المالية"]);
+
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  
+  const colWidths=[{wch:30}];
+  activeCycles.forEach(()=>colWidths.push({wch:20}));
+  ws['!cols']=colWidths;
+
+  XLSX.utils.book_append_sheet(wb,ws,"Financial_Comparison");
+  XLSX.writeFile(wb,`financial_comparison_${todayISO()}.xlsx`);
+  
+  showToast("تم تصدير المقارنة لـ Excel بنجاح ✅");
+ }catch(err){
+  console.error("exportCompareExcel error:",err);
+  showToast("فشل التصدير إلى Excel");
+ }
 }
 
 /* ============ تصدير PDF والصور ============ */
-async function exportPDF(elId,filename){
+async function exportPDF(elId,filename,orientation="p"){
  if(!window.jspdf||!window.html2canvas){showToast("مكتبات PDF غير متوفرة");return}
  const el=$(elId);
  if(!el){showToast("لا يوجد محتوى للتصدير");return}
- showToast("جاري إنشاء ملف PDF بتقسيم آمن...");
+ showToast("جاري إنشاء ملف PDF بتقسيم آمن ومحتوى في المنتصف...");
  const captureState=prepareForCapture(el);
  try{
   void el.offsetWidth;
   const canvas=await html2canvas(el,{scale:2,backgroundColor:"#ffffff",useCORS:true,width:el.scrollWidth,height:el.scrollHeight,windowWidth:el.scrollWidth,windowHeight:el.scrollHeight,scrollX:0,scrollY:0});
-  const A4_ASPECT=297/210;
-  const maxSliceHeightPx=Math.round(canvas.width*A4_ASPECT*0.88);
+  
+  const isLandscape = orientation === "l" || orientation === "landscape";
+  const pdfWidth = isLandscape ? 297 : 210;
+  const pdfHeight = isLandscape ? 210 : 297;
+  const aspect = pdfHeight / pdfWidth;
+  
+  const maxSliceHeightPx=Math.round(canvas.width*aspect*0.82);
   const slices=splitCanvasAtSafePoints(canvas,el,maxSliceHeightPx);
   const total=slices.length;
   const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF("p","mm","a4",true);
+  const pdf=new jsPDF(isLandscape ? "l" : "p","mm","a4",true);
+  
   for(let i=0;i<total;i++){
    if(i>0)pdf.addPage();
    const slice=slices[i];
    const imgData=slice.canvas.toDataURL("image/jpeg",0.95);
-   const sliceHeightMm=(slice.height*210)/canvas.width;
-   pdf.addImage(imgData,"JPEG",0,0,210,sliceHeightMm,undefined,"FAST");
+   
+   // حساب الأبعاد بحيث يتناسب العرض بالكامل مع هوامش متساوية (توسيط الجدول أفقياً وعمودياً)
+   const sliceHeightMm = (slice.height * pdfWidth) / canvas.width;
+   const marginX = 10; // هامش جانبي متساوي يمين ويسار (10 مم)
+   const usableWidth = pdfWidth - (marginX * 2);
+   const scaledImgHeight = (slice.height * usableWidth) / canvas.width;
+   const marginY = Math.max(10, (pdfHeight - scaledImgHeight) / 2); // توسيط عمودي إذا كانت الصفحة أكبر
+   
+   pdf.addImage(imgData,"JPEG",marginX,marginY,usableWidth,scaledImgHeight,undefined,"FAST");
   }
+  
   const pageCount=pdf.internal.getNumberOfPages();
   for(let i=1;i<=pageCount;i++){
    pdf.setPage(i);
    pdf.setFont("helvetica","normal");
-   pdf.setFontSize(10);
+   pdf.setFontSize(9);
    pdf.setTextColor(100,116,139);
-   pdf.text(`Page ${i} of ${pageCount}`,105,290,{align:"center"});
+   pdf.text(`Page ${i} of ${pageCount}`,pdfWidth/2,pdfHeight-5,{align:"center"});
   }
+  
   pdf.save(`${filename}_${todayISO()}.pdf`);
   showToast("تم تنزيل ملف الـ PDF بنجاح ✅");
  }catch(err){console.error("PDF Export Error:",err);showToast("حدث خطأ أثناء تصدير PDF")}
@@ -936,9 +972,9 @@ function prepareForCapture(el){
  const restores=[];
  el.querySelectorAll(".no-print").forEach(e=>{restores.push({el:e,prop:'display',val:e.style.display});e.style.display="none"});
  const app=document.querySelector('.app');
- if(app){restores.push({el:app,prop:'maxWidth',val:app.style.maxWidth});restores.push({el:app,prop:'width',val:app.style.width});app.style.maxWidth='none';app.style.width='800px'}
+ if(app){restores.push({el:app,prop:'maxWidth',val:app.style.maxWidth});restores.push({el:app,prop:'width',val:app.style.width});app.style.maxWidth='none';app.style.width='1100px'}
  restores.push({el,prop:'maxWidth',val:el.style.maxWidth});restores.push({el,prop:'width',val:el.style.width});restores.push({el,prop:'minWidth',val:el.style.minWidth});
- el.style.maxWidth='none';el.style.width='100%';el.style.minWidth='700px';
+ el.style.maxWidth='none';el.style.width='100%';el.style.minWidth='1000px';
  el.querySelectorAll('.table-wrap').forEach(w=>{restores.push({el:w,prop:'overflow',val:w.style.overflow});restores.push({el:w,prop:'overflowX',val:w.style.overflowX});restores.push({el:w,prop:'maxWidth',val:w.style.maxWidth});w.style.overflow='visible';w.style.overflowX='visible';w.style.maxWidth='none'});
  el.querySelectorAll('table').forEach(t=>{restores.push({el:t,prop:'width',val:t.style.width});restores.push({el:t,prop:'minWidth',val:t.style.minWidth});t.style.width='auto';t.style.minWidth='100%'});
  el.querySelectorAll('td.amount, th.amount').forEach(c=>{restores.push({el:c,prop:'whiteSpace',val:c.style.whiteSpace});restores.push({el:c,prop:'minWidth',val:c.style.minWidth});c.style.whiteSpace='nowrap';c.style.minWidth='90px'});
@@ -967,7 +1003,7 @@ async function shareAsImage(elId,filename){
   }
   const canShareFiles=typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files});
   let shared=false;
-  if(canShareFiles){try{await navigator.share({title:"تقرير مالي",text:total>1?`تقرير مالي (${total} صفحات)`:"تقرير مالي",files});shared=true;showToast("تمت المشاركة بنجاح ✅")}catch(err){if(err&&err.name==="AbortError"){showToast("تم إلغاء المشاركةة");return}}}
+  if(canShareFiles){try{await navigator.share({title:"تقرير مالي",text:total>1?`تقرير مالي (${total} صفحات)`:"تقرير مالي",files});shared=true;showToast("تمت المشاركة بنجاح ✅")}catch(err){if(err&&err.name==="AbortError"){showToast("تم إلغاء المشاركة");return}}}
   if(!shared){
    for(let i=0;i<files.length;i++){
     const url=URL.createObjectURL(files[i]);
@@ -1279,7 +1315,7 @@ async function renderFinancialComparison(){
   html+=`<div class="stack" style="margin-top:12px">
    <div class="compare-group-title"><span>ثانياً: المقارنة التفصيلية (أطراف وبنود تمتلك معاملات فعلية حصراً)</span></div>`;
 
-  // أ. إطار مجموعة المصروفات الشخصية (تفصيل حسب التصنيفات الثابتة والعادية)
+  // أ. إطار مجموعة المصروفات الشخصية
   if(analysisType==="all" || analysisType==="personal") {
     const activeCatsSet = new Set();
     activeCycles.forEach(c => {
