@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f172a">
 <title>النظام المالي الشخصي</title>
 <style>
-:root{--bg:#f8fafc;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--green:#059669}
+:root{--bg:#f8fafc;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--green:#059669;--blue:#2563eb}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
 body{padding:8px;padding-bottom:calc(85px + env(safe-area-inset-bottom,12px));display:flex;justify-content:center;align-items:flex-start}
@@ -73,13 +73,11 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .metric span{display:block;font-size:10px;color:var(--muted);margin-bottom:5px}
 .metric strong{display:block;font-size:15px;overflow-wrap:anywhere}
 .metric small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
-.finance-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px;display:flex;flex-direction:column;gap:8px;page-break-inside:avoid;break-inside:avoid}
-.finance-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:12px;padding:7px 0;border-bottom:1px solid #eef2f7}
-.finance-row:last-child{border-bottom:0}
-.finance-row strong{text-align:left;font-variant-numeric:tabular-nums}
 .good{color:#047857}.bad{color:#be123c}.warning{color:#b45309}
 .compare-group-title{font-size:12px;font-weight:800;color:#0f172a;background:#f1f5f9;padding:8px 10px;border-radius:10px;margin-bottom:6px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between}
-@media print{.no-print{display:none!important}.report tr,.report .finance-card,.report .report-head,.report .report-meta,.report .report-summary,.report .metric,.report .balance-card,.report .panel,.person-item,.table-wrap{break-inside:avoid;page-break-inside:avoid}.table-wrap{overflow:visible!important}.report{box-shadow:none;border:0}}
+.progress-bar-container{background:#e2e8f0;border-radius:6px;height:8px;width:100%;overflow:hidden;margin-top:4px}
+.progress-bar-fill{background:var(--green);height:100%;border-radius:6px;transition:width .3s}
+@media print{.no-print{display:none!important}.report tr,.report .report-head,.report .report-meta,.report .report-summary,.report .metric,.report .balance-card,.report .panel,.person-item,.table-wrap{break-inside:avoid;page-break-inside:avoid}.table-wrap{overflow:visible!important}.report{box-shadow:none;border:0}}
 @media(max-height:650px){.header{padding:10px 14px}.content{padding:10px}.btn{padding:10px}}
 @media (max-width: 360px){.beneficiary{grid-template-columns:1fr auto auto}.beneficiary .beneficiary-name-select{grid-column:1/-1}.beneficiary .beneficiary-amount{grid-column:1/3}}
 </style>
@@ -153,19 +151,48 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 
 <section id="view-reports" class="view stack hidden">
 <div class="finance-tabs no-print">
-<button type="button" class="tab active" id="finance-tab-ledger" onclick="switchFinanceTab('ledger')">سجل المعاملات</button>
-<button type="button" class="tab" id="finance-tab-compare" onclick="switchFinanceTab('compare')">مقارنة الفترات الأرباعية</button>
+<button type="button" class="tab active" id="finance-tab-compare" onclick="switchFinanceTab('compare')">المقارنة المالية الشاملة</button>
+<button type="button" class="tab" id="finance-tab-ledger" onclick="switchFinanceTab('ledger')">سجل المعاملات التفصيلي</button>
 </div>
 
-<section id="finance-compare-view" class="stack hidden">
+<section id="finance-compare-view" class="stack">
 <div class="panel stack no-print">
-<strong style="font-size:13px">📊 مقارنة دورات الراتب (التصنيف الأرباعي والمعدل اليومي الدقيق)</strong>
-<div class="small">اختر الدورتين للمقارنة الاحترافية (العناصر الرئيسية الستة والفرعيات) مع نسب الدخل والمعدل اليومي المبني على الأيام المنقضية بدقة.</div>
-<div class="stack">
-  <div><label style="color:#059669;font-size:12px;font-weight:800">🟢 الدورة الأولى (السابقة)</label><select id="compare-cycle-1" onchange="renderFinancialComparison()"></select></div>
-  <div><label style="color:#0f172a;font-size:12px;font-weight:800">🔵 الدورة الثانية (الحالية)</label><select id="compare-cycle-2" onchange="renderFinancialComparison()"></select></div>
+<strong style="font-size:13px">🎛️ فلتر وتخصيص تقرير الدورات المالية</strong>
+<div class="grid2">
+  <div>
+    <label>نطاق الدورات</label>
+    <select id="compare-range-select" onchange="renderFinancialComparison()">
+      <option value="all">جميع الدورات المسجلة</option>
+      <option value="last3">آخر 3 دورات</option>
+      <option value="last6">آخر 6 دورات</option>
+      <option value="custom">اختيار دورات محددة</option>
+    </select>
+  </div>
+  <div>
+    <label>نوع التحليل</label>
+    <select id="compare-analysis-type" onchange="renderFinancialComparison()">
+      <option value="all">كل الحركات (شامل)</option>
+      <option value="personal">مصروفاتي الشخصية فقط</option>
+      <option value="transfers">التحويلات الخارجية فقط</option>
+      <option value="debts">الديون والتسويات فقط</option>
+    </select>
+  </div>
+</div>
+<div id="custom-cycles-select-wrap" class="stack hidden" style="border-top:1px dashed #cbd5e1;padding-top:8px">
+  <div class="grid2">
+    <div><label style="font-size:11px">من دورة</label><select id="compare-cycle-from" onchange="renderFinancialComparison()"></select></div>
+    <div><label style="font-size:11px">إلى دورة</label><select id="compare-cycle-to" onchange="renderFinancialComparison()"></select></div>
+  </div>
 </div>
 </div>
+
+<div class="metric-grid no-print" id="compare-summary-kpis">
+  <div class="metric"><span>إجمالي الدخل (النطاق)</span><strong id="kpi-total-income" class="good">0.000 د.ك</strong></div>
+  <div class="metric"><span>إجمالي المصروفات (النطاق)</span><strong id="kpi-total-expense" class="bad">0.000 د.ك</strong></div>
+  <div class="metric"><span>متوسط المصروف اليومي</span><strong id="kpi-daily-avg" style="color:#0f172a">0.000 د.ك/يوم</strong></div>
+  <div class="metric"><span>عدد الدورات المحللة</span><strong id="kpi-cycles-count" style="color:#2563eb">0 دورة</strong></div>
+</div>
+
 <div id="compare-capture-area" class="report">
 <div class="report-head"><h2>تقرير مقارنة الدورات المالية الأرباعية</h2><div id="compare-report-period" style="font-size:11px;color:#cbd5e1;margin-top:4px">—</div></div>
 <div id="compare-results" class="stack"></div>
@@ -178,7 +205,7 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 </div>
 </section>
 
-<section id="finance-ledger-view" class="stack">
+<section id="finance-ledger-view" class="stack hidden">
 <div id="filter-section" class="stack no-print">
 <div class="panel" style="background:#ecfdf5;color:#065f46;font-size:12px;font-weight:700">حدد معايير التقرير</div>
 <div><label>التصنيف الرئيسي</label><select id="report-type" onchange="onReportTypeChange()"><option value="expense">مصروفات</option><option value="income">دخل</option><option value="debt">ديون وعلاقات مالية</option><option value="transfer">تحويلات مالية خارجية</option><option value="all">ملخص كل المعاملات</option></select></div>
@@ -239,7 +266,7 @@ const DB_NAME="PersonalFinanceDB",DB_VERSION=1,STORE_NAME="transactions";
 const PEOPLE_KEY="pf_people_list",EXPENSE_CATS_KEY="pf_expense_cats_list",SAFETY_CAP_KEY="pf_safety_cap";
 const CATEGORY_ALIASES={"فواتير وااشتراكات":"فواتير واشتراكات"};
 let db=null,currentInputTab="expense",editingTxId=null,activePersonCallback=null;
-let currentFinanceTab="ledger",toastTimer=null;
+let currentFinanceTab="compare",toastTimer=null;
 let cachedReportRecords=[],visibleReportRecords=[],cachedReportRange={from:"",to:""};
 let reportGenerated=false;
 
@@ -507,7 +534,7 @@ async function setSalaryCycleDates(){
  try{const records=await allTransactions();const cycles=getAllSalaryCycles(records);if(cycles.length>0){const l=cycles[cycles.length-1];writeDateParts("date-from",l.start);writeDateParts("date-to",l.end);showToast("تم تحديد فترة آخر دورة راتب 📅")}else{showToast("لم يتم تسجيل أي راتب أساسي بعد")}}catch(e){console.warn(e);showToast("تعذر تحديد فترة الراتب")}
 }
 
-/* ============ توليد التقارير ============ */
+/* ============ توليد التقارير تفصيلي ============ */
 async function generateReport(){
  const records=await allTransactions();
  const type=$("report-type").value;
@@ -811,33 +838,39 @@ function exportDataToExcel(title,rows,filename){
  XLSX.utils.book_append_sheet(wb,ws,"Report");
  XLSX.writeFile(wb,`${filename}_${todayISO()}.xlsx`);
 }
+
 async function exportCompareExcel(){
  try{
   const records=await getAllForFinance();
-  const c1Val=$("compare-cycle-1")?.value,c2Val=$("compare-cycle-2")?.value;
-  if(!c1Val||!c2Val){showToast("اختر الدورتين أولاً");return}
-  const [f1,t1]=c1Val.split("|"),[f2,t2]=c2Val.split("|");
-  const a={from:f1,to:t1},b={from:f2,to:t2};
-  const incA=totalIncomeFor(records,a),incB=totalIncomeFor(records,b);
-  const expA=totalExpenseFor(records,a),expB=totalExpenseFor(records,b);
-  const fixedA=totalFixedExpenseFor(records,a),fixedB=totalFixedExpenseFor(records,b);
-  const regA=totalRegularExpenseFor(records,a),regB=totalRegularExpenseFor(records,b);
-  const transA=totalTransferFor(records,a),transB=totalTransferFor(records,b);
-  const debtA=totalDebtNetFor(records,a),debtB=totalDebtNetFor(records,b);
-  const rows=[["الدورة الأولى",`${fmtDate(a.from)} → ${fmtDate(a.to)}`],["الدورة الثانية",`${fmtDate(b.from)} → ${fmtDate(b.to)}`],[],["العناصر والمؤشرات","الدورة الأولى","الدورة الثانية","الفرق والتغير"],["إجمالي الدخل",incA.toFixed(3),incB.toFixed(3),(incB-incA).toFixed(3)],["إجمالي المصروفات",expA.toFixed(3),expB.toFixed(3),(expB-expA).toFixed(3)],["المصروفات الثابتة",fixedA.toFixed(3),fixedB.toFixed(3),(fixedB-fixedA).toFixed(3)],["المصروفات العادية",regA.toFixed(3),regB.toFixed(3),(regB-regA).toFixed(3)],["التحويلات",transA.toFixed(3),transB.toFixed(3),(transB-transA).toFixed(3)],["الديون",debtA.toFixed(3),debtB.toFixed(3),(debtB-debtA).toFixed(3)]];
-  exportDataToExcel("مقارنة دورات الراتب الأرباعية",rows,"Compare");
-  showToast("تم تصدير المقارنة");
+  const activeCycles=getFilteredCycles(records);
+  if(!activeCycles.length){showToast("لا توجد دورات للتصدير");return}
+  const analysisType=$("compare-analysis-type")?.value||"all";
+  let rows=[["تقرير المقارنة الشامل لدورات الراتب"],["نوع التحليل",analysisType],[]];
+  let header=["البند / العنصر الرئيسي"];
+  activeCycles.forEach((c,idx)=>header.push(`دورة ${idx+1} (${fmtDate(c.start)})`));
+  rows.push(header);
+
+  const pillars=[
+    {name:"1. إجمالي الدخل",fn:(r,p)=>totalIncomeFor(r,p)},
+    {name:"2. المصروفات الثابتة",fn:(r,p)=>totalFixedExpenseFor(r,p)},
+    {name:"3. المصروفات اليوميةالعادية",fn:(r,p)=>totalRegularExpenseFor(r,p)},
+    {name:"4. التحويلات الخارجية",fn:(r,p)=>totalTransferFor(r,p)},
+    {name:"5. صافي حركات الديون",fn:(r,p)=>totalDebtNetFor(r,p)},
+    {name:"6. إجمالي الإنفاق الشامل",fn:(r,p)=>totalExpenseFor(r,p)}
+  ];
+
+  pillars.forEach(p=>{
+    let row=[p.name];
+    activeCycles.forEach(c=>row.push(p.fn(records,c).toFixed(3)));
+    rows.push(row);
+  });
+
+  exportDataToExcel("تقرير المقارنة المالية الشامل",rows,"Compare_Multi_Cycles");
+  showToast("تم تصدير المقارنة لـ Excel");
  }catch(e){console.error(e);showToast("تعذرت المقارنة")}
 }
 
 /* ============ تصدير PDF والصور ============ */
-const PDF_DPI=200;
-const PDF_MM2PX=PDF_DPI/25.4;
-const PDF_PAGE_W=Math.round(210*PDF_MM2PX);
-const PDF_PAGE_H=Math.round(297*PDF_MM2PX);
-const PDF_MARGIN=Math.round(10*PDF_MM2PX);
-const PDF_CONTENT_W=PDF_PAGE_W-PDF_MARGIN*2;
-
 async function exportPDF(elId,filename){
  if(!window.jspdf||!window.html2canvas){showToast("مكتبات PDF غير متوفرة");return}
  const el=$(elId);
@@ -984,39 +1017,40 @@ function shareReport(){
  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,"_blank");
 }
 function shareViewWhatsApp(captureId,titleText){
- const resultsEl=$("compare-results");
  let text=`📊 *${titleText}*\n━━━━━━━━━━━━━━━━━━━━━\n`;
- text+=`\n_مُصدّر من النظام المالي الشخصي 💼_`;
+ text+=`_مُصدّر من النظام المالي الشخصي 💼_`;
  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,"_blank");
 }
 
-/* ============ حساب الدورات والمقارنة الشاملة ============ */
+/* ============ حساب الدورات والمقارنة المتقدمة الشاملة ============ */
 function dayBefore(iso){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()-1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function getAllSalaryCycles(records){
  const today=todayISO();
  const bases=records.filter(r=>r.type==="income"&&r.isSalaryBase).map(r=>r.date).sort();
  const unique=[...new Set(bases)];
  const cycles=[];
- if(!unique.length){const start=firstOfMonthISO();cycles.push({id:`cycle_${start}_${today}`,label:`الدورة الافتراضية (${fmtDate(start)} → اليوم)`,start,end:today});return cycles}
+ if(!unique.length){const start=firstOfMonthISO();cycles.push({id:`cycle_${start}_${today}`,label:`الدورة الحالية (${fmtDate(start)} → اليوم)`,start,end:today,isCurrent:true});return cycles}
  for(let i=0;i<unique.length;i++){
   const start=unique[i];
   const isLast=(i===unique.length-1);
   const end=isLast?today:dayBefore(unique[i+1]);
   const label=isLast?`الدورة الحالية (${fmtDate(start)} → اليوم)`:`دورة (${fmtDate(start)} → ${fmtDate(end)})`;
-  cycles.push({id:`cycle_${start}_${end}`,label,start,end});
+  cycles.push({id:`cycle_${start}_${end}`,label,start,end,isCurrent:isLast});
  }
  return cycles;
 }
+
 async function populateCycleSelects(){
  const records=await getAllForFinance();
  const cycles=getAllSalaryCycles(records);
- const sel1=$("compare-cycle-1"),sel2=$("compare-cycle-2");
- if(!sel1||!sel2)return;
+ const selFrom=$("compare-cycle-from"),selTo=$("compare-cycle-to");
+ if(!selFrom||!selTo)return;
  const optionsHtml=cycles.map(c=>`<option value="${c.start}|${c.end}">${escapeHTML(c.label)}</option>`).join("");
- sel1.innerHTML=optionsHtml;sel2.innerHTML=optionsHtml;
- if(cycles.length>=2){sel1.value=`${cycles[cycles.length-2].start}|${cycles[cycles.length-2].end}`;sel2.value=`${cycles[cycles.length-1].start}|${cycles[cycles.length-1].end}`}
- else if(cycles.length===1){sel1.value=`${cycles[0].start}|${cycles[0].end}`;sel2.value=`${cycles[0].start}|${cycles[0].end}`}
+ selFrom.innerHTML=optionsHtml;selTo.innerHTML=optionsHtml;
+ if(cycles.length>=2){selFrom.value=`${cycles[0].start}|${cycles[0].end}`;selTo.value=`${cycles[cycles.length-1].start}|${cycles[cycles.length-1].end}`}
+ else if(cycles.length===1){selFrom.value=`${cycles[0].start}|${cycles[0].end}`;selTo.value=`${cycles[0].start}|${cycles[0].end}`}
 }
+
 function switchFinanceTab(tab){
  currentFinanceTab=tab;
  ["compare","ledger"].forEach(k=>{$("finance-"+k+"-view").classList.toggle("hidden",k!==tab);$("finance-tab-"+k).classList.toggle("active",k===tab)});
@@ -1027,8 +1061,14 @@ function switchFinanceTab(tab){
   updateReportTargetOptions().catch(()=>{});
  }
 }
+
 function inPeriod(r,p){return r.date>=p.from&&r.date<=p.to}
-function calcDaysCount(p){const d1=new Date(p.from+"T12:00:00"),d2=new Date(p.to+"T12:00:00");const diff=Math.round((d2-d1)/(1000*60*60*24))+1;return diff>0?diff:1}
+function calcDaysCount(p){
+ const d1=new Date(p.from+"T12:00:00"),d2=new Date(p.to+"T12:00:00");
+ const diff=Math.round((d2-d1)/(1000*60*60*24))+1;
+ return diff>0?diff:1;
+}
+
 function totalIncomeFor(records,p){return records.filter(r=>inPeriod(r,p)).reduce((s,r)=>(r.type==="income"||isCreditorEntry(r))?s+realAmount(r):s,0)}
 function totalFixedExpenseFor(records,p){return records.filter(r=>inPeriod(r,p)&&r.type==="expense"&&r.isFixed).reduce((s,r)=>s+realAmount(r),0)}
 function totalRegularExpenseFor(records,p){return records.filter(r=>inPeriod(r,p)&&r.type==="expense"&&!r.isFixed).reduce((s,r)=>s+realAmount(r),0)}
@@ -1038,131 +1078,140 @@ function totalDebtNetFor(records,p){
  const owed=records.filter(r=>inPeriod(r,p)&&isCreditorEntry(r)).reduce((s,r)=>s+realAmount(r),0);
  return paid-owed;
 }
-function totalExpenseFor(records,p){return records.filter(r=>inPeriod(r,p)).reduce((s,r)=>(r.type==="expense"||r.type==="transfer"||isDebtorEntry(r))?s+realAmount(r):s,0)}
+function totalExpenseFor(records,p){
+ const analysisType=$("compare-analysis-type")?.value||"all";
+ return records.filter(r=>inPeriod(r,p)).reduce((s,r)=>{
+   if(analysisType==="personal" && (r.type==="transfer" || r.type==="debt")) return s;
+   if(analysisType==="transfers" && r.type!=="transfer") return s;
+   if(analysisType==="debts" && r.type!=="debt") return s;
+   return (r.type==="expense"||r.type==="transfer"||isDebtorEntry(r))?s+realAmount(r):s;
+ },0);
+}
 async function getAllForFinance(){if(!db)return openDB();return allTransactions()}
 
-function comparePillarRow(name,valA,valB,totalIncomeA,totalIncomeB,daysA,daysB,isExpense=true,isMain=false,extraSub=""){
- const delta=valB-valA;
- const pctDelta=valA!==0?((delta/Math.abs(valA))*100).toFixed(1)+"%":"—";
- const shareA=percent(valA,totalIncomeA).toFixed(1)+"%";
- const shareB=percent(valB,totalIncomeB).toFixed(1)+"%";
- const dailyA=(valA/daysA).toFixed(3)+" د.ك/يوم";
- const dailyB=(valB/daysB).toFixed(3)+" د.ك/يوم";
- let deltaClass="";
- if(delta>0)deltaClass=isExpense?"bad":"good";
- else if(delta<0)deltaClass=isExpense?"good":"bad";
- const styleAttr=isMain?' style="background:#f8fafc;font-weight:bold;"':'';
- return `<tr${styleAttr}>
-  <td><strong>${escapeHTML(name)}</strong></td>
-  <td class="amount">${money(valA)} ${extraSub ? '<br>'+extraSub.a : ''}<br><small>النسبة: ${shareA} | المعدل: ${dailyA}</small></td>
-  <td class="amount">${money(valB)} ${extraSub ? '<br>'+extraSub.b : ''}<br><small>النسبة: ${shareB} | المعدل: ${dailyB}</small></td>
-  <td class="amount ${deltaClass}">${delta>0?"+":""}${money(delta)}<br><small>(${pctDelta})</small></td>
- </tr>`;
-}
+function percent(n,base){return base>0?(n/base)*100:0}
 
-function percent(n,base){return base>0?n/base*100:0}
+function getFilteredCycles(records){
+ const allCycles=getAllSalaryCycles(records);
+ const rangeMode=$("compare-range-select")?.value||"all";
+ const wrap=$("custom-cycles-select-wrap");
+ if(wrap)wrap.classList.toggle("hidden",rangeMode!=="custom");
+
+ if(rangeMode==="last3")return allCycles.slice(-3);
+ if(rangeMode==="last6")return allCycles.slice(-6);
+ if(rangeMode==="custom"){
+  const cFrom=$("compare-cycle-from")?.value, cTo=$("compare-cycle-to")?.value;
+  if(!cFrom||!cTo)return allCycles;
+  const [f1]=cFrom.split("|"), [,t2]=cTo.split("|");
+  return allCycles.filter(c=>c.start>=f1 && c.end<=t2);
+ }
+ return allCycles;
+}
 
 async function renderFinancialComparison(){
  try{
   const records=await getAllForFinance();
-  const c1Val=$("compare-cycle-1")?.value,c2Val=$("compare-cycle-2")?.value;
-  if(!c1Val||!c2Val)return;
-  const [f1,t1]=c1Val.split("|"),[f2,t2]=c2Val.split("|");
-  const a={from:f1,to:t1},b={from:f2,to:t2};
-  const daysA=calcDaysCount(a),daysB=calcDaysCount(b);
-  if($("compare-report-period"))$("compare-report-period").textContent=`الدورة الأولى (${daysA} يوم: ${fmtDate(a.from)} → ${fmtDate(a.to)}) 🆚 الدورة الثانية (${daysB} يوم: ${fmtDate(b.from)} → ${fmtDate(b.to)})`;
+  const activeCycles=getFilteredCycles(records);
+  if(!activeCycles.length)return;
+
+  const analysisType=$("compare-analysis-type")?.value||"all";
   
-  const incA=totalIncomeFor(records,a),incB=totalIncomeFor(records,b);
-  const expA=totalExpenseFor(records,a),expB=totalExpenseFor(records,b);
-  const fixedA=totalFixedExpenseFor(records,a),fixedB=totalFixedExpenseFor(records,b);
-  const regA=totalRegularExpenseFor(records,a),regB=totalRegularExpenseFor(records,b);
-  const transA=totalTransferFor(records,a),transB=totalTransferFor(records,b);
-  const debtA=totalDebtNetFor(records,a),debtB=totalDebtNetFor(records,b);
+  let grandIncome=0, grandExpense=0, grandDays=0;
+  activeCycles.forEach(c=>{
+    const days=calcDaysCount(c);
+    grandDays+=days;
+    grandIncome+=totalIncomeFor(records,c);
+    grandExpense+=totalExpenseFor(records,c);
+  });
+
+  const dailyAvg=grandDays>0?grandExpense/grandDays:0;
+  if($("kpi-total-income"))$("kpi-total-income").textContent=money(grandIncome);
+  if($("kpi-total-expense"))$("kpi-total-expense").textContent=money(grandExpense);
+  if($("kpi-daily-avg"))$("kpi-daily-avg").textContent=dailyAvg.toFixed(3)+" د.ك/يوم";
+  if($("kpi-cycles-count"))$("kpi-cycles-count").textContent=activeCycles.length+" دورة";
+
+  if($("compare-report-period"))$("compare-report-period").textContent=`عرض ${activeCycles.length} دورة (${grandDays} يوم) · نوع التحليل: ${{all:'كل الحركات',personal:'المصروف الشخصي فقط',transfers:'التحويلات فقط',debts:'الديون فقط'}[analysisType]}`;
 
   let html=`<div class="stack">`;
-  
+
+  /* أولاً: جدول المقارنة الشامل والأفقي المدمج */
   html+=`<div class="table-wrap">
-   <div class="compare-group-title"><span>📊 المجموعة الأولى: العناصر الستة الرئيسية</span></div>
-   <table><thead><tr><th>العنصر الرئيسي</th><th>الدورة الأولى (${daysA} يوم)</th><th>الدورة الثانية (${daysB} يوم)</th><th>الفرق والتغير</th></tr></thead><tbody>`;
-  html+=comparePillarRow("1. إجمالي الدخل",incA,incB,incA,incB,daysA,daysB,false,true);
-  html+=comparePillarRow("2. إجمالي المصروفات",expA,expB,incA,incB,daysA,daysB,true,true);
-  html+=comparePillarRow("3. المصروفات الثابتة",fixedA,fixedB,incA,incB,daysA,daysB,true,true);
-  html+=comparePillarRow("4. المصروفات العادية",regA,regB,incA,incB,daysA,daysB,true,true);
-  html+=comparePillarRow("5. التحويلات",transA,transB,incA,incB,daysA,daysB,true,true);
-  html+=comparePillarRow("6. الديون والعلاقات",debtA,debtB,incA,incB,daysA,daysB,false,true);
+   <div class="compare-group-title"><span>أولاً: المقارنة المالية الإجمالية للدورات</span></div>
+   <table><thead><tr><th>البند / العنصر</th>`;
+  activeCycles.forEach((c,idx)=>{
+    const days=calcDaysCount(c);
+    html+=`<th>دورة ${idx+1}${c.isCurrent?' (حالية)':''}<br><small style="font-weight:normal">${fmtDate(c.start)} (${days}يوم)</small></th>`;
+  });
+  html+=`</tr></thead><tbody>`;
+
+  const rowsDef=[
+    {title:"1. إجمالي الدخل",fn:(r,p)=>totalIncomeFor(r,p),isExp:false,bold:true},
+    {title:"2. المصروفات الثابتة",fn:(r,p)=>totalFixedExpenseFor(r,p),isExp:true,bold:false},
+    {title:"3. المصروفات اليوميةالعادية",fn:(r,p)=>totalRegularExpenseFor(r,p),isExp:true,bold:false},
+    {title:"4. التحويلات الخارجية",fn:(r,p)=>totalTransferFor(r,p),isExp:true,bold:false},
+    {title:"5. صافي حركات الديون",fn:(r,p)=>totalDebtNetFor(r,p),isExp:false,bold:false},
+    {title:"6. إجمالي الإنفاق الفعلي",fn:(r,p)=>totalExpenseFor(r,p),isExp:true,bold:true}
+  ];
+
+  rowsDef.forEach(row=>{
+    if(analysisType==="personal" && (row.title.includes("التحويلات")||row.title.includes("الديون"))) return;
+    if(analysisType==="transfers" && !row.title.includes("التحويلات")) return;
+    if(analysisType==="debts" && !row.title.includes("الديون")) return;
+
+    html+=`<tr${row.bold?' style="background:#f8fafc;font-weight:bold"':''}><td>${row.title}</td>`;
+    activeCycles.forEach(c=>{
+      const val=row.fn(records,c);
+      const inc=totalIncomeFor(records,c);
+      const days=calcDaysCount(c);
+      const pct=percent(val,inc).toFixed(1)+"%";
+      const daily=(val/days).toFixed(3);
+      html+=`<td class="amount">${money(val)}<br><small class="small">نسبة: ${pct} | ${daily} د.ك/يوم</small></td>`;
+    });
+    html+=`</tr>`;
+  });
+
   html+=`</tbody></table></div>`;
 
-  const allExpCats=getExpenseCategories();
-  let expRows="";
-  allExpCats.forEach(cat=>{
-   const valA=records.filter(r=>inPeriod(r,a)&&r.type==="expense"&&!r.isFixed&&r.category===cat).reduce((s,r)=>s+realAmount(r),0);
-   const valB=records.filter(r=>inPeriod(r,b)&&r.type==="expense"&&!r.isFixed&&r.category===cat).reduce((s,r)=>s+realAmount(r),0);
-   if(valA>0||valB>0)expRows+=comparePillarRow(`نوع مصروف: ${cat}`,valA,valB,incA,incB,daysA,daysB,true,false);
-  });
-  if(expRows){
-   html+=`<div class="table-wrap">
-    <div class="compare-group-title"><span>💸 تفاصيل بند (4): المصروفات العادية حسب التصنيف</span></div>
-    <table><thead><tr><th>تصنيف المصروف</th><th>الدورة الأولى (${daysA} يوم)</th><th>الدورة الثانية (${daysB} يوم)</th><th>الفرق والتغير</th></tr></thead>
-    <tbody>${expRows}</tbody></table></div>`;
-  }
+  /* ثانياً: شريط تحليل المصروفات العادية حسب التصنيفات */
+  if(analysisType==="all" || analysisType==="personal"){
+    const cats=getExpenseCategories();
+    let catBarsHtml="";
+    cats.forEach(cat=>{
+      let catTotalInRange=0;
+      activeCycles.forEach(c=>catTotalInRange+=records.filter(r=>inPeriod(r,c)&&r.type==="expense"&&!r.isFixed&&r.category===cat).reduce((s,r)=>s+realAmount(r),0));
+      if(catTotalInRange>0){
+        const catShareOfExp=grandExpense>0?(catTotalInRange/grandExpense)*100:0;
+        catBarsHtml+=`<div class="panel" style="background:#fff">
+          <div class="row-between"><strong>${escapeHTML(cat)}</strong><span class="amount">${money(catTotalInRange)} (${catShareOfExp.toFixed(1)}%)</span></div>
+          <div class="progress-bar-container"><div class="progress-bar-fill" style="width:${Math.min(catShareOfExp,100)}%"></div></div>
+        </div>`;
+      }
+    });
 
-  const people=getPeopleList();
-  let transRows="";
-  people.forEach(pName=>{
-   let kwdA_p=0, egpA_p=0;
-   records.filter(r=>inPeriod(r,a)&&r.type==="transfer").forEach(r=>{
-    const bens=r.beneficiaries||[];
-    const totalEgp=bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
-    const b=bens.find(x=>x.name===pName);
-    if(b&&totalEgp>0){
-     const egp=Number(b.egp)||0;
-     egpA_p+=egp;
-     const totalKwd=Number(r.totalKwd??r.amount)||0;
-     kwdA_p+=b.shareKwd!==undefined?b.shareKwd:totalKwd*(egp/totalEgp);
+    if(catBarsHtml){
+      html+=`<div class="stack">
+        <div class="compare-group-title"><span>ثانياً: تحليل المصروفات العادية حسب التصنيف (النطاق الشامل)</span></div>
+        ${catBarsHtml}
+      </div>`;
     }
-   });
-
-   let kwdB_p=0, egpB_p=0;
-   records.filter(r=>inPeriod(r,b)&&r.type==="transfer").forEach(r=>{
-    const bens=r.beneficiaries||[];
-    const totalEgp=bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
-    const b=bens.find(x=>x.name===pName);
-    if(b&&totalEgp>0){
-     const egp=Number(b.egp)||0;
-     egpB_p+=egp;
-     const totalKwd=Number(r.totalKwd??r.amount)||0;
-     kwdB_p+=b.shareKwd!==undefined?b.shareKwd:totalKwd*(egp/totalEgp);
-    }
-   });
-
-   if(kwdA_p>0||kwdB_p>0||egpA_p>0||egpB_p>0){
-    const extra={
-     a:`<span style="color:#059669;font-weight:bold">(${moneyEGP(egpA_p)})</span>`,
-     b:`<span style="color:#059669;font-weight:bold">(${moneyEGP(egpB_p)})</span>`
-    };
-    transRows+=comparePillarRow(`حوالة لـ: ${pName}`,kwdA_p,kwdB_p,incA,incB,daysA,daysB,true,false,extra);
-   }
-  });
-
-  if(transRows){
-   html+=`<div class="table-wrap">
-    <div class="compare-group-title"><span>✈️ تفاصيل بند (5): التحويلات الخارجية حسب المستفيد</span></div>
-    <table><thead><tr><th>المستفيد</th><th>الدورة الأولى (${daysA} يوم)</th><th>الدورة الثانية (${daysB} يوم)</th><th>الفرق والتغير</th></tr></thead>
-    <tbody>${transRows}</tbody></table></div>`;
   }
 
-  let debtRows="";
-  people.forEach(pName=>{
-   const debtA_p=records.filter(r=>inPeriod(r,a)&&r.type==="debt"&&r.person===pName).reduce((s,r)=>s+realAmount(r),0);
-   const debtB_p=records.filter(r=>inPeriod(r,b)&&r.type==="debt"&&r.person===pName).reduce((s,r)=>s+realAmount(r),0);
-   if(debtA_p>0||debtB_p>0)debtRows+=comparePillarRow(`دين مع الشخص: ${pName}`,debtA_p,debtB_p,incA,incB,daysA,daysB,false,false);
+  /* ثالثاً: خلاصة الذكاء المالي والتوصيات */
+  let maxCatName="—", maxCatVal=0;
+  getExpenseCategories().forEach(cat=>{
+    let sum=0;
+    activeCycles.forEach(c=>sum+=records.filter(r=>inPeriod(r,c)&&r.type==="expense"&&!r.isFixed&&r.category===cat).reduce((s,r)=>s+realAmount(r),0));
+    if(sum>maxCatVal){maxCatVal=sum;maxCatName=cat}
   });
-  if(debtRows){
-   html+=`<div class="table-wrap">
-    <div class="compare-group-title"><span>🤝 تفاصيل بند (6): الديون والعلاقات حسب الشخص</span></div>
-    <table><thead><tr><th>الشخص / الجهة</th><th>الدورة الأولى (${daysA} يوم)</th><th>الدورة الثانية (${daysB} يوم)</th><th>الفرق والتغير</th></tr></thead>
-    <tbody>${debtRows}</tbody></table></div>`;
-  }
+
+  const freeCashFlow=grandIncome-grandExpense;
+
+  html+=`<div class="panel stack" style="background:#ecfdf5;border-color:#a7f3d0">
+    <strong style="color:#065f46;font-size:13px">ثالثاً: نتيجة ومؤشرات التقرير النهائي</strong>
+    <div class="row-between"><span>أكثر البنود استهلاكاً للميزانية:</span><strong class="bad">${escapeHTML(maxCatName)} (${money(maxCatVal)})</strong></div>
+    <div class="row-between"><span>متوسط الإنفاق اليومي الشامل:</span><strong style="color:#0f172a">${dailyAvg.toFixed(3)} د.ك / يوم</strong></div>
+    <div class="row-between" style="border-top:1px dashed #a7f3d0;padding-top:6px"><span>صافي الفائض / العجز المالي للنطاق:</span><strong class="${freeCashFlow>=0?'good':'bad'}">${freeCashFlow>=0?'+':''}${money(freeCashFlow)}</strong></div>
+  </div>`;
 
   html+=`</div>`;
   $("compare-results").innerHTML=html;
