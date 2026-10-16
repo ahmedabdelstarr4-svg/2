@@ -200,8 +200,8 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 <div class="grid2 no-print" style="margin-top:10px">
 <button type="button" onclick="exportCompareExcel()" class="btn btn-green">تصدير Excel 📗</button>
 <button type="button" onclick="shareViewWhatsApp('compare-capture-area','مقارنة الدورات المالية')" class="btn btn-green">مشاركة / واتساب 💬</button>
-<button type="button" onclick="exportPDF('compare-capture-area','Compare')" class="btn btn-dark">تصدير PDF 📄</button>
-<button type="button" onclick="shareAsImage('compare-capture-area','Compare')" class="btn btn-soft">حفظ كصورة 🖼️</button>
+<button type="button" onclick="exportPDF('capture-area','Compare')" class="btn btn-dark">تصدير PDF 📄</button>
+<button type="button" onclick="shareAsImage('capture-area','Compare')" class="btn btn-soft">حفظ كصورة 🖼️</button>
 </div>
 </section>
 
@@ -847,7 +847,10 @@ async function exportCompareExcel(){
   const analysisType=$("compare-analysis-type")?.value||"all";
   let rows=[["تقرير المقارنة الشامل لدورات الراتب"],["نوع التحليل",analysisType],[]];
   let header=["البند / العنصر الرئيسي"];
-  activeCycles.forEach((c,idx)=>header.push(`دورة ${idx+1} (${fmtDate(c.start)})`));
+  activeCycles.forEach((c,idx)=>{
+    const title = c.isPriorPeriod ? "الأرصدة والتسويات القديمة" : `دورة ${c.cycleIndex || (idx+1)}`;
+    header.push(`${title} (${fmtDate(c.start)})`);
+  });
   rows.push(header);
 
   const pillars=[
@@ -1022,21 +1025,88 @@ function shareViewWhatsApp(captureId,titleText){
  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,"_blank");
 }
 
-/* ============ حساب الدورات والمقارنة المتقدمة الشاملة ============ */
-function dayBefore(iso){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()-1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+/* ============ حساب الدورات والمقارنة المتقدمة الشاملة (مع القوانين الأربعة) ============ */
+function dayBefore(iso){
+ const d=new Date(iso+"T12:00:00");
+ d.setDate(d.getDate()-1);
+ return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function inPeriod(r, p) {
+ if (!r || !r.date || !p || !p.from || !p.to) return false;
+ return r.date >= p.from && r.date <= p.to;
+}
+
+function calcDaysCount(p) {
+ if (!p || !p.from || !p.to) return 1;
+ const d1 = new Date(p.from + "T12:00:00"), d2 = new Date(p.to + "T12:00:00");
+ const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+ return diff > 0 ? diff : 1;
+}
+
 function getAllSalaryCycles(records){
- const today=todayISO();
- const bases=records.filter(r=>r.type==="income"&&r.isSalaryBase).map(r=>r.date).sort();
- const unique=[...new Set(bases)];
- const cycles=[];
- if(!unique.length){const start=firstOfMonthISO();cycles.push({id:`cycle_${start}_${today}`,label:`الدورة الحالية (${fmtDate(start)} → اليوم)`,start,end:today,isCurrent:true});return cycles}
- for(let i=0;i<unique.length;i++){
-  const start=unique[i];
-  const isLast=(i===unique.length-1);
-  const end=isLast?today:dayBefore(unique[i+1]);
-  const label=isLast?`الدورة الحالية (${fmtDate(start)} → اليوم)`:`دورة (${fmtDate(start)} → ${fmtDate(end)})`;
-  cycles.push({id:`cycle_${start}_${end}`,label,start,end,isCurrent:isLast});
+ const today = todayISO();
+ const validRecords = (records || []).filter(r => r && r.date);
+ 
+ const bases = validRecords
+  .filter(r => r.type === "income" && r.isSalaryBase)
+  .map(r => r.date)
+  .sort();
+ 
+ const uniqueBases = [...new Set(bases)];
+ const cycles = [];
+
+ if (!uniqueBases.length) {
+  const allDates = validRecords.map(r => r.date).sort();
+  const start = allDates.length ? allDates[0] : firstOfMonthISO();
+  cycles.push({
+   id: `cycle_${start}_${today}`,
+   label: `الدورة الحالية (${fmtDate(start)} ← اليوم)`,
+   start,
+   end: today,
+   isCurrent: true,
+   cycleIndex: 1
+  });
+  return cycles;
  }
+
+ const firstSalaryDate = uniqueBases[0];
+
+ const priorRecords = validRecords.filter(r => r.date < firstSalaryDate);
+ if (priorRecords.length > 0) {
+  priorRecords.sort((a, b) => a.date.localeCompare(b.date));
+  const earliestDate = priorRecords[0].date;
+  const dayBeforeFirstSalary = dayBefore(firstSalaryDate);
+
+  cycles.push({
+   id: `cycle_prior_${earliestDate}_${dayBeforeFirstSalary}`,
+   label: `الأرصدة والتسويات القديمة (${fmtDate(earliestDate)} ← ${fmtDate(dayBeforeFirstSalary)})`,
+   start: earliestDate,
+   end: dayBeforeFirstSalary,
+   isCurrent: false,
+   isPriorPeriod: true
+  });
+ }
+
+ for (let i = 0; i < uniqueBases.length; i++) {
+  const start = uniqueBases[i];
+  const isLast = (i === uniqueBases.length - 1);
+  const end = isLast ? today : dayBefore(uniqueBases[i + 1]);
+  const cycleIndex = i + 1;
+  const label = isLast 
+   ? `الدورة الحالية ${cycleIndex} (${fmtDate(start)} ← اليوم)`
+   : `دورة ${cycleIndex} (${fmtDate(start)} ← ${fmtDate(end)})`;
+   
+  cycles.push({
+   id: `cycle_${start}_${end}`,
+   label,
+   start,
+   end,
+   isCurrent: isLast,
+   cycleIndex
+  });
+ }
+
  return cycles;
 }
 
@@ -1062,31 +1132,44 @@ function switchFinanceTab(tab){
  }
 }
 
-function inPeriod(r,p){return r.date>=p.from&&r.date<=p.to}
-function calcDaysCount(p){
- const d1=new Date(p.from+"T12:00:00"),d2=new Date(p.to+"T12:00:00");
- const diff=Math.round((d2-d1)/(1000*60*60*24))+1;
- return diff>0?diff:1;
+function totalIncomeFor(records,p){
+ const bounds = {from: p.start, to: p.end};
+ return records.filter(r=>inPeriod(r,bounds)).reduce((s,r)=>(r.type==="income"||isCreditorEntry(r))?s+realAmount(r):s,0);
 }
 
-function totalIncomeFor(records,p){return records.filter(r=>inPeriod(r,p)).reduce((s,r)=>(r.type==="income"||isCreditorEntry(r))?s+realAmount(r):s,0)}
-function totalFixedExpenseFor(records,p){return records.filter(r=>inPeriod(r,p)&&r.type==="expense"&&r.isFixed).reduce((s,r)=>s+realAmount(r),0)}
-function totalRegularExpenseFor(records,p){return records.filter(r=>inPeriod(r,p)&&r.type==="expense"&&!r.isFixed).reduce((s,r)=>s+realAmount(r),0)}
-function totalTransferFor(records,p){return records.filter(r=>inPeriod(r,p)&&r.type==="transfer").reduce((s,r)=>s+realAmount(r),0)}
+function totalFixedExpenseFor(records,p){
+ const bounds = {from: p.start, to: p.end};
+ return records.filter(r=>inPeriod(r,bounds)&&r.type==="expense"&&r.isFixed).reduce((s,r)=>s+realAmount(r),0);
+}
+
+function totalRegularExpenseFor(records,p){
+ const bounds = {from: p.start, to: p.end};
+ return records.filter(r=>inPeriod(r,bounds)&&r.type==="expense"&&!r.isFixed).reduce((s,r)=>s+realAmount(r),0);
+}
+
+function totalTransferFor(records,p){
+ const bounds = {from: p.start, to: p.end};
+ return records.filter(r=>inPeriod(r,bounds)&&r.type==="transfer").reduce((s,r)=>s+realAmount(r),0);
+}
+
 function totalDebtNetFor(records,p){
- const paid=records.filter(r=>inPeriod(r,p)&&isDebtorEntry(r)).reduce((s,r)=>s+realAmount(r),0);
- const owed=records.filter(r=>inPeriod(r,p)&&isCreditorEntry(r)).reduce((s,r)=>s+realAmount(r),0);
+ const bounds = {from: p.start, to: p.end};
+ const paid=records.filter(r=>inPeriod(r,bounds)&&isDebtorEntry(r)).reduce((s,r)=>s+realAmount(r),0);
+ const owed=records.filter(r=>inPeriod(r,bounds)&&isCreditorEntry(r)).reduce((s,r)=>s+realAmount(r),0);
  return paid-owed;
 }
+
 function totalExpenseFor(records,p){
+ const bounds = {from: p.start, to: p.end};
  const analysisType=$("compare-analysis-type")?.value||"all";
- return records.filter(r=>inPeriod(r,p)).reduce((s,r)=>{
+ return records.filter(r=>inPeriod(r,bounds)).reduce((s,r)=>{
    if(analysisType==="personal" && (r.type==="transfer" || r.type==="debt")) return s;
    if(analysisType==="transfers" && r.type!=="transfer") return s;
    if(analysisType==="debts" && r.type!=="debt") return s;
    return (r.type==="expense"||r.type==="transfer"||isDebtorEntry(r))?s+realAmount(r):s;
  },0);
 }
+
 async function getAllForFinance(){if(!db)return openDB();return allTransactions()}
 
 function percent(n,base){return base>0?(n/base)*100:0}
@@ -1108,6 +1191,18 @@ function getFilteredCycles(records){
  return allCycles;
 }
 
+// دالة لحساب مؤشر الصحة والارتياح المالي للدورة (القانون الرابع)
+function calculateCycleHealthScore(records, p, totalIncome, totalExpense) {
+ if (totalIncome <= 0) return { score: 0, label: "حرج جداً", color: "bad" };
+ const net = totalIncome - totalExpense;
+ const ratio = (net / totalIncome) * 100;
+ 
+ if (ratio >= 30) return { score: ratio.toFixed(1), label: "ممتاز وآمن", color: "good" };
+ if (ratio >= 10) return { score: ratio.toFixed(1), label: "متوازن بحذر", color: "warning" };
+ if (ratio >= 0) return { score: ratio.toFixed(1), label: "حافة الصفر", color: "warning" };
+ return { score: ratio.toFixed(1), label: "منطقة عجز", color: "bad" };
+}
+
 async function renderFinancialComparison(){
  try{
   const records=await getAllForFinance();
@@ -1118,7 +1213,7 @@ async function renderFinancialComparison(){
   
   let grandIncome=0, grandExpense=0, grandDays=0;
   activeCycles.forEach(c=>{
-    const days=calcDaysCount(c);
+    const days=calcDaysCount({from: c.start, to: c.end});
     grandDays+=days;
     grandIncome+=totalIncomeFor(records,c);
     grandExpense+=totalExpenseFor(records,c);
@@ -1130,27 +1225,28 @@ async function renderFinancialComparison(){
   if($("kpi-daily-avg"))$("kpi-daily-avg").textContent=dailyAvg.toFixed(3)+" د.ك/يوم";
   if($("kpi-cycles-count"))$("kpi-cycles-count").textContent=activeCycles.length+" دورة";
 
-  if($("compare-report-period"))$("compare-report-period").textContent=`عرض ${activeCycles.length} دورة (${grandDays} يوم) · نوع التحليل: ${{all:'كل الحركات',personal:'المصروف الشخصي فقط',transfers:'التحويلات فقط',debts:'الديون فقط'}[analysisType]}`;
+  if($("compare-report-period"))$("compare-report-period").textContent=`عرض ${activeCycles.length} دورة (${grandDays} يوم) · القوانين الأربعة المفعلة`;
 
   let html=`<div class="stack">`;
 
-  /* أولاً: جدول المقارنة الشامل والأفقي المدمج */
+  /* 1. جدول المقارنة الإجمالية بالعناصر الأساسية مع القوانين الأربعة */
   html+=`<div class="table-wrap">
-   <div class="compare-group-title"><span>أولاً: المقارنة المالية الإجمالية للدورات</span></div>
-   <table><thead><tr><th>البند / العنصر</th>`;
+   <div class="compare-group-title"><span>أولاً: المقارنة الإجمالية للعناصر الأساسية (وفق القوانين الأربعة)</span></div>
+   <table><thead><tr><th>العنصر الأساسي</th>`;
   activeCycles.forEach((c,idx)=>{
-    const days=calcDaysCount(c);
-    html+=`<th>دورة ${idx+1}${c.isCurrent?' (حالية)':''}<br><small style="font-weight:normal">${fmtDate(c.start)} (${days}يوم)</small></th>`;
+    const days=calcDaysCount({from: c.start, to: c.end});
+    const title = c.isPriorPeriod ? "الأرصدة القديمة" : `دورة ${c.cycleIndex || (idx+1)}${c.isCurrent?' (حالية)':''}`;
+    html+=`<th>${title}<br><small style="font-weight:normal">${fmtDate(c.start)} (${days}يوم)</small></th>`;
   });
   html+=`</tr></thead><tbody>`;
 
   const rowsDef=[
-    {title:"1. إجمالي الدخل",fn:(r,p)=>totalIncomeFor(r,p),isExp:false,bold:true},
-    {title:"2. المصروفات الثابتة",fn:(r,p)=>totalFixedExpenseFor(r,p),isExp:true,bold:false},
-    {title:"3. المصروفات اليوميةالعادية",fn:(r,p)=>totalRegularExpenseFor(r,p),isExp:true,bold:false},
-    {title:"4. التحويلات الخارجية",fn:(r,p)=>totalTransferFor(r,p),isExp:true,bold:false},
-    {title:"5. صافي حركات الديون",fn:(r,p)=>totalDebtNetFor(r,p),isExp:false,bold:false},
-    {title:"6. إجمالي الإنفاق الفعلي",fn:(r,p)=>totalExpenseFor(r,p),isExp:true,bold:true}
+    {title:"1. إجمالي الدخل",fn:(r,p)=>totalIncomeFor(r,p)},
+    {title:"2. المصروفات الثابتة",fn:(r,p)=>totalFixedExpenseFor(r,p)},
+    {title:"3. المصروفات اليومية العادية",fn:(r,p)=>totalRegularExpenseFor(r,p)},
+    {title:"4. التحويلات الخارجية",fn:(r,p)=>totalTransferFor(r,p)},
+    {title:"5. صافي حركات الديون",fn:(r,p)=>totalDebtNetFor(r,p)},
+    {title:"6. إجمالي الإنفاق الفعلي الشامل",fn:(r,p)=>totalExpenseFor(r,p)}
   ];
 
   rowsDef.forEach(row=>{
@@ -1158,56 +1254,104 @@ async function renderFinancialComparison(){
     if(analysisType==="transfers" && !row.title.includes("التحويلات")) return;
     if(analysisType==="debts" && !row.title.includes("الديون")) return;
 
-    html+=`<tr${row.bold?' style="background:#f8fafc;font-weight:bold"':''}><td>${row.title}</td>`;
+    html+=`<tr style="background:#f8fafc;font-weight:bold"><td>${row.title}</td>`;
     activeCycles.forEach(c=>{
       const val=row.fn(records,c);
       const inc=totalIncomeFor(records,c);
-      const days=calcDaysCount(c);
+      const days=calcDaysCount({from: c.start, to: c.end});
       const pct=percent(val,inc).toFixed(1)+"%";
       const daily=(val/days).toFixed(3);
-      html+=`<td class="amount">${money(val)}<br><small class="small">نسبة: ${pct} | ${daily} د.ك/يوم</small></td>`;
+      
+      let extraInfo = `نسبة: ${pct} | ${daily} د.ك/يوم`;
+      if(row.title.includes("إجمالي الإنفاق")) {
+        const health = calculateCycleHealthScore(records, c, inc, val);
+        extraInfo += `<br><span class="${health.color}">مؤشر الصحة: ${health.score}% (${health.label})</span>`;
+      }
+
+      html+=`<td class="amount">${money(val)}<br><small class="small">${extraInfo}</small></td>`;
     });
     html+=`</tr>`;
   });
 
   html+=`</tbody></table></div>`;
 
-  /* ثانياً: شريط تحليل المصروفات العادية حسب التصنيفات */
-  if(analysisType==="all" || analysisType==="personal"){
-    const cats=getExpenseCategories();
-    let catBarsHtml="";
-    cats.forEach(cat=>{
-      let catTotalInRange=0;
-      activeCycles.forEach(c=>catTotalInRange+=records.filter(r=>inPeriod(r,c)&&r.type==="expense"&&!r.isFixed&&r.category===cat).reduce((s,r)=>s+realAmount(r),0));
-      if(catTotalInRange>0){
-        const catShareOfExp=grandExpense>0?(catTotalInRange/grandExpense)*100:0;
-        catBarsHtml+=`<div class="panel" style="background:#fff">
-          <div class="row-between"><strong>${escapeHTML(cat)}</strong><span class="amount">${money(catTotalInRange)} (${catShareOfExp.toFixed(1)}%)</span></div>
-          <div class="progress-bar-container"><div class="progress-bar-fill" style="width:${Math.min(catShareOfExp,100)}%"></div></div>
-        </div>`;
-      }
+  /* 2. جدول المقارنة التفصيلية (مع تطبيق القوانين الأربعة: النسبة، اليومي، التكرار، ومتوسط العملية) */
+  html+=`<div class="table-wrap" style="margin-top:12px">
+   <div class="compare-group-title"><span>ثانياً: المقارنة التفصيلية (الفرعيات مع القوانين الأربعة: النسبة + اليومي + التكرار + متوسط القيمة)</span></div>
+   <table><thead><tr><th>التفريع الفرعي</th>`;
+  activeCycles.forEach((c,idx)=>{
+    const title = c.isPriorPeriod ? "الأرصدة القديمة" : `دورة ${c.cycleIndex || (idx+1)}`;
+    html+=`<th>${title}</th>`;
+  });
+  html+=`</tr></thead><tbody>`;
+
+  // أ. تفكيك المصروفات حسب التصنيفات
+  const cats = getExpenseCategories();
+  cats.forEach(cat => {
+    html+=`<tr style="background:#fff"><td style="padding-right:12px">▪️ مصروف: <strong>${escapeHTML(cat)}</strong></td>`;
+    activeCycles.forEach(c => {
+      const bounds = {from: c.start, to: c.end};
+      const catRecords = records.filter(r => inPeriod(r, bounds) && r.type === "expense" && r.category === cat);
+      const val = catRecords.reduce((s,r) => s + realAmount(r), 0);
+      const count = catRecords.length;
+      const avgOp = count > 0 ? val / count : 0;
+      const inc = totalIncomeFor(records, c);
+      const days = calcDaysCount(bounds);
+      const pct = percent(val, inc).toFixed(1) + "%";
+      const daily = (val / days).toFixed(3);
+      
+      html+=`<td class="amount">${money(val)}<br><small class="small">النسبة: ${pct} | اليومي: ${daily} د.ك<br>التكرار: ${count} مرة | متوسط العمل: ${money(avgOp)}</small></td>`;
     });
+    html+=`</tr>`;
+  });
 
-    if(catBarsHtml){
-      html+=`<div class="stack">
-        <div class="compare-group-title"><span>ثانياً: تحليل المصروفات العادية حسب التصنيف (النطاق الشامل)</span></div>
-        ${catBarsHtml}
-      </div>`;
-    }
-  }
+  // ب. تفكيك التحويلات الخارجية حسب المستفيدين
+  const allPeople = getPeopleList();
+  allPeople.forEach(person => {
+    html+=`<tr style="background:#fff"><td style="padding-right:12px">▪️ حوالة خارجية: <strong>${escapeHTML(person)}</strong></td>`;
+    activeCycles.forEach(c => {
+      const bounds = {from: c.start, to: c.end};
+      let personKwd = 0;
+      let count = 0;
+      records.filter(r => inPeriod(r, bounds) && r.type === "transfer").forEach(r => {
+        (r.beneficiaries || []).forEach(b => {
+          if(b.name === person) {
+            count++;
+            const totalEgp = (r.beneficiaries || []).reduce((sum, item) => sum + (Number(item.egp) || 0), 0);
+            const totalKwd = Number(r.totalKwd ?? r.amount) || 0;
+            const share = totalEgp > 0 ? (Number(b.egp) / totalEgp) * totalKwd : 0;
+            personKwd += share;
+          }
+        });
+      });
+      const avgOp = count > 0 ? personKwd / count : 0;
+      const inc = totalIncomeFor(records, c);
+      const days = calcDaysCount(bounds);
+      const pct = percent(personKwd, inc).toFixed(1) + "%";
+      const daily = (personKwd / days).toFixed(3);
+      
+      html+=`<td class="amount">${money(personKwd)}<br><small class="small">النسبة: ${pct} | اليومي: ${daily} د.ك<br>التكرار: ${count} مرة | متوسط العمل: ${money(avgOp)}</small></td>`;
+    });
+    html+=`</tr>`;
+  });
 
-  /* ثالثاً: خلاصة الذكاء المالي والتوصيات */
+  html+=`</tbody></table></div>`;
+
+  /* 3. خلاصة الذكاء المالي والتوصيات */
   let maxCatName="—", maxCatVal=0;
-  getExpenseCategories().forEach(cat=>{
+  cats.forEach(cat=>{
     let sum=0;
-    activeCycles.forEach(c=>sum+=records.filter(r=>inPeriod(r,c)&&r.type==="expense"&&!r.isFixed&&r.category===cat).reduce((s,r)=>s+realAmount(r),0));
+    activeCycles.forEach(c=>{
+      const bounds = {from: c.start, to: c.end};
+      sum += records.filter(r => inPeriod(r, bounds) && r.type === "expense" && r.category === cat).reduce((s,r) => s + realAmount(r), 0);
+    });
     if(sum>maxCatVal){maxCatVal=sum;maxCatName=cat}
   });
 
   const freeCashFlow=grandIncome-grandExpense;
 
   html+=`<div class="panel stack" style="background:#ecfdf5;border-color:#a7f3d0">
-    <strong style="color:#065f46;font-size:13px">ثالثاً: نتيجة ومؤشرات التقرير النهائي</strong>
+    <strong style="color:#065f46;font-size:13px">ثالثاً: خلاصة مؤشرات القوانين الأربعة الشاملة</strong>
     <div class="row-between"><span>أكثر البنود استهلاكاً للميزانية:</span><strong class="bad">${escapeHTML(maxCatName)} (${money(maxCatVal)})</strong></div>
     <div class="row-between"><span>متوسط الإنفاق اليومي الشامل:</span><strong style="color:#0f172a">${dailyAvg.toFixed(3)} د.ك / يوم</strong></div>
     <div class="row-between" style="border-top:1px dashed #a7f3d0;padding-top:6px"><span>صافي الفائض / العجز المالي للنطاق:</span><strong class="${freeCashFlow>=0?'good':'bad'}">${freeCashFlow>=0?'+':''}${money(freeCashFlow)}</strong></div>
