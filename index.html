@@ -77,8 +77,6 @@ th{background:#f1f5f9;color:#334155;white-space:nowrap}tbody tr:last-child td{bo
 .compare-group-title{font-size:12px;font-weight:800;color:#0f172a;background:#f1f5f9;padding:8px 10px;border-radius:10px;margin-bottom:6px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between}
 .compare-group-header-row{background:#e2e8f0!important;font-weight:900!important;color:#0f172a!important;text-align:center!important}
 .group-frame-box{background:#ffffff;border:1.5px solid #cbd5e1;border-radius:14px;padding:10px;margin-bottom:12px;box-shadow:0 2px 8px rgba(15,23,42,0.04)}
-.progress-bar-container{background:#e2e8f0;border-radius:6px;height:8px;width:100%;overflow:hidden;margin-top:4px}
-.progress-bar-fill{background:var(--green);height:100%;border-radius:6px;transition:width .3s}
 @media print{.no-print{display:none!important}.report tr,.report .report-head,.report .report-meta,.report .report-summary,.report .metric,.report .balance-card,.report .panel,.person-item,.table-wrap,.group-frame-box{break-inside:avoid;page-break-inside:avoid}.table-wrap{overflow:visible!important}.report{box-shadow:none;border:0}}
 @media(max-height:650px){.header{padding:10px 14px}.content{padding:10px}.btn{padding:10px}}
 @media (max-width: 360px){.beneficiary{grid-template-columns:1fr auto auto}.beneficiary .beneficiary-name-select{grid-column:1/-1}.beneficiary .beneficiary-amount{grid-column:1/3}}
@@ -969,7 +967,7 @@ async function shareAsImage(elId,filename){
   }
   const canShareFiles=typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files});
   let shared=false;
-  if(canShareFiles){try{await navigator.share({title:"تقرير مالي",text:total>1?`تقرير مالي (${total} صفحات)`:"تقرير مالي",files});shared=true;showToast("تمت المشاركة بنجاح ✅")}catch(err){if(err&&err.name==="AbortError"){showToast("تم إلغاء المشاركة");return}}}
+  if(canShareFiles){try{await navigator.share({title:"تقرير مالي",text:total>1?`تقرير مالي (${total} صفحات)`:"تقرير مالي",files});shared=true;showToast("تمت المشاركة بنجاح ✅")}catch(err){if(err&&err.name==="AbortError"){showToast("تم إلغاء المشاركةة");return}}}
   if(!shared){
    for(let i=0;i<files.length;i++){
     const url=URL.createObjectURL(files[i]);
@@ -1281,7 +1279,7 @@ async function renderFinancialComparison(){
   html+=`<div class="stack" style="margin-top:12px">
    <div class="compare-group-title"><span>ثانياً: المقارنة التفصيلية (أطراف وبنود تمتلك معاملات فعلية حصراً)</span></div>`;
 
-  // أ. إطار مجموعة المصروفات الشخصية
+  // أ. إطار مجموعة المصروفات الشخصية (تفصيل حسب التصنيفات الثابتة والعادية)
   if(analysisType==="all" || analysisType==="personal") {
     const activeCatsSet = new Set();
     activeCycles.forEach(c => {
@@ -1293,7 +1291,7 @@ async function renderFinancialComparison(){
     const activeExpenseCategories = [...activeCatsSet].sort((a,b)=>a.localeCompare(b,"ar"));
 
     html+=`<div class="group-frame-box">
-      <div class="compare-group-header-row" style="padding:6px;border-radius:8px;margin-bottom:8px">📁 مجموعة المصروفات الشخصية وتصنيفاتها</div>
+      <div class="compare-group-header-row" style="padding:6px;border-radius:8px;margin-bottom:8px">📁 مجموعة المصروفات الشخصية وتصنيفاتها (الثابتة والعادية)</div>
       <div class="table-wrap">
       <table><thead><tr><th>التصنيف المنسوب المعاملة له</th>`;
     activeCycles.forEach((c,idx)=>{
@@ -1309,14 +1307,14 @@ async function renderFinancialComparison(){
           const bounds = {from: c.start, to: c.end};
           const catRecords = records.filter(r => inPeriod(r, bounds) && r.type === "expense" && r.category === cat);
           const val = catRecords.reduce((s,r) => s + realAmount(r), 0);
+          const fixedVal = catRecords.filter(r => r.isFixed).reduce((s,r) => s + realAmount(r), 0);
+          const regularVal = catRecords.filter(r => !r.isFixed).reduce((s,r) => s + realAmount(r), 0);
           const count = catRecords.length;
-          const avgOp = count > 0 ? val / count : 0;
           const inc = totalIncomeFor(records, c);
           const days = calcDaysCount(bounds);
           const pct = percent(val, inc).toFixed(1) + "%";
-          const daily = (val / days).toFixed(3);
           
-          html+=`<td class="amount">${money(val)}<br><small class="small">النسبة: ${pct} | اليومي: ${daily} د.ك<br>التكرار: ${count} مرة | متوسط الحركة: ${money(avgOp)}</small></td>`;
+          html+=`<td class="amount">${money(val)}<br><small class="small">النسبة: ${pct} | ثابت: ${money(fixedVal)} | عادي: ${money(regularVal)}<br>التكرار: ${count} مرة</small></td>`;
         });
         html+=`</tr>`;
       });
