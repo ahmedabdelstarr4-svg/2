@@ -210,9 +210,9 @@ tbody tr:last-child td:last-child{border-bottom-left-radius:10px}
 </div>
 <div class="grid2 no-print" style="margin-top:10px">
 <button type="button" onclick="exportCompareExcel()" class="btn btn-green">تصدير Excel 📗</button>
-<button type="button" onclick="shareViewWhatsApp('compare-capture-area','مقارنة الدورات المالية')" class="btn btn-green">مشاركة / واتساب 💬</button>
+<button type="button" onclick="shareCompareWhatsApp()" class="btn btn-green">مشاركة / واتساب 💬</button>
 <button type="button" onclick="exportPDF('compare-capture-area','Compare','l')" class="btn btn-dark">تصدير PDF 📄</button>
-<button type="button" onclick="shareAsImage('compare-capture-area','Compare')" class="btn btn-soft">حفظ كصورة 🖼️</button>
+<button type="button" onclick="shareAsImageSafe('compare-capture-area','Compare')" class="btn btn-soft">حفظ كصورة 🖼️</button>
 </div>
 </section>
 
@@ -245,7 +245,7 @@ tbody tr:last-child td:last-child{border-bottom-left-radius:10px}
 <button type="button" onclick="exportReportExcel()" class="btn btn-green">تصدير Excel 📗</button>
 <button type="button" onclick="shareReport()" class="btn btn-green">مشاركة / واتساب 💬</button>
 <button type="button" onclick="exportPDF('capture-area','Report','p')" class="btn btn-dark">تصدير PDF 📄</button>
-<button type="button" onclick="shareAsImage('capture-area','Report')" class="btn btn-soft">حفظ كصورة 🖼️</button>
+<button type="button" onclick="shareAsImageSafe('capture-area','Report')" class="btn btn-soft">حفظ كصورة 🖼️</button>
 </div>
 </div>
 </section>
@@ -604,9 +604,9 @@ function renderReportTableRows(filtered){
  const target=$("beneficiary-select")?$("beneficiary-select").value:"all";
 
  if(isTransferReport) {
-  thead.innerHTML=`<tr><th style="width:11%">التاريخ</th><th style="width:20%">التفاصيل</th><th style="width:16%">المستفيد</th><th style="width:15%">سعر التحويل</th><th class="amount" style="width:13%">المصري</th><th class="amount" style="width:13%">الكويتي</th><th style="width:12%" class="no-print">إجراءات</th></tr>`;
+  thead.innerHTML=`<tr><th style="width:10%">التاريخ</th><th style="width:18%">التفاصيل</th><th style="width:15%">المستفيد</th><th style="width:14%">سعر التحويل</th><th class="amount" style="width:13%">المصري</th><th class="amount" style="width:13%">الكويتي</th><th style="width:17%" class="no-print">إجراءات</th></tr>`;
  } else {
-  thead.innerHTML=`<tr><th style="width:15%">التاريخ</th><th style="width:35%">النوع / التفاصيل</th><th style="width:20%">الطرف</th><th class="amount" style="width:18%">المبلغ</th><th style="width:12%" class="no-print">إجراءات</th></tr>`;
+  thead.innerHTML=`<tr><th style="width:15%">التاريخ</th><th style="width:32%">النوع / التفاصيل</th><th style="width:18%">الطرف</th><th class="amount" style="width:18%">المبلغ</th><th style="width:17%" class="no-print">إجراءات</th></tr>`;
  }
 
  if(!filtered.length){
@@ -633,7 +633,7 @@ function renderReportTableRows(filtered){
      <td><span style="color:#047857;font-weight:bold">${rate.toFixed(3)} د.ك</span></td>
      <td class="amount">${moneyEGP(b.egp)}</td>
      <td class="amount"><strong>${money(shareKwd)}</strong></td>
-     <td class="no-print" style="white-space: nowrap;"><button class="btn btn-muted" style="padding:2px 5px;font-size:9px" data-action="edit-report" data-id="${r.id}">تعديل</button> <button class="btn btn-danger" style="padding:2px 5px;font-size:9px" data-action="delete-report" data-id="${r.id}">حذف</button></td>
+     <td class="no-print" style="white-space: nowrap;"><button class="btn btn-muted" style="padding:3px 6px;font-size:10px" data-action="edit-report" data-id="${r.id}">تعديل</button> <button class="btn btn-danger" style="padding:3px 6px;font-size:10px" data-action="delete-report" data-id="${r.id}">حذف</button></td>
     </tr>`;
    });
   } else {
@@ -1051,40 +1051,60 @@ function prepareForCapture(el){
 }
 function restoreAfterCapture(state){state.restores.forEach(r=>{r.el.style[r.prop]=r.val})}
 
-async function shareAsImage(elId,filename){
+async function shareAsImageSafe(elId,filename){
  if(!window.html2canvas){showToast("مكتبة الصور غير متوفرة");return}
  const el=$(elId);
  if(!el){showToast("لا يوجد محتوى للمشاركة");return}
- showToast("جاري تجهيز الصورة...");
+ showToast("جاري تجهيز الصورة بالقص الآمن (بدون قطع المعاملات)... ⏳");
  const captureState=prepareForCapture(el);
  try{
   void el.offsetWidth;
-  const canvas=await html2canvas(el,{scale:2.5,backgroundColor:"#ffffff",useCORS:true,width:el.scrollWidth,height:el.scrollHeight,windowWidth:el.scrollWidth,windowHeight:el.scrollHeight,scrollX:0,scrollY:0});
-  const A4_ASPECT=297/210;
-  const maxSliceHeightPx=Math.round(canvas.width*A4_ASPECT*0.94);
-  const slices=splitCanvasAtSafePoints(canvas,el,maxSliceHeightPx);
-  const total=slices.length;
-  const files=[];
-  for(let i=0;i<total;i++){
-   const blob=await new Promise(res=>slices[i].canvas.toBlob(res,"image/jpeg",0.95));
-   const name=total===1?`${filename}_${todayISO()}.jpg`:`${filename}_${todayISO()}_${i+1}من${total}.jpg`;
-   files.push(new File([blob],name,{type:"image/jpeg"}));
+  const canvas=await html2canvas(el,{scale:2,backgroundColor:"#ffffff",useCORS:true,width:el.scrollWidth,height:el.scrollHeight,windowWidth:el.scrollWidth,windowHeight:el.scrollHeight,scrollX:0,scrollY:0});
+  
+  const A4_ASPECT = 297 / 210;
+  const maxSliceHeightPx = Math.round(canvas.width * A4_ASPECT * 0.85);
+  const slices = splitCanvasAtSafePoints(canvas, el, maxSliceHeightPx);
+  const total = slices.length;
+  const files = [];
+
+  for(let i=0; i<total; i++){
+   const blob = await new Promise(res => slices[i].canvas.toBlob(res, "image/jpeg", 0.95));
+   const name = total === 1 ? `${filename}_${todayISO()}.jpg` : `${filename}_${todayISO()}_${i+1}من${total}.jpg`;
+   files.push(new File([blob], name, {type: "image/jpeg"}));
   }
-  const canShareFiles=typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files});
-  let shared=false;
-  if(canShareFiles){try{await navigator.share({title:"تقرير مالي",text:total>1?`تقرير مالي (${total} صفحات)`:"تقرير مالي",files});shared=true;showToast("تمت المشاركة بنجاح ✅")}catch(err){if(err&&err.name==="AbortError"){showToast("تم إلغاء المشاركة");return}}}
-  if(!shared){
-   for(let i=0;i<files.length;i++){
-    const url=URL.createObjectURL(files[i]);
-    const a=document.createElement("a");a.href=url;a.download=files[i].name;
-    document.body.appendChild(a);a.click();a.remove();
-    URL.revokeObjectURL(url);
-    if(files.length>1)await new Promise(r=>setTimeout(r,350));
+
+  const canShareFiles = typeof navigator.share === "function" && typeof navigator.canShare === "function" && navigator.canShare({files});
+  let shared = false;
+  if(canShareFiles){
+   try{
+    await navigator.share({title: "تقرير مالي", text: total > 1 ? `تقرير مالي (${total} صفحات مقسمة بأمان)` : "تقرير مالي", files});
+    shared = true;
+    showToast("تمت مشاركة الصور بنجاح ✅");
+   }catch(err){
+    if(err && err.name === "AbortError"){showToast("تم إلغاء المشاركة");return}
    }
-   showToast("تم تنزيل الصورة بنجاح");
   }
- }catch(err){console.error("shareAsImage error:",err);showToast("تعذر إنشاء الصورة")}
- finally{restoreAfterCapture(captureState)}
+
+  if(!shared){
+   for(let i=0; i<files.length; i++){
+    const url = URL.createObjectURL(files[i]);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = files[i].name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    if(files.length > 1) await new Promise(r => setTimeout(r, 400));
+   }
+   showToast("تم تنزيل الصور بنجاح بدون قطع أي معاملة");
+  }
+ }catch(err){
+  console.error("shareAsImageSafe error:", err);
+  showToast("تعذر إنشاء الصور");
+ }finally{
+  restoreAfterCapture(captureState);
+ }
 }
 
 function shareReport(){
@@ -1124,9 +1144,10 @@ function shareReport(){
  }
  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,"_blank");
 }
-function shareViewWhatsApp(captureId,titleText){
- let text=`📊 *${titleText}*\n━━━━━━━━━━━━━━━━━━━━━\n`;
- text+=`_مُصدّر من النظام المالي الشخصي 💼_`;
+
+function shareCompareWhatsApp(){
+ const period=$("compare-report-period")?$("compare-report-period").textContent.trim():"—";
+ let text=`📊 *تقرير مقارنة الدورات المالية الأرباعية*\n━━━━━━━━━━━━━━━━━━━━━\n📅 *الفترة والمحتوى:* ${period}\n\n_تم تصدير الملخص المالي من النظام المالي الشخصي 💼_`;
  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,"_blank");
 }
 
