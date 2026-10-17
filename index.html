@@ -20,9 +20,28 @@ label{display:block;color:#475569;font-size:12px;font-weight:700;margin-bottom:5
 input,select,textarea{width:100%;min-width:0;padding:11px 10px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;color:var(--ink);outline:none;font-size:14px}
 input:focus,select:focus,textarea:focus{border-color:#059669;box-shadow:0 0 0 3px #0596691a}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:#f1f5f9;padding:4px;border-radius:13px}
-.tab{border:0;background:transparent;color:#334155;border-radius:9px;padding:10px 2px;font-size:11px;font-weight:700}
-.tab.active{background:var(--green);color:white;box-shadow:0 2px 5px #05966933}
+
+/* =========================================================
+   التصميم العصري الجديد لشاشة الإدخال
+   ========================================================= */
+#view-input {background: #ffffff; border-radius: 20px; padding: 4px;}
+#view-input .grid4 {display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; background: #0f172a; padding: 6px; border-radius: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);}
+#view-input .tab {border: 0; background: transparent; color: #94a3b8; border-radius: 12px; padding: 11px 2px; font-size: 11px; font-weight: 800; transition: all 0.2s ease;}
+#view-input .tab.active {background: #059669; color: #ffffff; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4); transform: translateY(-1px);}
+
+#expense-amount, #income-amount, #total-kwd, #debt-amount {font-size: 26px !important; text-align: center; font-weight: 900; color: #059669 !important; background: #ecfdf5 !important; border: 2px solid #a7f3d0 !important; border-radius: 18px; padding: 16px !important; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.08);}
+
+#view-input input[type="time"], #view-input select, #view-input textarea, #view-input .date-parts input {background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px; font-weight: 700; color: #0f172a;}
+#view-input input:focus, #view-input select:focus, #view-input textarea:focus {border-color: #059669; background: #ffffff; box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12);}
+
+#section-expense, #section-income, #section-transfer, #section-debt {background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 18px; padding: 14px; gap: 12px;}
+
+#save-transaction {border-radius: 16px; padding: 16px; font-size: 16px; font-weight: 900; background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 8px 25px rgba(5, 150, 105, 0.35); margin-top: 6px; transition: transform 0.1s ease; color: white;}
+#save-transaction:active {transform: scale(0.98);}
+
+.beneficiary {background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 10px; box-shadow: 0 3px 10px rgba(15, 23, 42, 0.03); margin-top: 8px;}
+/* ========================================================= */
+
 .btn{border:0;border-radius:12px;padding:12px 10px;font-weight:800;font-size:13px;transition:background .15s}
 .btn-primary{background:var(--green);color:white}.btn-primary:active{background:#047857}
 .btn-dark{background:#0f172a;color:white}.btn-soft{background:#ecfdf5;color:#047857}.btn-green{background:#059669;color:white}.btn-muted{background:#f1f5f9;color:#334155}.btn-danger{background:#fff1f2;color:#be123c}
@@ -123,41 +142,85 @@ tbody tr:last-child td:last-child{border-bottom-left-radius:10px}
   </div>
 </section>
 
+<!-- شاشة الإدخال بالتصميم الجديد -->
 <section id="view-input" class="view stack hidden">
-<div class="row-between"><strong style="font-size:14px">إدخال / تعديل معاملة</strong><button type="button" class="btn btn-muted" style="padding:4px 10px;font-size:11px" onclick="cancelEdit()">إلغاء وعودة للرئيسية ✕</button></div>
-<div><label>نوع المعاملة</label><div class="grid4">
-<button class="tab active" id="subtab-expense" type="button" onclick="switchInputTab('expense')">مصروفات</button>
-<button class="tab" id="subtab-income" type="button" onclick="switchInputTab('income')">دخل</button>
-<button class="tab" id="subtab-transfer" type="button" onclick="switchInputTab('transfer')">حوالة</button>
-<button class="tab" id="subtab-debt" type="button" onclick="switchInputTab('debt')">ديون</button>
-</div></div>
-<div class="grid2">
-<div><label>التاريخ</label><div class="date-parts"><input id="tx-day" type="number" min="1" max="31" inputmode="numeric" placeholder="اليوم"><input id="tx-month" type="number" min="1" max="12" inputmode="numeric" placeholder="الشهر"><input id="tx-year" type="number" min="2000" max="2100" inputmode="numeric" placeholder="السنة"></div></div>
-<div><label for="tx-time">الوقت</label><input type="time" id="tx-time"></div>
-</div>
-<div id="edit-banner" class="hint hidden">أنت تعدّل معاملة محفوظة. احفظ التعديلات لتحديث السجل.<button class="btn btn-muted" style="display:block;margin-top:7px;width:100%" type="button" onclick="cancelEdit()">إلغاء التعديل</button></div>
-<div id="section-expense" class="stack">
-<div><label>المبلغ (د.ك)</label><input id="expense-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="0.000"></div>
-<div><label>التصنيف</label><select id="expense-category"></select></div>
-<label class="checkline"><input type="checkbox" id="is-fixed-expense"><span>[✓] مصروف ثابت دوري (التزام شهري بتحديدك اليدوي)</span></label>
-</div>
-<div id="section-income" class="stack hidden">
-<div><label>المبلغ الوارد (د.ك)</label><input id="income-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="0.000"></div>
-<div><label>المصدر</label><select id="income-category"></select></div>
-<label class="checkline"><input type="checkbox" id="is-salary-base"><span>راتب أساسي — بداية دورة المتابعة</span></label>
-</div>
-<div id="section-transfer" class="stack hidden">
-<div><label>إجمالي المبلغ المدفوع (د.ك)</label><input id="total-kwd" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="مثال: 100.000" oninput="calculateExchange()"></div>
-<div><div class="row-between"><span class="section-title">المستفيدون ومبالغهم (ج.م)</span><button class="btn btn-soft" style="padding:7px 10px" type="button" onclick="addBeneficiary()">+ إضافة مستفيد</button></div><div id="beneficiaries-list"></div><div class="field-note" id="transfer-people-hint"></div></div>
-<div class="rate"><span>تكلفة كل 1000 جنيه:</span><strong id="exchange-rate-display">0.000 د.ك / 1000 ج.م</strong></div>
-</div>
-<div id="section-debt" class="stack hidden">
-<div><label>اسم الشخص / الجهة</label><div class="person-picker"><select id="debt-person-select" aria-label="اسم الشخص أو الجهة"></select><button type="button" class="btn btn-soft btn-plus" onclick="openPersonModal(this)" title="إضافة اسم جديد">+</button></div><div class="field-note" id="debt-people-hint"></div></div>
-<div><label>المبلغ (د.ك)</label><input id="debt-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="0.000"></div>
-<div><label>نوع الحركة</label><select id="debt-type"><option value="creditor">أخدنا منه (زيادة الدين علينا)</option><option value="debtor">أدّينا له (سداد من الدين)</option><option value="opening_balance">رصيد أول المدة (دين قديم)</option></select></div>
-</div>
-<div><label for="tx-notes">ملاحظات</label><textarea id="tx-notes" rows="2" placeholder="ملاحظات سريعة..." maxlength="500"></textarea></div>
-<button type="button" id="save-transaction" class="btn btn-primary" onclick="saveTransaction()">حفظ المعاملة 💾</button>
+  <div class="row-between" style="padding: 0 4px;">
+    <strong style="font-size:15px; color:#0f172a;">⚡ إدخال أو تعديل معاملة</strong>
+    <button type="button" class="btn btn-muted" style="padding:6px 12px;font-size:11px;border-radius:10px;" onclick="cancelEdit()">إلغاء ✕</button>
+  </div>
+
+  <div>
+    <label>نوع المعاملة</label>
+    <div class="grid4">
+      <button class="tab active" id="subtab-expense" type="button" onclick="switchInputTab('expense')">مصروفات</button>
+      <button class="tab" id="subtab-income" type="button" onclick="switchInputTab('income')">دخل</button>
+      <button class="tab" id="subtab-transfer" type="button" onclick="switchInputTab('transfer')">حوالة</button>
+      <button class="tab" id="subtab-debt" type="button" onclick="switchInputTab('debt')">ديون</button>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <label>التاريخ</label>
+      <div class="date-parts">
+        <input id="tx-day" type="number" min="1" max="31" inputmode="numeric" placeholder="اليوم">
+        <input id="tx-month" type="number" min="1" max="12" inputmode="numeric" placeholder="الشهر">
+        <input id="tx-year" type="number" min="2000" max="2100" inputmode="numeric" placeholder="السنة">
+      </div>
+    </div>
+    <div>
+      <label for="tx-time">الوقت</label>
+      <input type="time" id="tx-time">
+    </div>
+  </div>
+
+  <div id="edit-banner" class="hint hidden">
+    أنت تعدّل معاملة محفوظة. احفظ التعديلات لتحديث السجل.
+    <button class="btn btn-muted" style="display:block;margin-top:7px;width:100%" type="button" onclick="cancelEdit()">إلغاء التعديل</button>
+  </div>
+
+  <!-- قسم المصروفات -->
+  <div id="section-expense" class="stack">
+    <div><label>المبلغ (د.ك)</label><input id="expense-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="0.000"></div>
+    <div><label>التصنيف</label><select id="expense-category"></select></div>
+    <label class="checkline"><input type="checkbox" id="is-fixed-expense"><span>[✓] مصروف ثابت دوري (التزام شهري)</span></label>
+  </div>
+
+  <!-- قسم الدخل -->
+  <div id="section-income" class="stack hidden">
+    <div><label>المبلغ الوارد (د.ك)</label><input id="income-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="0.000"></div>
+    <div><label>المصدر</label><select id="income-category"></select></div>
+    <label class="checkline"><input type="checkbox" id="is-salary-base"><span>راتب أساسي — بداية دورة المتابعة</span></label>
+  </div>
+
+  <!-- قسم الحوالات -->
+  <div id="section-transfer" class="stack hidden">
+    <div><label>إجمالي المبلغ المدفوع (د.ك)</label><input id="total-kwd" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="مثال: 100.000" oninput="calculateExchange()"></div>
+    <div>
+      <div class="row-between"><span class="section-title">المستفيدون ومبالغهم (ج.م)</span><button class="btn btn-soft" style="padding:7px 12px;border-radius:10px;" type="button" onclick="addBeneficiary()">+ إضافة مستفيد</button></div>
+      <div id="beneficiaries-list"></div>
+      <div class="field-note" id="transfer-people-hint"></div>
+    </div>
+    <div class="rate"><span>تكلفة كل 1000 جنيه:</span><strong id="exchange-rate-display">0.000 د.ك / 1000 ج.م</strong></div>
+  </div>
+
+  <!-- قسم الديون -->
+  <div id="section-debt" class="stack hidden">
+    <div>
+      <label>اسم الشخص / الجهة</label>
+      <div class="person-picker">
+        <select id="debt-person-select" aria-label="اسم الشخص أو الجهة"></select>
+        <button type="button" class="btn btn-soft btn-plus" onclick="openPersonModal(this)" title="إضافة اسم جديد">+</button>
+      </div>
+      <div class="field-note" id="debt-people-hint"></div>
+    </div>
+    <div><label>المبلغ (د.ك)</label><input id="debt-amount" type="number" min="0.001" step="0.001" inputmode="decimal" placeholder="0.000"></div>
+    <div><label>نوع الحركة</label><select id="debt-type"><option value="creditor">أخدنا منه (زيادة الدين علينا)</option><option value="debtor">أدّينا له (سداد من الدين)</option><option value="opening_balance">رصيد أول المدة (دين قديم)</option></select></div>
+  </div>
+
+  <div><label for="tx-notes">ملاحظات</label><textarea id="tx-notes" rows="2" placeholder="ملاحظات سريعة..." maxlength="500"></textarea></div>
+  
+  <button type="button" id="save-transaction" class="btn btn-primary" onclick="saveTransaction()">حفظ المعاملة 💾</button>
 </section>
 
 <section id="view-reports" class="view stack hidden">
@@ -1639,9 +1702,9 @@ function numberToArabicWords(num){
  if(millions>0){if(millions===1)parts.push("مليون");else if(millions===2)parts.push("مليونان");else if(millions<=10)parts.push(under1000(millions)+" ملايين");else parts.push(under1000(millions)+" مليون")}
  if(thousands>0){if(thousands===1)parts.push("ألف");else if(thousands===2)parts.push("ألفان");else if(thousands<=10)parts.push(under1000(thousands)+" آلاف");else parts.push(under1000(thousands)+" ألف")}
  if(rest>0||parts.length===0){const rText=under1000(rest);if(rText)parts.push(rText)}
- let words=parts.length>0?parts.join(" و")+" دينار كويتي":(decPart>0?"":"دينار كويتي");
+ let words=parts.length>0?parts.join(" y")+" دينار كويتي":(decPart>0?"":"دينار كويتي");
  if(decPart>0)words+=(parts.length>0?" و":"")+under1000(decPart)+" فلس";
- return words.trim()+" لا غير";
+ return words.trim().replace(" y", " و")+" لا غير";
 }
 
 document.addEventListener("click",e=>{
