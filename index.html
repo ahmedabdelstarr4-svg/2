@@ -921,25 +921,54 @@ async function deleteTransactionFromReport(id){
 
 function buildBackupPayload(records){return{version:10,savedAt:new Date().toISOString(),transactions:records,people:getPeopleList(),expenseCategories:getExpenseCategories(),safetyCap:getSafetyCap()}}
 
+/* دالة مساعدة لتوليد اسم ملف ذكي يعتمد على الشخص أو الحركة أو النسخة */
+function getSmartFilename(prefix, extension = "json") {
+  const target = $("beneficiary-select") ? $("beneficiary-select").value : "all";
+  const reportType = $("report-type") ? $("report-type").value : "general";
+  const dateStr = todayISO();
+  
+  if (prefix === "backup") {
+    return `نسخة_احتياطية_${dateStr}.${extension}`;
+  }
+  
+  let entityPart = "";
+  if (target && target !== "all") {
+    entityPart = `_${target}`;
+  } else if (reportType === "expense") {
+    entityPart = "_مصروفات";
+  } else if (reportType === "income") {
+    entityPart = "_دخل";
+  } else if (reportType === "debt") {
+    entityPart = "_ديون_وعلاقات";
+  } else if (reportType === "transfer") {
+    entityPart = "_حوالات_خارجية";
+  }
+  
+  return `${prefix}${entityPart}_${dateStr}.${extension}`;
+}
+
 async function downloadBackup(){
  const records=await allTransactions();
  const data=buildBackupPayload(records);
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob);
- const a=document.createElement("a");a.href=url;a.download=`finance_backup_${todayISO()}.json`;document.body.appendChild(a);a.click();a.remove();
+ const a=document.createElement("a");a.href=url;a.download=getSmartFilename("نسخة_مالية_شخصية", "json");document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
  $("backup-status").textContent="آخر تنزيل: "+new Date().toLocaleTimeString("en-US");
- showToast("تم تنزيل النسخة الاحتياطية بنجاح");
+ showToast("تم تنزيل النسخة الاحتياطية بنجاح ✅");
 }
+
 async function shareBackup(){
  try{
   const records=await allTransactions();
   const str=JSON.stringify(buildBackupPayload(records),null,2);
-  if(navigator.share){try{const file=new File([str],`backup_${todayISO()}.json`,{type:"application/json"});await navigator.share({title:"نسخة احتياطية مالية",files:[file]});return}catch{}}
+  const smartName = getSmartFilename("نسخة_مالية_شخصية", "json");
+  if(navigator.share){try{const file=new File([str],smartName,{type:"application/json"});await navigator.share({title:"نسخة احتياطية مالية",files:[file]});return}catch{}}
   if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(str);showToast("تم نسخ البيانات للحافظة")}
   else{const ta=document.createElement("textarea");ta.value=str;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");showToast("تم نسخ البيانات")}catch{showToast("تعذر النسخ — نزّل النسخة كملف")}ta.remove()}
  }catch(err){console.error("shareBackup:",err);showToast("تعذر مشاركة النسخة الاحتياطية")}
 }
+
 function restoreBackup(){
  const fileInput=$("restore-file");
  if(!fileInput.files.length){showToast("اختر ملف النسخة الاحتياطية أولاً");return}
@@ -1020,8 +1049,10 @@ function exportReportExcel(){
   ws['!cols']=[{wch:15},{wch:25},{wch:20},{wch:20},{wch:18},{wch:18}];
   XLSX.utils.book_append_sheet(wb,ws,"Report");
   wb.Workbook={Views:[{RTL:true}]};
-  XLSX.writeFile(wb,`financial_report_${todayISO()}.xlsx`);
-  showToast("تم تصدير ملف Excel ✅");
+  
+  const smartFilename = getSmartFilename("كشف_حساب", "xlsx");
+  XLSX.writeFile(wb, smartFilename);
+  showToast("تم تصدير ملف Excel بنجاح ✅");
  }catch(err){console.error("exportReportExcel:",err);showToast("فشل التصدير إلى Excel")}
 }
 
@@ -1090,7 +1121,7 @@ async function exportCompareExcel(){
 
   XLSX.utils.book_append_sheet(wb,ws,"Financial_Comparison");
   wb.Workbook={Views:[{RTL:true}]};
-  XLSX.writeFile(wb,`financial_comparison_${todayISO()}.xlsx`);
+  XLSX.writeFile(wb, `مقارنة_الدورات_المالية_${todayISO()}.xlsx`);
   
   showToast("تم تصدير المقارنة لـ Excel بنجاح ✅");
  }catch(err){
@@ -1141,7 +1172,8 @@ async function exportPDF(elId,filename,orientation="p"){
    pdf.text(`Page ${i} of ${pageCount}`,pdfWidth/2,pdfHeight-5,{align:"center"});
   }
   
-  pdf.save(`${filename}_${todayISO()}.pdf`);
+  const smartPdfName = elId === "compare-capture-area" ? `مقارنة_الدورات_${todayISO()}.pdf` : getSmartFilename("تقرير_مالي", "pdf");
+  pdf.save(smartPdfName);
   showToast("تم تنزيل ملف الـ PDF بنجاح ✅");
  }catch(err){console.error("PDF Export Error:",err);showToast("حدث خطأ أثناء تصدير PDF")}
  finally{restoreAfterCapture(captureState)}
@@ -1198,9 +1230,11 @@ async function shareAsImageSafe(elId,filename){
   const total = slices.length;
   const files = [];
 
+  const baseImageName = elId === "compare-capture-area" ? "مقارنة_الدورات" : getSmartFilename("صورة_تقرير", "jpg").replace(".jpg","");
+
   for(let i=0; i<total; i++){
    const blob = await new Promise(res => slices[i].canvas.toBlob(res, "image/jpeg", 0.95));
-   const name = total === 1 ? `${filename}_${todayISO()}.jpg` : `${filename}_${todayISO()}_${i+1}من${total}.jpg`;
+   const name = total === 1 ? `${baseImageName}.jpg` : `${baseImageName}_${i+1}من${total}.jpg`;
    files.push(new File([blob], name, {type: "image/jpeg"}));
   }
 
