@@ -759,18 +759,34 @@ function renderReportTableRows(filtered){
  const target=$("beneficiary-select")?$("beneficiary-select").value:"all";
 
  if(isTransferReport) {
-  thead.innerHTML=`<tr><th style="width:14%">التاريخ</th><th style="width:18%">التفاصيل</th><th style="width:15%">المستفيد</th><th style="width:14%">السعر</th><th class="amount" style="width:13%">المصري</th><th class="amount" style="width:13%">الكويتي</th><th style="width:13%" class="no-print">إجراء</th></tr>`;
+  thead.innerHTML=`<tr><th style="width:12%">التاريخ</th><th style="width:16%">التفاصيل</th><th style="width:14%">المستفيد</th><th style="width:12%">السعر</th><th class="amount" style="width:11%">المصري</th><th class="amount" style="width:11%">الكويتي</th><th class="amount" style="width:12%">الرصيد</th><th style="width:12%" class="no-print">إجراء</th></tr>`;
  } else {
-  thead.innerHTML=`<tr><th style="width:18%">التاريخ</th><th style="width:34%">النوع / التفاصيل</th><th style="width:18%">الطرف</th><th class="amount" style="width:16%">المبلغ</th><th style="width:14%" class="no-print">إجراء</th></tr>`;
+  thead.innerHTML=`<tr><th style="width:16%">التاريخ</th><th style="width:30%">النوع / التفاصيل</th><th style="width:16%">الطرف</th><th class="amount" style="width:14%">المبلغ</th><th class="amount" style="width:14%">الرصيد التراكمي</th><th style="width:10%" class="no-print">إجراء</th></tr>`;
  }
 
  if(!filtered.length){
-  tbody.innerHTML=`<tr><td colspan="${isTransferReport ? 7 : 5}" style="text-align:center;padding:15px">لا توجد حركات مطابقة للمعايير.</td></tr>`;
+  tbody.innerHTML=`<tr><td colspan="${isTransferReport ? 8 : 6}" style="text-align:center;padding:15px">لا توجد حركات مطابقة للمعايير.</td></tr>`;
   return;
  }
 
+ // حساب الرصيد التراكمي تصاعدياً
+ let runningBalance = 0;
+ const sortedAsc = [...filtered].sort((a,b)=>a.date.localeCompare(b.date)||(a.time||"").localeCompare(b.time||"")||a.id.localeCompare(b.id));
+ const balanceMap = {};
+ sortedAsc.forEach(r => {
+  const amt = realAmount(r);
+  if(r.type === "income" || isCreditorEntry(r)) {
+   runningBalance += amt;
+  } else if(r.type === "expense" || r.type === "transfer" || isDebtorEntry(r)) {
+   runningBalance -= amt;
+  }
+  balanceMap[r.id] = runningBalance;
+ });
+
  let rowsHtml="";
  filtered.forEach(r=>{
+  const currentBalance = balanceMap[r.id] !== undefined ? balanceMap[r.id] : 0;
+
   if(r.type==="transfer" && isTransferReport) {
    const bens = r.beneficiaries || [];
    const totalEgp = bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
@@ -787,7 +803,8 @@ function renderReportTableRows(filtered){
      <td><strong>${escapeHTML(b.name)}</strong></td>
      <td><span style="color:#047857;font-weight:bold">${rate.toFixed(3)}</span></td>
      <td class="amount">${moneyEGP(b.egp)}</td>
-     <td class="amount"><strong>${money(shareKwd)}</strong></td>
+     <td class="amount">${money(shareKwd)}</td>
+     <td class="amount"><strong>${money(currentBalance)}</strong></td>
      <td class="no-print" style="white-space: nowrap; text-align:center;"><button class="btn btn-muted action-btn-mini" title="تعديل" data-action="edit-report" data-id="${r.id}">✏️</button><button class="btn btn-danger action-btn-mini" title="حذف" data-action="delete-report" data-id="${r.id}">🗑️</button></td>
     </tr>`;
    });
@@ -805,6 +822,7 @@ function renderReportTableRows(filtered){
     <td><strong>${escapeHTML(desc)}</strong><br><small>${escapeHTML(r.notes||"")}</small></td>
     <td>${escapeHTML(person)}</td>
     <td class="amount">${money(amt)}</td>
+    <td class="amount"><strong>${money(currentBalance)}</strong></td>
     <td class="no-print" style="white-space: nowrap; text-align:center;"><button class="btn btn-muted action-btn-mini" title="تعديل" data-action="edit-report" data-id="${r.id}">✏️</button><button class="btn btn-danger action-btn-mini" title="حذف" data-action="delete-report" data-id="${r.id}">🗑️</button></td>
    </tr>`;
   }
@@ -827,7 +845,6 @@ function updateReportSummaries(filtered,from,to){
  const absDebtNet=Math.abs(debtNet);
  const debtWords=numberToArabicWords(absDebtNet);
 
- // إجماليات الحوالات (تحترم فلتر المستفيد: نصيبه فقط وليس الحوالة كاملة)
  let totalTransferredKwd=0,totalTransferredEgp=0;
  if(type==="transfer"){
   filtered.forEach(r=>{
@@ -921,7 +938,6 @@ async function deleteTransactionFromReport(id){
 
 function buildBackupPayload(records){return{version:10,savedAt:new Date().toISOString(),transactions:records,people:getPeopleList(),expenseCategories:getExpenseCategories(),safetyCap:getSafetyCap()}}
 
-/* دالة مساعدة لتوليد اسم ملف ذكي يعتمد على الشخص أو الحركة أو النسخة */
 function getSmartFilename(prefix, extension = "json") {
   const target = $("beneficiary-select") ? $("beneficiary-select").value : "all";
   const reportType = $("report-type") ? $("report-type").value : "general";
@@ -1014,30 +1030,52 @@ function exportReportExcel(){
   let rows=[[title],["الفترة",period],["الطرف / التصنيف",target],["عدد الحركات",count],[]];
   
   if(isTransferReport) {
-   rows.push(["التاريخ","التفاصيل","اسم المستفيد","سعر التحويل (لكل 1000ج)","القيمة بالمصري (ج.م)","نصيبه بالكويتي (د.ك)"]);
+   rows.push(["التاريخ","التفاصيل","اسم المستفيد","سعر التحويل (لكل 1000ج)","القيمة بالمصري (ج.م)","نصيبه بالكويتي (د.ك)","الرصيد التراكمي"]);
+   let runningExcelBal = 0;
+   const sortedExcel = [...list].sort((a,b)=>a.date.localeCompare(b.date)||(a.time||"").localeCompare(b.time||""));
+   const balMap = {};
+   sortedExcel.forEach(r => {
+    const amt = realAmount(r);
+    if(r.type==="income" || isCreditorEntry(r)) runningExcelBal += amt;
+    else if(r.type==="expense" || r.type==="transfer" || isDebtorEntry(r)) runningExcelBal -= amt;
+    balMap[r.id] = runningExcelBal;
+   });
+
    list.forEach(r=>{
     const totalKwd=Number(r.totalKwd??r.amount)||0;
     const bens=r.beneficiaries||[];
     const totalEgp=bens.reduce((s,b)=>s+(Number(b.egp)||0),0);
     const rate=r.exchangeRate||(totalEgp>0?(totalKwd/totalEgp)*1000:0);
+    const curBal = balMap[r.id] || 0;
     
     bens.forEach(b=>{
      if(targetVal !== "all" && b.name !== targetVal) return;
      const shareKwd=b.shareKwd!==undefined?b.shareKwd:(totalEgp>0?(b.egp/totalEgp)*totalKwd:0);
-     rows.push([fmtDate(r.date),r.notes||"حوالة خارجية",b.name,Number(rate.toFixed(3)),Number(b.egp),Number(shareKwd.toFixed(3))]);
+     rows.push([fmtDate(r.date),r.notes||"حوالة خارجية",b.name,Number(rate.toFixed(3)),Number(b.egp),Number(shareKwd.toFixed(3)),Number(curBal.toFixed(3))]);
     });
    });
   } else {
-   rows.push(["التاريخ","النوع / التفاصيل","الطرف","المبلغ"]);
+   rows.push(["التاريخ","النوع / التفاصيل","الطرف","المبلغ","الرصيد التراكمي"]);
+   let runningExcelBal = 0;
+   const sortedExcel = [...list].sort((a,b)=>a.date.localeCompare(b.date)||(a.time||"").localeCompare(b.time||""));
+   const balMap = {};
+   sortedExcel.forEach(r => {
+    const amt = realAmount(r);
+    if(r.type==="income" || isCreditorEntry(r)) runningExcelBal += amt;
+    else if(r.type==="expense" || r.type==="transfer" || isDebtorEntry(r)) runningExcelBal -= amt;
+    balMap[r.id] = runningExcelBal;
+   });
+
    list.forEach(r=>{
     const amt=realAmount(r);
+    const curBal = balMap[r.id] || 0;
     let desc;
     if(r.type==="expense"||r.type==="income")desc=r.category+(r.isFixed?" [ثابت]":"");
     else if(r.type==="debt")desc=debtTypeLabel(r.debtType);
     else desc=r.type;
     const person=r.person||(r.beneficiaries||[]).map(b=>b.name).join("، ")||"—";
     const notes=r.notes?" — "+r.notes:"";
-    rows.push([fmtDate(r.date),desc+notes,person,Number(amt.toFixed(3))]);
+    rows.push([fmtDate(r.date),desc+notes,person,Number(amt.toFixed(3)),Number(curBal.toFixed(3))]);
    });
   }
 
@@ -1046,7 +1084,7 @@ function exportReportExcel(){
   if(summaryEl){rows.push(["ملخص التقرير"]);summaryEl.querySelectorAll(".row-between").forEach(row=>{const spans=row.querySelectorAll("span, strong");if(spans.length>=2)rows.push([spans[0].textContent.trim(),spans[1].textContent.trim()])})}
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[{wch:15},{wch:25},{wch:20},{wch:20},{wch:18},{wch:18}];
+  ws['!cols']=[{wch:15},{wch:25},{wch:20},{wch:20},{wch:18},{wch:18},{wch:18}];
   XLSX.utils.book_append_sheet(wb,ws,"Report");
   wb.Workbook={Views:[{RTL:true}]};
   
