@@ -21,7 +21,6 @@ input,select,textarea{width:100%;min-width:0;padding:11px 10px;border:1px solid 
 input:focus,select:focus,textarea:focus{border-color:#059669;box-shadow:0 0 0 3px #0596691a}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 
-/* شاشة الإدخال */
 #view-input {background: #ffffff; border-radius: 20px; padding: 4px;}
 #view-input .grid4 {display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; background: #0f172a; padding: 6px; border-radius: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);}
 #view-input .tab {border: 0; background: transparent; color: #94a3b8; border-radius: 12px; padding: 11px 2px; font-size: 11px; font-weight: 800; transition: all 0.2s ease;}
@@ -39,7 +38,6 @@ input:focus,select:focus,textarea:focus{border-color:#059669;box-shadow:0 0 0 3p
 
 .beneficiary {background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 16px; padding: 10px; box-shadow: 0 3px 10px rgba(15, 23, 42, 0.03); margin-top: 8px;}
 
-/* أزرار وبطاقات */
 .btn{border:0;border-radius:14px;padding:12px 10px;font-weight:800;font-size:13px;transition:all .2s ease}
 .btn-primary{background:linear-gradient(135deg, #059669, #047857);color:white;box-shadow: 0 4px 12px rgba(5,150,105,0.25)}
 .btn-primary:active{transform:scale(0.97)}
@@ -124,7 +122,6 @@ tbody tr:last-child td{border-bottom:0}
 .cap-track{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden}
 .cap-bar{height:100%;width:0;background:#059669;transition:width .3s ease,background .3s ease}
 
-/* نمط الإعدادات المطوي الأنيق (Accordion UI) */
 .acc-item {border:1px solid var(--line); border-radius:16px; background:#fff; overflow:hidden; transition:all 0.2s ease;}
 .acc-header {padding:12px 14px; background:#f8fafc; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:800; font-size:13px; color:#0f172a; user-select:none;}
 .acc-header:hover {background:#f1f5f9;}
@@ -133,7 +130,6 @@ tbody tr:last-child td{border-bottom:0}
 .acc-item.open .acc-body {display:block;}
 .acc-item.open .acc-icon {transform:rotate(180deg); background:#059669; color:#fff;}
 
-/* كروت التحليل المالي الذكي */
 .analytics-banner {background:linear-gradient(135deg, #1e293b, #0f172a); color:#fff; border-radius:18px; padding:14px; border:1px solid #334155; display:flex; flex-direction:column; gap:8px;}
 .analytics-card {background:#ffffff; border:1px solid var(--line); border-radius:16px; padding:12px; display:flex; flex-direction:column; gap:6px;}
 
@@ -300,10 +296,8 @@ tbody tr:last-child td:last-child{border-bottom-left-radius:10px}
 </div>
 </div>
 
-<!-- شريط التنبيهات الذكية للشاشة الحالية -->
 <div id="smart-alerts-container" class="stack no-print"></div>
 
-<!-- كروت التحليل السريع KPI Cards -->
 <div class="metric-grid no-print" id="compare-summary-kpis">
   <div class="metric"><span>إجمالي الدخل (النطاق)</span><strong id="kpi-total-income" class="good">0.000 د.ك</strong></div>
   <div class="metric"><span>إجمالي المصروف الشامل</span><strong id="kpi-total-expense" class="bad">0.000 د.ك</strong></div>
@@ -359,12 +353,10 @@ tbody tr:last-child td:last-child{border-bottom-left-radius:10px}
 </section>
 </section>
 
-<!-- شاشة الإعدادات بتصميم Accordions المطوي الأنيق الصغير -->
 <section id="view-backup" class="view stack hidden">
 <div class="row-between"><strong style="font-size:15px; color:#0f172a;">الإعدادات وسقف الأمان ⚙️</strong><span class="small">تصميم مدمج</span></div>
 
 <div class="stack" style="gap:8px">
-  <!-- 1. سقف الأمان اليومي -->
   <div class="acc-item open" id="acc-safety">
     <div class="acc-header" onclick="toggleAccordion('acc-safety')"><span>🛡️ سقف الأمان اليومي (Budget Cap)</span><span class="acc-icon">▼</span></div>
     <div class="acc-body">
@@ -373,25 +365,46 @@ tbody tr:last-child td:last-child{border-bottom-left-radius:10px}
     </div>
   </div>
 
-  <!-- 2. النسب المستهدفة للميزانية (خمس نسب) -->
   <div class="acc-item" id="acc-targets">
     <div class="acc-header" onclick="toggleAccordion('acc-targets')"><span>🎯 النسب المستهدفة للميزانية (%)</span><span class="acc-icon">▼</span></div>
     <div class="acc-body stack">
       <div class="grid2">
-        <div><label style="font-size:10px">المصروفات الثابتة (%)</label><input id="target-fixed-pct" type="number" min="0" max="100" placeholder="مثال: 30"></div>
-        <div><label style="font-size:10px">المصروفات العادية (%)</label><input id="target-regular-pct" type="number" min="0" max="100" placeholder="مثال: 30"></div>
+        <div>
+          <label style="font-size:10px">المصروفات الثابتة (%)</label>
+          <input id="target-fixed-pct" type="number" min="0" max="100" placeholder="مثال: 30" oninput="renderTargetValuesPreview()">
+          <small class="small target-value-hint" data-target-hint="fixed" style="display:block;margin-top:3px;color:#059669;font-weight:700"></small>
+        </div>
+        <div>
+          <label style="font-size:10px">المصروفات العادية (%)</label>
+          <input id="target-regular-pct" type="number" min="0" max="100" placeholder="مثال: 30" oninput="renderTargetValuesPreview()">
+          <small class="small target-value-hint" data-target-hint="regular" style="display:block;margin-top:3px;color:#059669;font-weight:700"></small>
+        </div>
       </div>
       <div class="grid2">
-        <div><label style="font-size:10px">المشتريات الشخصية (%)</label><input id="target-personal-pct" type="number" min="0" max="100" placeholder="مثال: 10"></div>
-        <div><label style="font-size:10px">التحويلات الخارجية (%)</label><input id="target-transfer-pct" type="number" min="0" max="100" placeholder="مثال: 20"></div>
+        <div>
+          <label style="font-size:10px">المشتريات الشخصية (%)</label>
+          <input id="target-personal-pct" type="number" min="0" max="100" placeholder="مثال: 10" oninput="renderTargetValuesPreview()">
+          <small class="small target-value-hint" data-target-hint="personal" style="display:block;margin-top:3px;color:#059669;font-weight:700"></small>
+        </div>
+        <div>
+          <label style="font-size:10px">التحويلات الخارجية (%)</label>
+          <input id="target-transfer-pct" type="number" min="0" max="100" placeholder="مثال: 20" oninput="renderTargetValuesPreview()">
+          <small class="small target-value-hint" data-target-hint="transfer" style="display:block;margin-top:3px;color:#059669;font-weight:700"></small>
+        </div>
       </div>
-      <div><label style="font-size:10px">تسديد الديون (%) 🤝</label><input id="target-debt-pct" type="number" min="0" max="100" placeholder="مثال: 10"></div>
+      <div>
+        <label style="font-size:10px">تسديد الديون (%) 🤝</label>
+        <input id="target-debt-pct" type="number" min="0" max="100" placeholder="مثال: 10" oninput="renderTargetValuesPreview()">
+        <small class="small target-value-hint" data-target-hint="debt" style="display:block;margin-top:3px;color:#059669;font-weight:700"></small>
+      </div>
+
+      <div id="target-values-summary" class="panel stack" style="background:#ecfdf5;border-color:#a7f3d0;font-size:11px;gap:5px"></div>
+
       <button type="button" class="btn btn-primary" onclick="saveTargetPercentages()" style="padding:8px">حفظ المستهدفات 🎯</button>
       <div class="field-note">تحدد هذه النسب الخطة المالية لمقارنتها مع الأداء الفعلي بالدورة الحالية.</div>
     </div>
   </div>
 
-  <!-- 3. تصنيفات المصروفات -->
   <div class="acc-item" id="acc-categories">
     <div class="acc-header" onclick="toggleAccordion('acc-categories')"><span>🏷️ إدارة تصنيفات المصروفات</span><span class="acc-icon">▼</span></div>
     <div class="acc-body stack">
@@ -400,7 +413,6 @@ tbody tr:last-child td:last-child{border-bottom-left-radius:10px}
     </div>
   </div>
 
-  <!-- 4. الأسماء والجهات -->
   <div class="acc-item" id="acc-people">
     <div class="acc-header" onclick="toggleAccordion('acc-people')"><span>👥 قائمة الأسماء والجهات</span><span class="acc-icon">▼</span></div>
     <div class="acc-body stack">
@@ -409,7 +421,6 @@ tbody tr:last-child td:last-child{border-bottom-left-radius:10px}
     </div>
   </div>
 
-  <!-- 5. النسخ الاحتياطي والاستعادة -->
   <div class="acc-item" id="acc-backup">
     <div class="acc-header" onclick="toggleAccordion('acc-backup')"><span>💾 النسخ الاحتياطي والصيانة</span><span class="acc-icon">▼</span></div>
     <div class="acc-body stack">
@@ -529,7 +540,6 @@ function writeDateParts(prefix,iso){
  if($(prefix+"-year"))$(prefix+"-year").value=Number(y);
 }
 
-/* إدارة النسب المستهدفة الخمسة */
 function getTargetPercentages(){
  const saved = localStorage.getItem(TARGET_PCT_KEY);
  if(saved){try{return JSON.parse(saved)}catch{}}
@@ -545,6 +555,7 @@ function saveTargetPercentages(){
  const data = {fixed, regular, personal, transfer, debt};
  localStorage.setItem(TARGET_PCT_KEY, JSON.stringify(data));
  showToast("تم حفظ النسب المستهدفة للميزانية ✅");
+ renderTargetValuesPreview();
  renderFinancialComparison();
 }
 
@@ -555,6 +566,63 @@ function loadTargetPercentages(){
  if($("target-personal-pct"))$("target-personal-pct").value = p.personal;
  if($("target-transfer-pct"))$("target-transfer-pct").value = p.transfer;
  if($("target-debt-pct"))$("target-debt-pct").value = p.debt;
+}
+
+async function renderTargetValuesPreview(){
+  try{
+    const records = await allTransactions();
+    const cycles  = getAllSalaryCycles(records);
+    const current = cycles.length ? cycles[cycles.length - 1] : null;
+    const income  = current ? totalIncomeFor(records, current) : 0;
+
+    const pct = {
+      fixed:    Number($("target-fixed-pct")?.value)    || 0,
+      regular:  Number($("target-regular-pct")?.value)  || 0,
+      personal: Number($("target-personal-pct")?.value) || 0,
+      transfer: Number($("target-transfer-pct")?.value) || 0,
+      debt:     Number($("target-debt-pct")?.value)     || 0
+    };
+
+    Object.entries(pct).forEach(([key, val])=>{
+      const hint = document.querySelector(`[data-target-hint="${key}"]`);
+      if(!hint) return;
+      if(val <= 0 || income <= 0){
+        hint.textContent = "";
+        hint.className = "small target-value-hint";
+        return;
+      }
+      const amount = income * (val / 100);
+      hint.textContent = `≈ ${money(amount)} من دخل الدورة (${money(income)})`;
+      hint.className = "small target-value-hint good";
+    });
+
+    const summary = $("target-values-summary");
+    if(!summary) return;
+
+    if(!current || income <= 0){
+      summary.innerHTML = `<span class="small">لا توجد دورة راتب حالية مسجّلة — سجّل راتبًا أساسيًا لتظهر القيم.</span>`;
+      return;
+    }
+
+    const totalPct = Object.values(pct).reduce((s,v)=>s+v,0);
+    const totalAmount = income * (totalPct / 100);
+    const remaining = income - totalAmount;
+
+    let warn = "";
+    if(totalPct > 100) warn = `<div class="small bad">⚠️ مجموع النسب (${totalPct}%) تجاوز 100% — المستهدفات أكبر من دخل الدورة!</div>`;
+    else if(totalPct === 100) warn = `<div class="small warning">⚠️ مجموع النسب 100% — لا توجد مساحة للادخار.</div>`;
+    else warn = `<div class="small good">✅ المتبقي كادخار محتمل: ${money(remaining)}</div>`;
+
+    summary.innerHTML = `
+      <div class="small" style="color:#065f46;font-weight:700;border-bottom:1px dashed #a7f3d0;padding-bottom:5px">📊 القيم محسوبة على دخل الدورة الحالية فقط</div>
+      <div class="row-between"><span>📅 دخل الدورة الحالية:</span><strong>${money(income)}</strong></div>
+      <div class="row-between" style="border-top:1px dashed #a7f3d0;padding-top:5px"><span>🧮 مجموع النسب:</span><strong>${totalPct}%</strong></div>
+      <div class="row-between"><span>💰 القيمة الإجمالية للمستهدفات:</span><strong>${money(totalAmount)}</strong></div>
+      ${warn}
+    `;
+  }catch(e){
+    console.warn("renderTargetValuesPreview:", e);
+  }
 }
 
 function getSafetyCap(){return Number(localStorage.getItem(SAFETY_CAP_KEY))||150}
@@ -681,7 +749,6 @@ function addBeneficiary(){
  calculateExchange();
 }
 
-/* تم تعديلها: تجمع فقط الصفوف الصالحة (اسم + مبلغ > 0) */
 function calculateExchange(){
  const totalKwd=Number($("total-kwd")?.value)||0;
  let totalEgp=0;
@@ -722,7 +789,7 @@ function switchMainView(view){
  ["dashboard","reports","backup"].forEach(v=>{const btn=$("nav-"+v);if(btn)btn.classList.toggle("active",v===navTarget)});
  if(view==="dashboard")refreshDashboard();
  if(view==="reports")switchFinanceTab(currentFinanceTab);
- if(view==="backup"){renderExpenseCatsManageList();renderPersonsManageList();loadTargetPercentages()}
+ if(view==="backup"){renderExpenseCatsManageList();renderPersonsManageList();loadTargetPercentages();renderTargetValuesPreview()}
  window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -774,7 +841,6 @@ async function saveTransaction(){
    const totalKwd=Number($("total-kwd").value);
    if(!Number.isFinite(totalKwd)||totalKwd<=0){showToast("أدخل إجمالي المبلغ المدفوع.");return}
    txData.totalKwd=totalKwd;
-   /* جمع الصفوف الصالحة فقط (اسم + مبلغ > 0) */
    const bensRaw=[];
    document.querySelectorAll(".beneficiary").forEach(row=>{
     const name=row.querySelector(".beneficiary-name-select").value;
@@ -835,13 +901,12 @@ function resetInputForm(){
  if($("is-personal-purchase"))$("is-personal-purchase").checked=false;
  $("tx-time").value="";
  $("beneficiaries-list").innerHTML="";addBeneficiary();
- /* إعادة تعيين التاريخ لليوم الحالي بدلًا من الإبقاء على تاريخ التعديل القديم */
  writeDateParts("tx", todayISO());
  initDates();
 }
 
 function cancelEdit(){resetInputForm();switchMainView('dashboard')}
-async function refreshAllViews(optionalTxs){const txs=optionalTxs||await allTransactions();$("backup-count").textContent=txs.length;$("last-saved").textContent=new Date().toLocaleTimeString("en-US");await refreshDashboard(txs)}
+async function refreshAllViews(optionalTxs){const txs=optionalTxs||await allTransactions();$("backup-count").textContent=txs.length;$("last-saved").textContent=new Date().toLocaleTimeString("en-US");await refreshDashboard(txs);renderTargetValuesPreview()}
 
 async function refreshDashboard(preloadedTxs){
  const txs=preloadedTxs||await allTransactions();
@@ -1325,7 +1390,6 @@ async function exportCompareExcel(){
   header.push(`إجمالي كل الدورات (${totalGrandDays} يوم)`);
   rows.push(header);
 
-  /* التعديل: صف 6 أصبح "المسدد من الديون" ويقارن بالمسدد، وصف 7 يستخدم analysisType */
   const pillars=[
     {name:"1. إجمالي الدخل",fn:(r,p)=>totalIncomeFor(r,p)},
     {name:"2. المصروفات الثابتة",fn:(r,p)=>totalFixedExpenseFor(r,p)},
@@ -1702,8 +1766,6 @@ function switchFinanceTab(tab){
  }
 }
 
-/* ============ دوال الحساب (معدّلة لدقة القيم) ============ */
-
 function totalIncomeFor(records,p){
  return records.filter(r=>inPeriod(r,p)).reduce((s,r)=>(r.type==="income"||isCreditorEntry(r))?s+realAmount(r):s,0);
 }
@@ -1716,7 +1778,6 @@ function totalRegularExpenseFor(records,p){
  return records.filter(r=>inPeriod(r,p)&&r.type==="expense"&&!r.isFixed&&!r.isPersonalPurchase&&r.category!=="أدوات ومشتريات شخصية"&&r.category!=="نثريات ومتفرقات").reduce((s,r)=>s+realAmount(r),0);
 }
 
-/* تم التعديل: يستثني r.isFixed لتفادي الازدواج مع الثابت */
 function totalPersonalPurchasesFor(records,p){
  return records.filter(r=>inPeriod(r,p)&&r.type==="expense"&&!r.isFixed&&(r.isPersonalPurchase||r.category==="أدوات ومشتريات شخصية"||r.category==="نثريات ومتفرقات")).reduce((s,r)=>s+realAmount(r),0);
 }
@@ -1735,7 +1796,6 @@ function totalDebtNetFor(records,p){
  return paid-owed;
 }
 
-/* تم التعديل: يستقبل analysisType اختياريًا (default = all) لكي لا يتأثر بكارت الفلتر في لوحة التحكم */
 function totalExpenseFor(records,p,analysisType){
  const type = analysisType || "all";
  return records.filter(r=>inPeriod(r,p)).reduce((s,r)=>{
@@ -1746,14 +1806,12 @@ function totalExpenseFor(records,p,analysisType){
  },0);
 }
 
-/* helper: هل الحركة "شخصية"؟ (تستخدم في جدول التصنيفات) */
 function isPersonalTx(r){
  return !r.isFixed && (r.isPersonalPurchase || r.category==="أدوات ومشتريات شخصية" || r.category==="نثريات ومتفرقات");
 }
 
 async function getAllForFinance(){return allTransactions()}
 
-/* تم التعديل: يرجع null بدل 0 عندما الأساس = 0 */
 function percent(n,base){return base>0?(n/base)*100:null}
 function formatPct(p){return p===null?"—":p.toFixed(1)+"%";}
 
@@ -1775,7 +1833,6 @@ function getFilteredCycles(records){
  return allCycles;
 }
 
-/* ============ renderFinancialComparison (نسخة معدّلة بالكامل) ============ */
 async function renderFinancialComparison(){
  try{
   const records = await getAllForFinance();
@@ -1785,7 +1842,6 @@ async function renderFinancialComparison(){
   const analysisType = $("compare-analysis-type")?.value || "all";
   const targetPct = getTargetPercentages();
 
-  // حساب الأيام بشكل دقيق (تواريخ فريدة)
   const uniqueDays = new Set();
   activeCycles.forEach(c => {
     let cur = c.start;
@@ -1826,7 +1882,6 @@ async function renderFinancialComparison(){
       : `عرض ${activeCycles.length} دورة (${grandDays} يوم) · تحليل ومقارنة دقيقة`;
   }
 
-  // التنبيهات الذكية (مع إضافة تنبيه المصروفات العادية)
   const alertContainer = $("smart-alerts-container");
   if(alertContainer) {
     let alertHtml = "";
@@ -1834,22 +1889,35 @@ async function renderFinancialComparison(){
       const curCycle = activeCycles[0];
       const curInc = totalIncomeFor(records, curCycle);
       if(curInc > 0) {
-        const curFixedPct   = percent(totalFixedExpenseFor(records, curCycle), curInc);
-        const curRegularPct = percent(totalRegularExpenseFor(records, curCycle), curInc);
-        const curPersonalPct= percent(totalPersonalPurchasesFor(records, curCycle), curInc);
-        const curTransferPct= percent(totalTransferFor(records, curCycle), curInc);
-        const curDebtPct    = percent(totalDebtPaidFor(records, curCycle), curInc);
+        const curFixedAmt    = totalFixedExpenseFor(records, curCycle);
+        const curRegularAmt  = totalRegularExpenseFor(records, curCycle);
+        const curPersonalAmt = totalPersonalPurchasesFor(records, curCycle);
+        const curTransferAmt = totalTransferFor(records, curCycle);
+        const curDebtAmt     = totalDebtPaidFor(records, curCycle);
+
+        const curFixedPct    = percent(curFixedAmt, curInc);
+        const curRegularPct  = percent(curRegularAmt, curInc);
+        const curPersonalPct = percent(curPersonalAmt, curInc);
+        const curTransferPct = percent(curTransferAmt, curInc);
+        const curDebtPct     = percent(curDebtAmt, curInc);
+
+        const tAmt = (key)=> curInc * ((targetPct[key]||0) / 100);
 
         if(curTransferPct !== null && curTransferPct > targetPct.transfer)
-          alertHtml += `<div class="hint" style="background:#fff1f2; border-color:#fecdd3; color:#be123c; font-weight:700">⚠️ <strong>تنبيه التحويلات:</strong> الفعلي (${curTransferPct.toFixed(1)}%) تجاوز المستهدف (${targetPct.transfer}%).</div>`;
+          alertHtml += `<div class="hint" style="background:#fff1f2; border-color:#fecdd3; color:#be123c; font-weight:700">⚠️ <strong>تنبيه التحويلات:</strong> الفعلي ${curTransferPct.toFixed(1)}% (${money(curTransferAmt)}) تجاوز المستهدف ${targetPct.transfer}% (${money(tAmt('transfer'))}).</div>`;
+
         if(curPersonalPct !== null && curPersonalPct > targetPct.personal)
-          alertHtml += `<div class="hint" style="background:#fff1f2; border-color:#fecdd3; color:#be123c; font-weight:700">🛍️ <strong>تنبيه المشتريات الشخصية:</strong> الفعلي (${curPersonalPct.toFixed(1)}%) تجاوز المستهدف (${targetPct.personal}%).</div>`;
+          alertHtml += `<div class="hint" style="background:#fff1f2; border-color:#fecdd3; color:#be123c; font-weight:700">🛍️ <strong>تنبيه المشتريات الشخصية:</strong> الفعلي ${curPersonalPct.toFixed(1)}% (${money(curPersonalAmt)}) تجاوز المستهدف ${targetPct.personal}% (${money(tAmt('personal'))}).</div>`;
+
         if(curFixedPct !== null && curFixedPct > targetPct.fixed)
-          alertHtml += `<div class="hint" style="background:#fffbeb; border-color:#fde68a; color:#b45309; font-weight:700">📌 المصروفات الثابتة (${curFixedPct.toFixed(1)}%) تجاوزت المستهدف (${targetPct.fixed}%).</div>`;
+          alertHtml += `<div class="hint" style="background:#fffbeb; border-color:#fde68a; color:#b45309; font-weight:700">📌 المصروفات الثابتة ${curFixedPct.toFixed(1)}% (${money(curFixedAmt)}) تجاوزت المستهدف ${targetPct.fixed}% (${money(tAmt('fixed'))}).</div>`;
+
         if(curRegularPct !== null && curRegularPct > targetPct.regular)
-          alertHtml += `<div class="hint" style="background:#fffbeb; border-color:#fde68a; color:#b45309; font-weight:700">📊 <strong>تنبيه المصروفات العادية:</strong> الفعلي (${curRegularPct.toFixed(1)}%) تجاوز المستهدف (${targetPct.regular}%).</div>`;
+          alertHtml += `<div class="hint" style="background:#fffbeb; border-color:#fde68a; color:#b45309; font-weight:700">📊 <strong>تنبيه المصروفات العادية:</strong> الفعلي ${curRegularPct.toFixed(1)}% (${money(curRegularAmt)}) تجاوز المستهدف ${targetPct.regular}% (${money(tAmt('regular'))}).</div>`;
+
         if(curDebtPct !== null && curDebtPct > targetPct.debt)
-          alertHtml += `<div class="hint" style="background:#fffbeb; border-color:#fde68a; color:#b45309; font-weight:700">🤝 <strong>تنبيه الديون:</strong> المسدد (${curDebtPct.toFixed(1)}%) تجاوز المستهدف (${targetPct.debt}%).</div>`;
+          alertHtml += `<div class="hint" style="background:#fffbeb; border-color:#fde68a; color:#b45309; font-weight:700">🤝 <strong>تنبيه الديون:</strong> المسدد ${curDebtPct.toFixed(1)}% (${money(curDebtAmt)}) تجاوز المستهدف ${targetPct.debt}% (${money(tAmt('debt'))}).</div>`;
+
         if(!alertHtml)
           alertHtml = `<div class="hint" style="background:#ecfdf5; border-color:#a7f3d0; color:#065f46; font-weight:700">✅ <strong>أداء ممتاز:</strong> جميع المصروفات ضمن النسب المستهدفة.</div>`;
       }
@@ -1857,7 +1925,6 @@ async function renderFinancialComparison(){
     alertContainer.innerHTML = alertHtml;
   }
 
-  // MoM
   const allCycles = getAllSalaryCycles(records);
   let momComparisonHtml = "";
   if(isSingleCurrentCycle && allCycles.length >= 2) {
@@ -1921,8 +1988,10 @@ async function renderFinancialComparison(){
       let targetText = "";
       if(row.targetKey && targetPct[row.targetKey] !== undefined) {
         const tVal = targetPct[row.targetKey];
+        const targetAmount = inc * (tVal / 100);
         const exceeded = actPct !== null && actPct > tVal;
-        targetText = `<br><small class="${exceeded?'bad':'good'}" style="font-size:9px">مستهدف: ${tVal}% | فعلي: ${actPct===null?'—':actPct.toFixed(1)+'%'}</small>`;
+        const actualStr = actPct === null ? "—" : `${actPct.toFixed(1)}% (${money(val)})`;
+        targetText = `<br><small class="${exceeded?'bad':'good'}" style="font-size:9px">مستهدف: ${tVal}% (${money(targetAmount)}) | فعلي: ${actualStr}</small>`;
       }
       html += `<td class="amount">${money(val)}<br><small class="small">اليومي: ${daily} د.ك${targetText}</small></td>`;
     });
@@ -1936,7 +2005,6 @@ async function renderFinancialComparison(){
   html += `<div class="stack" style="margin-top:12px">
     <div class="compare-group-title"><span>ثانياً: المقارنة التفصيلية حسب التصنيف والأطراف</span></div>`;
 
-  // جدول التصنيفات (بفلترة personal)
   if(analysisType==="all" || analysisType==="personal") {
     const activeCatsSet = new Set();
     activeCycles.forEach(c => {
@@ -1976,7 +2044,6 @@ async function renderFinancialComparison(){
     html += `</tbody></table></div></div>`;
   }
 
-  // جدول التحويلات
   if(analysisType==="all" || analysisType==="transfers") {
     const set = new Set();
     activeCycles.forEach(c => {
@@ -2021,7 +2088,6 @@ async function renderFinancialComparison(){
     html += `</tbody></table></div></div>`;
   }
 
-  // جدول الديون (جديد)
   if(analysisType==="all" || analysisType==="debts") {
     const set = new Set();
     activeCycles.forEach(c => {
@@ -2059,7 +2125,6 @@ async function renderFinancialComparison(){
 
   html += `</div>`;
 
-  // الخلاصة
   const totalPaid = activeCycles.reduce((s,c)=>s+totalDebtPaidFor(records,c),0);
   const totalOwed = activeCycles.reduce((s,c)=>
     s + records.filter(r => inPeriod(r,c) && (isCreditorEntry(r)||isOpeningEntry(r)))
